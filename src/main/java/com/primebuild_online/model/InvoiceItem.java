@@ -26,7 +26,6 @@ public class InvoiceItem {
     @Column(name = "description")
     private String description;
 
-    // Relationships
     @Column(name = "invoice_id", nullable = false)
     private Long invoiceId;
 

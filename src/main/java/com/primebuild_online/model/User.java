@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Table(name = "user")
 public class User {
@@ -40,10 +41,4 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    // Constructors
-    public User() {
-        this.createdDate = LocalDateTime.now();
-        this.isActive = true;
-        this.role = "ADMIN";
-    }
 }

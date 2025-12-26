@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,13 +16,15 @@ public class FeatureType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "feature_name")
-    private String featureName;  // "Socket", "Memory Type", "Form Factor", "Power Connector"
+    @Column(name = "feature_type_name")
+    private String featureTypeName;
 
-    // Relationships
-    @OneToMany(mappedBy = "featureType")
-    private List<Feature> features;
 
     @OneToMany(mappedBy = "featureType")
+    @JsonIgnore
+    private List<Feature> featureList;
+
+    @OneToMany(mappedBy = "featureType")
+    @JsonIgnore
     private List<ComponentFeature> componentFeatures;
 }

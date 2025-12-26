@@ -6,10 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "pc_build")
-public class PcBuild {
+@Table(name = "build")
+public class Build {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,33 +30,16 @@ public class PcBuild {
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
 
-    @Column(name = "is_public")
-    private Boolean isPublic;
-
     @Column(name = "build_status")
     private String buildStatus; // "DRAFT", "COMPLETED", "COMPATIBLE", "INCOMPATIBLE"
 
-    // Relationships
     @Column(name = "customer_id")
     private Long customerId;
+
+    @OneToMany(mappedBy = "build", cascade = CascadeType.ALL)
+    private List<BuildItem> buildItems;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", insertable = false, updatable = false)
     private Customer customer;
-
-    @ManyToMany
-    @JoinTable(
-            name = "pc_build_items",
-            joinColumns = @JoinColumn(name = "pc_build_id"),
-            inverseJoinColumns = @JoinColumn(name = "item_id")
-    )
-    private List<Item> items;
-
-    // Constructors
-    public PcBuild() {
-        this.createdDate = LocalDateTime.now();
-        this.lastModified = LocalDateTime.now();
-        this.isPublic = false;
-        this.buildStatus = "DRAFT";
-    }
 }

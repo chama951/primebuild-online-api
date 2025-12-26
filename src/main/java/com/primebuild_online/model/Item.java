@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -20,14 +21,12 @@ public class Item {
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
 
-    @Column(name = "component_id")
-    private Long componentId;      // Links to Component table
-
-    // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "component_id", insertable = false, updatable = false)
+    @JoinColumn(name = "component_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Component component;
 
-    @OneToMany(mappedBy = "item")
-    private List<ItemFeature> itemFeatures;
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    private List<BuildItem> buildItems;
+
 }

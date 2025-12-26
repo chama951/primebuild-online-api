@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -17,10 +18,11 @@ public class Component {
     @Column(name = "component_name", nullable = false)
     private String compName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
 
-    // Relationships
     @OneToMany(mappedBy = "component")
+    @JsonIgnore
     private List<Item> itemList;
 
     @OneToMany(mappedBy = "component")
+    @JsonIgnore
     private List<ComponentFeature> componentFeatureList;
 }

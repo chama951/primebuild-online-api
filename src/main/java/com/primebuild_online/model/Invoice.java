@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Table(name = "invoice")
@@ -41,7 +42,6 @@ public class Invoice {
     @Column(name = "billing_address")
     private String billingAddress;
 
-    // Relationships
     @Column(name = "customer_id", nullable = false)
     private Long customerId;
 
@@ -54,24 +54,9 @@ public class Invoice {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pc_build_id", insertable = false, updatable = false)
-    private PcBuild pcBuild;
+    private Build build;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
     private List<InvoiceItem> invoiceItems;
 
-    // Constructors
-    public Invoice() {
-        this.invoiceDate = LocalDateTime.now();
-        this.status = "DRAFT";
-        this.subtotal = 0.0;
-        this.discountAmount = 0.0;
-        this.totalAmount = 0.0;
-    }
-
-    public Invoice(Long customerId, Long pcBuildId) {
-        this();
-        this.customerId = customerId;
-        this.pcBuildId = pcBuildId;
-//        this.invoiceNumber = generateInvoiceNumber();
-    }
 }

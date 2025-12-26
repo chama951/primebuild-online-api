@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Table(name = "customer")
@@ -44,13 +45,7 @@ public class Customer {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    // Relationships
     @OneToMany(mappedBy = "customer")
-    private List<PcBuild> pcBuilds;
+    private List<Build> builds;
 
-    // Constructors
-    public Customer() {
-        this.createdDate = LocalDateTime.now();
-        this.isActive = true;
-    }
 }

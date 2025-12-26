@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,18 +14,13 @@ public class ItemFeature {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "item_id")
-    private Long itemId;      // Links to Item
-
-    @Column(name = "feature_id")
-    private Long featureId;   // Links to Feature
-
-    // Relationships
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", insertable = false, updatable = false)
+    @JoinColumn(name = "item_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feature_id", insertable = false, updatable = false)
+    @JoinColumn(name = "feature_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Feature feature;
 }
