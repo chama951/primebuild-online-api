@@ -45,7 +45,7 @@ public class Customer {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    @OneToMany(mappedBy = "customer")
-    private List<Build> builds;
+//    @OneToMany(mappedBy = "customer")
+//    private List<Build> builds;
 
 }

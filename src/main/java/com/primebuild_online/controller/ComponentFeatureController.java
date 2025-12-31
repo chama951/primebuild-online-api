@@ -1,6 +1,6 @@
 package com.primebuild_online.controller;
 
-import com.primebuild_online.model.ComponentFeature;
+import com.primebuild_online.model.ComponentFeatureType;
 import com.primebuild_online.service.ComponentFeatureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,23 +17,23 @@ public class ComponentFeatureController {
     private ComponentFeatureService componentFeatureService;
 
     @PostMapping
-    public ResponseEntity<ComponentFeature> saveComponentFeature(@RequestBody ComponentFeature componentFeature) {
-        return new ResponseEntity<>(componentFeatureService.saveComponentFeature(componentFeature), HttpStatus.CREATED);
+    public ResponseEntity<ComponentFeatureType> saveComponentFeature(@RequestBody ComponentFeatureType componentFeatureType) {
+        return new ResponseEntity<>(componentFeatureService.saveComponentFeature(componentFeatureType), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<ComponentFeature> getAllComponentFeature() {
+    public List<ComponentFeatureType> getAllComponentFeature() {
         return componentFeatureService.getAllComponentFeature();
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<ComponentFeature> getComponentFeatureById(@PathVariable("id") long id, @RequestBody ComponentFeature componentFeature) {
-        return new ResponseEntity<ComponentFeature>(componentFeatureService.updateComponentFeature(componentFeature,id),HttpStatus.OK);
+    private ResponseEntity<ComponentFeatureType> getComponentFeatureById(@PathVariable("id") long id, @RequestBody ComponentFeatureType componentFeatureType) {
+        return new ResponseEntity<ComponentFeatureType>(componentFeatureService.updateComponentFeature(componentFeatureType,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ComponentFeature> getComponentFeatureTypeById(@PathVariable("id") long id){
-        return new ResponseEntity<ComponentFeature>(componentFeatureService.getComponentFeatureById(id),HttpStatus.OK);
+    public ResponseEntity<ComponentFeatureType> getComponentFeatureTypeById(@PathVariable("id") long id){
+        return new ResponseEntity<ComponentFeatureType>(componentFeatureService.getComponentFeatureById(id),HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

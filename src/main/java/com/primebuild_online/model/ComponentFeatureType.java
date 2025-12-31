@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 @Table(name = "component_feature")
-public class ComponentFeature {
+public class ComponentFeatureType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

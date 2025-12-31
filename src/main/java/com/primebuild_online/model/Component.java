@@ -16,7 +16,7 @@ public class Component {
     private Long id;
 
     @Column(name = "component_name", nullable = false)
-    private String compName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
+    private String componentName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
 
     @OneToMany(mappedBy = "component")
     @JsonIgnore
@@ -24,5 +24,5 @@ public class Component {
 
     @OneToMany(mappedBy = "component")
     @JsonIgnore
-    private List<ComponentFeature> componentFeatureList;
+    private List<ComponentFeatureType> componentFeatureTypeList;
 }

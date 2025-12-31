@@ -38,7 +38,7 @@ public class ComponentServiceImpl implements ComponentService {
     @Override
     public Component updateComponent(Component component, long id) {
         Component existingComponent = componentRepository.findById(id).orElseThrow(RuntimeException::new);
-        existingComponent.setCompName(component.getCompName());
+        existingComponent.setComponentName(component.getComponentName());
         componentRepository.save(existingComponent);
         return existingComponent;
     }

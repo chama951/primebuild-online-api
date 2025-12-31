@@ -16,5 +16,4 @@ public interface ItemService {
 
     void deleteItem(long id);
 
-    List<Feature> getItemFeature(Item item);
 }
