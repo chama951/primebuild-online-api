@@ -1,14 +1,11 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.Component;
-import com.primebuild_online.model.Feature;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +30,10 @@ public class ItemServiceImpl implements ItemService {
     public Item updateItem(Item item, long id) {
        Item existingItem = itemRepository.findById(id).orElseThrow(RuntimeException::new);
        existingItem.setItemName(item.getItemName());
+       existingItem.setManufacturer(item.getManufacturer());
        existingItem.setComponent(item.getComponent());
-       existingItem.setStockQuantity(item.getStockQuantity());
+       existingItem.setQuantity(item.getQuantity());
+       existingItem.setPrice(item.getPrice());
        itemRepository.save(existingItem);
        return existingItem;
     }
@@ -55,11 +54,4 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.deleteById(id);
     }
 
-    @Override
-    public List<Feature> getItemFeature(Item item) {
-        List<Feature> featureList = new ArrayList<>();
-        Component component = item.getComponent();
-//        featureList = item.getComponent().getComponentFeatureList();
-        return null;
-    }
 }

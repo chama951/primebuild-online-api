@@ -27,7 +27,7 @@ public class ComponentController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Component> getComponentById(@PathVariable("id") long id, @RequestBody Component component) {
+    private ResponseEntity<Component> updateComponentById(@PathVariable("id") long id, @RequestBody Component component) {
         return new ResponseEntity<Component>(componentService.updateComponent(component,id),HttpStatus.OK);
     }
 

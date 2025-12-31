@@ -2,7 +2,10 @@ package com.primebuild_online.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -29,9 +32,6 @@ public class User {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "role")
-    private String role; // "ADMIN", "SUPER_ADMIN"
-
     @Column(name = "is_active")
     private Boolean isActive;
 
@@ -40,5 +40,11 @@ public class User {
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private Set<UserRole> userRoles = new HashSet<>();
 
 }

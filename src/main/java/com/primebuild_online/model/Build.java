@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -15,12 +16,6 @@ public class Build {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "build_name")
-    private String buildName;
-
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "total_price")
     private Double totalPrice;
 
@@ -32,14 +27,14 @@ public class Build {
 
     @Column(name = "build_status")
     private String buildStatus; // "DRAFT", "COMPLETED", "COMPATIBLE", "INCOMPATIBLE"
+//
+//    @Column(name = "customer_id")
+//    private Long customerId;
 
-    @Column(name = "customer_id")
-    private Long customerId;
-
-    @OneToMany(mappedBy = "build", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "build", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<BuildItem> buildItems;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", insertable = false, updatable = false)
-    private Customer customer;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "customer_id")
+//    private Customer customer;
 }

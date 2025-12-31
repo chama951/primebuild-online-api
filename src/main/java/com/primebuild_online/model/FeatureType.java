@@ -26,5 +26,5 @@ public class FeatureType {
 
     @OneToMany(mappedBy = "featureType")
     @JsonIgnore
-    private List<ComponentFeature> componentFeatures;
+    private List<ComponentFeatureType> componentFeatureTypes;
 }

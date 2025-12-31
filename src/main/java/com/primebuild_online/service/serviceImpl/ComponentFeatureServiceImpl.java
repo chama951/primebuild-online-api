@@ -1,6 +1,6 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.ComponentFeature;
+import com.primebuild_online.model.ComponentFeatureType;
 import com.primebuild_online.repository.ComponentFeatureRepository;
 import com.primebuild_online.service.ComponentFeatureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,29 +16,29 @@ public class ComponentFeatureServiceImpl implements ComponentFeatureService {
     private ComponentFeatureRepository componentFeatureRepository;
 
     @Override
-    public ComponentFeature saveComponentFeature(ComponentFeature componentFeature){
-        componentFeature.setComponent(componentFeature.getComponent());
-        componentFeature.setFeatureType(componentFeature.getFeatureType());
-        return componentFeatureRepository.save(componentFeature);
+    public ComponentFeatureType saveComponentFeature(ComponentFeatureType componentFeatureType){
+        componentFeatureType.setComponent(componentFeatureType.getComponent());
+        componentFeatureType.setFeatureType(componentFeatureType.getFeatureType());
+        return componentFeatureRepository.save(componentFeatureType);
     }
 
     @Override
-    public List<ComponentFeature> getAllComponentFeature() {
+    public List<ComponentFeatureType> getAllComponentFeature() {
         return componentFeatureRepository.findAll();
     }
 
     @Override
-    public ComponentFeature updateComponentFeature(ComponentFeature componentFeature, long id) {
-        ComponentFeature existingComponentFeature = componentFeatureRepository.findById(id).orElseThrow(RuntimeException::new);
-        existingComponentFeature.setComponent(componentFeature.getComponent());
-        existingComponentFeature.setFeatureType(componentFeature.getFeatureType());
-        componentFeatureRepository.save(existingComponentFeature);
-        return existingComponentFeature;
+    public ComponentFeatureType updateComponentFeature(ComponentFeatureType componentFeatureType, long id) {
+        ComponentFeatureType existingComponentFeatureType = componentFeatureRepository.findById(id).orElseThrow(RuntimeException::new);
+        existingComponentFeatureType.setComponent(componentFeatureType.getComponent());
+        existingComponentFeatureType.setFeatureType(componentFeatureType.getFeatureType());
+        componentFeatureRepository.save(existingComponentFeatureType);
+        return existingComponentFeatureType;
     }
 
     @Override
-    public ComponentFeature getComponentFeatureById(long id) {
-        Optional<ComponentFeature> componentFeature = componentFeatureRepository.findById(id);
+    public ComponentFeatureType getComponentFeatureById(long id) {
+        Optional<ComponentFeatureType> componentFeature = componentFeatureRepository.findById(id);
         if (componentFeature.isPresent()) {
             return componentFeature.get();
         } else {
