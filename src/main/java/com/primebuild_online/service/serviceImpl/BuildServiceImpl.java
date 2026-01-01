@@ -11,7 +11,6 @@ import com.primebuild_online.repository.BuildRepository;
 import com.primebuild_online.service.BuildItemService;
 import com.primebuild_online.service.BuildService;
 import com.primebuild_online.service.ItemService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,15 +28,13 @@ public class BuildServiceImpl implements BuildService {
 
     List<BuildItem> buildItems = new ArrayList<>();
 
-    List<Item> items = new ArrayList<>();
+    private final BuildRepository buildRepository;
 
-    @Autowired
-    private BuildRepository buildRepository;
+    private final BuildItemRepository buildItemRepository;
 
-    @Autowired
-    private BuildItemRepository buildItemRepository;
-
-    public BuildServiceImpl(ItemService itemService, BuildItemService buildItemService) {
+    public BuildServiceImpl(ItemService itemService, BuildItemService buildItemService, BuildRepository buildRepository, BuildItemRepository buildItemRepository) {
+        this.buildRepository = buildRepository;
+        this.buildItemRepository = buildItemRepository;
         this.itemService = itemService;
         this.buildItemService = buildItemService;
     }
@@ -105,11 +102,6 @@ public class BuildServiceImpl implements BuildService {
             }
 
         }
-
-//        // Adding New Items
-//        if (!buildRequest.getItems().isEmpty()) {
-//            totalPrice = addNewItem(buildRequest, totalPrice, existingBuild);
-//        }
 
         return buildRepository.save(addNewItem(buildRequest.getItems(), totalPrice, existingBuild));
     }
