@@ -28,16 +28,20 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemList"})
     private Component component;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.MERGE, orphanRemoval = true)
     @JsonIgnore
     private List<BuildItem> buildItems;
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<ItemFeature> itemFeatures;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemList"})
     private Manufacturer manufacturer;
 
 

@@ -25,6 +25,5 @@ public class Manufacturer {
 
 
     @OneToMany(mappedBy = "manufacturer")
-    @JsonIgnore
     private List<Item> itemList;
 }

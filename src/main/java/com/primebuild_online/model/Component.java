@@ -19,7 +19,6 @@ public class Component {
     private String componentName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
 
     @OneToMany(mappedBy = "component")
-    @JsonIgnore
     private List<Item> itemList;
 
     @OneToMany(mappedBy = "component")
