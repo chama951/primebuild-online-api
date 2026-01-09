@@ -16,12 +16,12 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     private FeatureTypeRepository featureTypeRepository;
 
     @Override
-    public FeatureType saveFeatureType(FeatureType featureType){
+    public FeatureType saveFeatureType(FeatureType featureType) {
         return featureTypeRepository.save(featureType);
     }
 
     @Override
-    public List<FeatureType> getAllFeatureType(){
+    public List<FeatureType> getAllFeatureType() {
         return featureTypeRepository.findAll();
     }
 
@@ -46,7 +46,7 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     }
 
     @Override
-    public void deleteFeatureType(long id){
+    public void deleteFeatureType(long id) {
         featureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         featureTypeRepository.deleteById(id);
     }

@@ -1,6 +1,7 @@
 package com.primebuild_online.controller;
 
 import com.primebuild_online.model.Component;
+import com.primebuild_online.model.DTO.ComponentDTO;
 import com.primebuild_online.service.ComponentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class ComponentController {
     }
 
     @GetMapping
-    public List<Component> getAllComponent() {
+    public List<ComponentDTO> getAllComponent() {
         return componentService.getAllComponent();
     }
 
