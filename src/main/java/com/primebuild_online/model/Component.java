@@ -18,10 +18,10 @@ public class Component {
     @Column(name = "component_name", nullable = false)
     private String componentName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
 
-    @OneToMany(mappedBy = "component")
+    @OneToMany(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> itemList;
 
-    @OneToMany(mappedBy = "component")
+    @OneToMany(mappedBy = "component",  cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ComponentFeatureType> componentFeatureTypeList;
 }

@@ -43,20 +43,17 @@ public class BuildServiceImpl implements BuildService {
     public Build saveBuild(BuildRequestDTO buildRequest) {
         Build build = new Build();
         double totalPrice = 0;
-        List<BuildItem> buildItems = new ArrayList<>();
 
         build.setBuildStatus(buildRequest.getBuildStatus());
         build.setCreatedDate(LocalDateTime.now());
 
         Build savedBuildId = buildRepository.save(build);
 
-
         // Adding New Items
         if (!buildRequest.getItems().isEmpty()) {
             build = addNewItem(buildRequest.getItems(), totalPrice, savedBuildId);
         }
 
-        build.setBuildItems(buildItems);
         return buildRepository.save(build);
     }
 

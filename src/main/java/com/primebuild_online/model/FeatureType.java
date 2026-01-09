@@ -24,7 +24,7 @@ public class FeatureType {
     @JsonIgnore
     private List<Feature> featureList;
 
-    @OneToMany(mappedBy = "featureType")
+    @OneToMany(mappedBy = "featureType",  cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ComponentFeatureType> componentFeatureTypes;
 }

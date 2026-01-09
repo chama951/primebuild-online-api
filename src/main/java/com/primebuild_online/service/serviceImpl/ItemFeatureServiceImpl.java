@@ -51,6 +51,12 @@ public class ItemFeatureServiceImpl implements ItemFeatureSevice {
     }
 
     @Override
+    public void deleteAllItemFeaturesByItemId(long itemId) {
+        itemFeatureRepository.deleteByItemId(itemId);
+
+    }
+
+    @Override
     public void deleteItemFeature(long id) {
         itemFeatureRepository.findById(id).orElseThrow(RuntimeException::new);
         itemFeatureRepository.deleteById(id);

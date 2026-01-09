@@ -1,6 +1,7 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class Manufacturer {
     @Column(name = "manufacturer_name")
     private String manufacturerName;
 
-
-    @OneToMany(mappedBy = "manufacturer")
-    private List<Item> itemList;
+    @OneToMany(mappedBy = "manufacturer", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<ManufacturerItem> manufacturerItemList;
 }

@@ -24,7 +24,7 @@ public class Feature {
     @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private FeatureType featureType;
 
-    @OneToMany(mappedBy = "feature")
+    @OneToMany(mappedBy = "feature", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ItemFeature> itemFeatures;
 }

@@ -1,8 +1,9 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.Item;
+import com.primebuild_online.model.*;
+import com.primebuild_online.model.DTO.ItemRequestDTO;
 import com.primebuild_online.repository.ItemRepository;
-import com.primebuild_online.service.ItemService;
+import com.primebuild_online.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +15,45 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private ManufacturerService manufacturerService;
+    @Autowired
+    private FeatureService featureService;
+    @Autowired
+    private ItemFeatureSevice itemFeatureSevice;
+    @Autowired
+    private ComponentService componentService;
 
     @Override
-    public Item saveItem(Item item){
+    public Item saveItem(ItemRequestDTO itemRequestDTO) {
+        Item item = new Item();
+        item.setItemName(itemRequestDTO.getItemName());
+        item.setQuantity(itemRequestDTO.getQuantity());
+        item.setPrice(itemRequestDTO.getPrice());
+
+        Component component = componentService.getComponentById(itemRequestDTO.getComponent().getId());
+        item.setComponent(component);
+
         item.setComponent(item.getComponent());
+
+        Manufacturer manufacturer = manufacturerService.getManufacturerById(itemRequestDTO.getManufacturer().getId());
+        item.setManufacturer(manufacturer);
+
+        Item savedItem = itemRepository.save(item);
+
+        saveNewItemFeatures(savedItem,itemRequestDTO.getFeatureList());
+
         return itemRepository.save(item);
+    }
+
+    private void saveNewItemFeatures(Item item, List<Feature> featureList){
+        for (Feature featureRequest : featureList) {
+            Feature feature = featureService.getFeatureById(featureRequest.getId());
+            ItemFeature itemFeature = new ItemFeature();
+            itemFeature.setItem(item);
+            itemFeature.setFeature(feature);
+            itemFeatureSevice.saveItemFeature(itemFeature);
+        }
     }
 
     @Override
@@ -28,14 +63,36 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item updateItem(Item item, long id) {
-       Item existingItem = itemRepository.findById(id).orElseThrow(RuntimeException::new);
-       existingItem.setItemName(item.getItemName());
-       existingItem.setManufacturer(item.getManufacturer());
-       existingItem.setComponent(item.getComponent());
-       existingItem.setQuantity(item.getQuantity());
-       existingItem.setPrice(item.getPrice());
-       itemRepository.save(existingItem);
-       return existingItem;
+        Item existingItem = itemRepository.findById(id).orElseThrow(RuntimeException::new);
+        existingItem.setItemName(item.getItemName());
+        existingItem.setManufacturer(item.getManufacturer());
+        existingItem.setComponent(item.getComponent());
+        existingItem.setQuantity(item.getQuantity());
+        existingItem.setPrice(item.getPrice());
+        itemRepository.save(existingItem);
+        return existingItem;
+    }
+
+    @Override
+    public Item updateItemRequest(ItemRequestDTO itemRequestDTO, long id) {
+        Item existingItem = itemRepository.findById(id).orElseThrow(RuntimeException::new);
+        existingItem.setItemName(itemRequestDTO.getItemName());
+        existingItem.setQuantity(itemRequestDTO.getQuantity());
+        existingItem.setPrice(itemRequestDTO.getPrice());
+
+        Component component = componentService.getComponentById(itemRequestDTO.getComponent().getId());
+        existingItem.setComponent(component);
+
+        existingItem.setComponent(existingItem.getComponent());
+
+        Manufacturer manufacturer = manufacturerService.getManufacturerById(itemRequestDTO.getManufacturer().getId());
+        existingItem.setManufacturer(manufacturer);
+
+        itemFeatureSevice.deleteAllItemFeaturesByItemId(existingItem.getId());
+
+        saveNewItemFeatures(existingItem,itemRequestDTO.getFeatureList());
+
+        return itemRepository.save(existingItem);
     }
 
     @Override

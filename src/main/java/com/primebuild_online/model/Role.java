@@ -24,7 +24,7 @@ public class Role {
     @Column(name = "role_name", nullable = false)
     private String roleName;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role",  cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<UserRole> userRoles = new HashSet<>();
 
