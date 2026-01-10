@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,8 @@ public class ManufacturerItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemFeatures"})
+    @JsonIgnore
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
     private Manufacturer manufacturer;
 
 }

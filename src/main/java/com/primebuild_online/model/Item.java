@@ -42,7 +42,7 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemList"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
     private Manufacturer manufacturer;
 
 

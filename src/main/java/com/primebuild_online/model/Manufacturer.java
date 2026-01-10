@@ -25,6 +25,6 @@ public class Manufacturer {
     private String manufacturerName;
 
     @OneToMany(mappedBy = "manufacturer", cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<ManufacturerItem> manufacturerItemList = new ArrayList<>();
 }

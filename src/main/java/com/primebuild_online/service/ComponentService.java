@@ -9,7 +9,7 @@ public interface ComponentService {
 
     Component saveComponent(ComponentDTO componentDTO);
 
-    List<ComponentDTO> getAllComponent();
+    List<Component> getAllComponent();
 
     Component getComponentById(long id);
 

@@ -23,7 +23,7 @@ public class ComponentController {
     }
 
     @GetMapping
-    public List<ComponentDTO> getAllComponent() {
+    public List<Component> getAllComponent() {
         return componentService.getAllComponent();
     }
 
@@ -36,6 +36,7 @@ public class ComponentController {
     public ResponseEntity<Component> getComponentById(@PathVariable("id") long id){
         return new ResponseEntity<Component>(componentService.getComponentById(id),HttpStatus.OK);
     }
+
 
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteComponent(@PathVariable("id") long id){

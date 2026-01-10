@@ -21,6 +21,6 @@ public class ComponentFeatureType {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feature_type_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer" , "handler"})
     private FeatureType featureType;
 }

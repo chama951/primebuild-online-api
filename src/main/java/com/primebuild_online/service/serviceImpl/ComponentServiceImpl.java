@@ -3,7 +3,6 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.Component;
 import com.primebuild_online.model.ComponentFeatureType;
 import com.primebuild_online.model.DTO.ComponentDTO;
-import com.primebuild_online.model.Feature;
 import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.ComponentRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
@@ -12,7 +11,6 @@ import com.primebuild_online.service.FeatureTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,18 +55,8 @@ public class ComponentServiceImpl implements ComponentService {
     }
 
     @Override
-    public List<ComponentDTO> getAllComponent() {
-        List<Component> componentList = componentRepository.findAll();
-        List<ComponentDTO> componentDTOList = new ArrayList<>();
-
-        for (Component component : componentList) {
-            ComponentDTO componentDTO = new ComponentDTO();
-            componentDTO.setId(component.getId());
-            componentDTO.setComponentName(component.getComponentName());
-            componentDTOList.add(componentDTO);
-        }
-
-        return componentDTOList;
+    public List<Component> getAllComponent() {
+        return componentRepository.findAll();
     }
 
     @Override

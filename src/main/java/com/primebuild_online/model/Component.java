@@ -1,6 +1,7 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,6 @@ public class Component {
     private List<Item> itemList = new ArrayList<>();
 
     @OneToMany(mappedBy = "component",  cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component"})
     private List<ComponentFeatureType> componentFeatureTypeList = new ArrayList<>();
 }

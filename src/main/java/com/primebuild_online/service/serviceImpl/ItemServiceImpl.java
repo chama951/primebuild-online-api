@@ -23,6 +23,8 @@ public class ItemServiceImpl implements ItemService {
     private ItemFeatureSevice itemFeatureSevice;
     @Autowired
     private ComponentService componentService;
+    @Autowired
+    private ManufacturerItemService manufacturerItemService;
 
     @Override
     public Item saveItemRequest(ItemRequestDTO itemRequestDTO) {
@@ -46,10 +48,18 @@ public class ItemServiceImpl implements ItemService {
 
         Item savedItem = itemRepository.save(item);
 
+        ManufacturerItem manufacturerItem = new ManufacturerItem();
+        manufacturerItem.setItem(savedItem);
+        manufacturerItem.setManufacturer(manufacturer);
+
+        manufacturerItemService.saveManufacturerItem(manufacturerItem);
+
         saveNewItemFeatures(savedItem, itemRequestDTO.getFeatureList());
 
         return savedItem;
     }
+
+
 
 
     private void saveNewItemFeatures(Item item, List<Feature> featureList) {
