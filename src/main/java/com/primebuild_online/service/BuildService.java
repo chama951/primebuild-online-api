@@ -11,7 +11,7 @@ public interface BuildService {
 
     Build saveBuild(BuildRequestDTO buildRequest);
 
-    Build updateBuild(BuildRequestDTO buildRequestDTO, long id);
+    Build updateBuild(BuildRequestDTO buildRequestDTO, Long id);
 
     List<Build> getAllBuild();
 
@@ -19,5 +19,4 @@ public interface BuildService {
 
     Build getBuildById(long id);
 
-    Build addNewItems(ItemListDTO items, long id);
 }

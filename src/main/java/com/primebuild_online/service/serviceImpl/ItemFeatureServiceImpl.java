@@ -16,9 +16,6 @@ public class ItemFeatureServiceImpl implements ItemFeatureSevice {
     @Autowired
     private ItemFeatureRepository itemFeatureRepository;
 
-    @Autowired
-    private FeatureRepository featureRepository;
-
     @Override
     public ItemFeature saveItemFeature(ItemFeature itemFeature) {
         itemFeature.setItem(itemFeature.getItem());
@@ -51,7 +48,7 @@ public class ItemFeatureServiceImpl implements ItemFeatureSevice {
     }
 
     @Override
-    public void deleteAllItemFeaturesByItemId(long itemId) {
+    public void deleteAllByItemId(long itemId) {
         itemFeatureRepository.deleteByItemId(itemId);
 
     }

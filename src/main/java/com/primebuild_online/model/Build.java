@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,7 +33,7 @@ public class Build {
 //    private Long customerId;
 
     @OneToMany(mappedBy = "build", cascade = CascadeType.MERGE, orphanRemoval = true)
-    private List<BuildItem> buildItems;
+    private List<BuildItem> buildItems = new ArrayList<>();
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "customer_id")

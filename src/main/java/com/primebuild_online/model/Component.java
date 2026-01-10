@@ -3,6 +3,8 @@ package com.primebuild_online.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,9 +21,9 @@ public class Component {
     private String componentName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
 
     @OneToMany(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item> itemList;
+    private List<Item> itemList = new ArrayList<>();
 
     @OneToMany(mappedBy = "component",  cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<ComponentFeatureType> componentFeatureTypeList;
+    private List<ComponentFeatureType> componentFeatureTypeList = new ArrayList<>();
 }

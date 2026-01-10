@@ -18,8 +18,8 @@ public class ComponentController {
     private ComponentService componentService;
 
     @PostMapping
-    public ResponseEntity<Component> saveComponent(@RequestBody Component component) {
-        return new ResponseEntity<>(componentService.saveComponent(component), HttpStatus.CREATED);
+    public ResponseEntity<Component> saveComponent(@RequestBody ComponentDTO componentDTO) {
+        return new ResponseEntity<>(componentService.saveComponent(componentDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,8 +28,8 @@ public class ComponentController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Component> updateComponentById(@PathVariable("id") long id, @RequestBody Component component) {
-        return new ResponseEntity<Component>(componentService.updateComponent(component,id),HttpStatus.OK);
+    private ResponseEntity<Component> updateComponentById(@PathVariable("id") long id, @RequestBody ComponentDTO componentDTO) {
+        return new ResponseEntity<Component>(componentService.updateComponentRequest(componentDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")

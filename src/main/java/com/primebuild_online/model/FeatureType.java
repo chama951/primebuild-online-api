@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,12 +20,11 @@ public class FeatureType {
     @Column(name = "feature_type_name")
     private String featureTypeName;
 
-
-    @OneToMany(mappedBy = "featureType")
+    @OneToMany(mappedBy = "featureType", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Feature> featureList;
+    private List<Feature> featureList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "featureType",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "featureType", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<ComponentFeatureType> componentFeatureTypes;
+    private List<ComponentFeatureType> componentFeatureTypes = new ArrayList<>();
 }

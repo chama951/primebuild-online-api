@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -18,5 +19,5 @@ public class ItemRequestDTO {
     private Double price;
     private Component component;
     private Manufacturer manufacturer;
-    private List<Feature> featureList;
+    private List<Feature> featureList = new ArrayList<>();
 }

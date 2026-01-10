@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,11 +34,11 @@ public class Item {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.MERGE, orphanRemoval = true)
     @JsonIgnore
-    private List<BuildItem> buildItems;
+    private List<BuildItem> buildItems = new ArrayList<>();
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.MERGE, orphanRemoval = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
-    private List<ItemFeature> itemFeatures;
+    private List<ItemFeature> itemFeatures = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")

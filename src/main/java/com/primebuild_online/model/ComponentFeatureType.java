@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "component_feature")
+@Table(name = "component_feature_type")
 public class ComponentFeatureType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

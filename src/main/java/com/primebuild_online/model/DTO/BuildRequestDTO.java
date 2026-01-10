@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,6 +18,5 @@ public class BuildRequestDTO {
     private LocalDateTime createdDate;
     private LocalDateTime lastModified;
     private String buildStatus;
-    private List<BuildItem> buildItems;
-    private List<Item> items;
+    private List<Item> itemList = new ArrayList<>();
 }

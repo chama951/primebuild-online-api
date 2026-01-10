@@ -13,7 +13,7 @@ public interface ItemFeatureSevice {
 
     ItemFeature getItemFeatureById(long id);
 
-    void deleteAllItemFeaturesByItemId(long itemId);
+    void deleteAllByItemId(long itemId);
 
     void deleteItemFeature(long id);
 

@@ -1,13 +1,12 @@
 package com.primebuild_online.service;
 
 import com.primebuild_online.model.DTO.ItemRequestDTO;
-import com.primebuild_online.model.Feature;
 import com.primebuild_online.model.Item;
 
 import java.util.List;
 
 public interface ItemService {
-    Item saveItem(ItemRequestDTO itemRequestDTO);
+    Item saveItemRequest(ItemRequestDTO itemRequestDTO);
 
     List<Item> getAllItem();
 
@@ -19,4 +18,5 @@ public interface ItemService {
 
     void deleteItem(long id);
 
+    void saveItem(Item itemByBuildItem);
 }

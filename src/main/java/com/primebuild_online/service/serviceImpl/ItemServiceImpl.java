@@ -25,8 +25,15 @@ public class ItemServiceImpl implements ItemService {
     private ComponentService componentService;
 
     @Override
-    public Item saveItem(ItemRequestDTO itemRequestDTO) {
-        Item item = new Item();
+    public Item saveItemRequest(ItemRequestDTO itemRequestDTO) {
+        Item newItem = new Item();
+
+        newItem = itemSetValues(itemRequestDTO, newItem);
+
+        return itemRepository.save(newItem);
+    }
+
+    public Item itemSetValues(ItemRequestDTO itemRequestDTO, Item item) {
         item.setItemName(itemRequestDTO.getItemName());
         item.setQuantity(itemRequestDTO.getQuantity());
         item.setPrice(itemRequestDTO.getPrice());
@@ -34,25 +41,27 @@ public class ItemServiceImpl implements ItemService {
         Component component = componentService.getComponentById(itemRequestDTO.getComponent().getId());
         item.setComponent(component);
 
-        item.setComponent(item.getComponent());
-
         Manufacturer manufacturer = manufacturerService.getManufacturerById(itemRequestDTO.getManufacturer().getId());
         item.setManufacturer(manufacturer);
 
         Item savedItem = itemRepository.save(item);
 
-        saveNewItemFeatures(savedItem,itemRequestDTO.getFeatureList());
+        saveNewItemFeatures(savedItem, itemRequestDTO.getFeatureList());
 
-        return itemRepository.save(item);
+        return savedItem;
     }
 
-    private void saveNewItemFeatures(Item item, List<Feature> featureList){
-        for (Feature featureRequest : featureList) {
-            Feature feature = featureService.getFeatureById(featureRequest.getId());
-            ItemFeature itemFeature = new ItemFeature();
-            itemFeature.setItem(item);
-            itemFeature.setFeature(feature);
-            itemFeatureSevice.saveItemFeature(itemFeature);
+
+    private void saveNewItemFeatures(Item item, List<Feature> featureList) {
+        if (featureList != null && !featureList.isEmpty()) {
+            itemFeatureSevice.deleteAllByItemId(item.getId());
+            for (Feature featureRequest : featureList) {
+                Feature feature = featureService.getFeatureById(featureRequest.getId());
+                ItemFeature itemFeature = new ItemFeature();
+                itemFeature.setItem(item);
+                itemFeature.setFeature(feature);
+                itemFeatureSevice.saveItemFeature(itemFeature);
+            }
         }
     }
 
@@ -75,24 +84,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item updateItemRequest(ItemRequestDTO itemRequestDTO, long id) {
-        Item existingItem = itemRepository.findById(id).orElseThrow(RuntimeException::new);
-        existingItem.setItemName(itemRequestDTO.getItemName());
-        existingItem.setQuantity(itemRequestDTO.getQuantity());
-        existingItem.setPrice(itemRequestDTO.getPrice());
-
-        Component component = componentService.getComponentById(itemRequestDTO.getComponent().getId());
-        existingItem.setComponent(component);
-
-        existingItem.setComponent(existingItem.getComponent());
-
-        Manufacturer manufacturer = manufacturerService.getManufacturerById(itemRequestDTO.getManufacturer().getId());
-        existingItem.setManufacturer(manufacturer);
-
-        itemFeatureSevice.deleteAllItemFeaturesByItemId(existingItem.getId());
-
-        saveNewItemFeatures(existingItem,itemRequestDTO.getFeatureList());
-
-        return itemRepository.save(existingItem);
+        Item itemInDb = itemRepository.findById(id).orElseThrow(RuntimeException::new);
+        itemInDb = itemSetValues(itemRequestDTO, itemInDb);
+        return itemRepository.save(itemInDb);
     }
 
     @Override
@@ -109,6 +103,11 @@ public class ItemServiceImpl implements ItemService {
     public void deleteItem(long id) {
         itemRepository.findById(id).orElseThrow(RuntimeException::new);
         itemRepository.deleteById(id);
+    }
+
+    @Override
+    public void saveItem(Item itemByBuildItem) {
+        itemRepository.save(itemByBuildItem);
     }
 
 }

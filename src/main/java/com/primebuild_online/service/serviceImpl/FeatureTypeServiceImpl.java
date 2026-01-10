@@ -39,8 +39,6 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     public FeatureType updateFeatureType(FeatureType featureType, long id) {
         FeatureType existingFeatureType = featureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         existingFeatureType.setFeatureTypeName(featureType.getFeatureTypeName());
-        existingFeatureType.setFeatureList(featureType.getFeatureList());
-        existingFeatureType.setComponentFeatureTypes(featureType.getComponentFeatureTypes());
         featureTypeRepository.save(existingFeatureType);
         return existingFeatureType;
     }

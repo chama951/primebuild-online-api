@@ -2,8 +2,6 @@ package com.primebuild_online.controller;
 
 import com.primebuild_online.model.Build;
 import com.primebuild_online.model.DTO.BuildRequestDTO;
-import com.primebuild_online.model.DTO.ItemListDTO;
-import com.primebuild_online.model.Item;
 import com.primebuild_online.service.BuildService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,11 +17,6 @@ public class BuildController {
     @Autowired
     private BuildService buildService;
 
-    @PutMapping("/{id}/items")
-    public  ResponseEntity<Build> addNewItems(@PathVariable("id") long id, @RequestBody ItemListDTO items) {
-        return new ResponseEntity<>(buildService.addNewItems(items,id),HttpStatus.OK);
-    }
-
     @PostMapping
     public ResponseEntity<Build> saveBuild(@RequestBody BuildRequestDTO buildRequest){
         return new ResponseEntity<>(buildService.saveBuild(buildRequest), HttpStatus.CREATED);
@@ -35,7 +28,7 @@ public class BuildController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Build> updateBuildById(@PathVariable("id") long id, @RequestBody BuildRequestDTO buildRequest) {
+    public ResponseEntity<Build> updateBuildById(@PathVariable("id") Long id, @RequestBody BuildRequestDTO buildRequest) {
         return new ResponseEntity<>(buildService.updateBuild(buildRequest,id),HttpStatus.OK);
     }
 

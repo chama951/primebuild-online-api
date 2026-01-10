@@ -19,7 +19,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Item> saveItem(@RequestBody ItemRequestDTO itemRequestDTO) {
-        return new ResponseEntity<>(itemService.saveItem(itemRequestDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(itemService.saveItemRequest(itemRequestDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
