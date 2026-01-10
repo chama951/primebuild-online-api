@@ -1,8 +1,11 @@
 package com.primebuild_online.service.serviceImpl;
 
+import com.primebuild_online.model.DTO.FeatureRequestDTO;
 import com.primebuild_online.model.Feature;
+import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.FeatureRepository;
 import com.primebuild_online.service.FeatureService;
+import com.primebuild_online.service.FeatureTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +17,17 @@ public class FeatureServiceImpl implements FeatureService {
 
     @Autowired
     private FeatureRepository featureRepository;
+    @Autowired
+    private FeatureTypeService featureTypeService;
 
     @Override
-    public Feature saveFeature(Feature feature){
-        feature.setFeatureType(feature.getFeatureType());
+    public Feature saveFeature(FeatureRequestDTO featureRequestDTO){
+        Feature feature= new Feature();
+        feature.setFeatureName(featureRequestDTO.getFeatureName());
+        if(featureRequestDTO.getFeatureTypeId()!=null){
+            FeatureType featureType = featureTypeService.getFeatureTypeById(featureRequestDTO.getFeatureTypeId());
+            feature.setFeatureType(featureType);
+        }
         return featureRepository.save(feature);
     }
 
@@ -37,13 +47,16 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public Feature updateFeature(Feature feature, long id) {
-        Feature existingFeature = featureRepository.findById(id).orElseThrow(RuntimeException::new);
-        existingFeature.setFeatureName(feature.getFeatureName());
-        existingFeature.setFeatureType(feature.getFeatureType());
-        existingFeature.setItemFeatures(feature.getItemFeatures());
-        featureRepository.save(existingFeature);
-        return existingFeature;
+    public Feature updateFeature(FeatureRequestDTO featureRequestDTO, long id) {
+        Feature featureInDb = featureRepository.findById(id).orElseThrow(RuntimeException::new);
+        featureInDb.setFeatureName(featureRequestDTO.getFeatureName());
+
+        if(featureRequestDTO.getFeatureTypeId()!=null){
+            FeatureType featureType = featureTypeService.getFeatureTypeById(featureRequestDTO.getFeatureTypeId());
+            featureInDb.setFeatureType(featureType);
+        }
+        featureRepository.save(featureInDb);
+        return featureInDb;
     }
 
     @Override

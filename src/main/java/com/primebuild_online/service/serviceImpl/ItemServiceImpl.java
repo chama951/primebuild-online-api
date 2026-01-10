@@ -40,26 +40,28 @@ public class ItemServiceImpl implements ItemService {
         item.setQuantity(itemRequestDTO.getQuantity());
         item.setPrice(itemRequestDTO.getPrice());
 
-        Component component = componentService.getComponentById(itemRequestDTO.getComponent().getId());
-        item.setComponent(component);
-
-        Manufacturer manufacturer = manufacturerService.getManufacturerById(itemRequestDTO.getManufacturer().getId());
-        item.setManufacturer(manufacturer);
+        if (itemRequestDTO.getComponentId() != null) {
+            Component component = componentService.getComponentById(itemRequestDTO.getComponentId());
+            item.setComponent(component);
+        }
 
         Item savedItem = itemRepository.save(item);
 
-        ManufacturerItem manufacturerItem = new ManufacturerItem();
-        manufacturerItem.setItem(savedItem);
-        manufacturerItem.setManufacturer(manufacturer);
+        if (itemRequestDTO.getManufacturerId() != null) {
+            Manufacturer manufacturer = manufacturerService.getManufacturerById(itemRequestDTO.getManufacturerId());
+            item.setManufacturer(manufacturer);
 
-        manufacturerItemService.saveManufacturerItem(manufacturerItem);
+            ManufacturerItem manufacturerItem = new ManufacturerItem();
+            manufacturerItem.setItem(savedItem);
+            manufacturerItem.setManufacturer(manufacturer);
+
+            manufacturerItemService.saveManufacturerItem(manufacturerItem);
+        }
 
         saveNewItemFeatures(savedItem, itemRequestDTO.getFeatureList());
 
         return savedItem;
     }
-
-
 
 
     private void saveNewItemFeatures(Item item, List<Feature> featureList) {

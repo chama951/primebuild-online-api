@@ -1,8 +1,6 @@
 package com.primebuild_online.model.DTO;
 
-import com.primebuild_online.model.Component;
 import com.primebuild_online.model.Feature;
-import com.primebuild_online.model.Manufacturer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +15,7 @@ public class ItemRequestDTO {
     private String itemName;
     private Integer quantity;
     private Double price;
-    private Component component;
-    private Manufacturer manufacturer;
+    private Integer componentId;
+    private Integer manufacturerId;
     private List<Feature> featureList = new ArrayList<>();
 }

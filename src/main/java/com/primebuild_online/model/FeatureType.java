@@ -20,11 +20,11 @@ public class FeatureType {
     @Column(name = "feature_type_name")
     private String featureTypeName;
 
-    @OneToMany(mappedBy = "featureType", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "featureType", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
     private List<Feature> featureList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "featureType", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "featureType", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
     private List<ComponentFeatureType> componentFeatureTypes = new ArrayList<>();
 }

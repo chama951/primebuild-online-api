@@ -19,12 +19,13 @@ public class Component {
     private Long id;
 
     @Column(name = "component_name", nullable = false)
-    private String componentName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
+    private String componentName;
 
-    @OneToMany(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "component",  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Item> itemList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "component",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "component",  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component"})
     private List<ComponentFeatureType> componentFeatureTypeList = new ArrayList<>();
+
 }

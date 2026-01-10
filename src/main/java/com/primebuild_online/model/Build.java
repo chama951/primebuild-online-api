@@ -32,7 +32,7 @@ public class Build {
 //    @Column(name = "customer_id")
 //    private Long customerId;
 
-    @OneToMany(mappedBy = "build", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "build",   cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<BuildItem> buildItems = new ArrayList<>();
 
 //    @ManyToOne(fetch = FetchType.LAZY)
