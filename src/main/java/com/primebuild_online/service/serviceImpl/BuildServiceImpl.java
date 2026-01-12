@@ -2,7 +2,7 @@ package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.Build;
 import com.primebuild_online.model.BuildItem;
-import com.primebuild_online.model.DTO.BuildRequestDTO;
+import com.primebuild_online.model.DTO.BuildReqDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.BuildStatus;
 import com.primebuild_online.repository.BuildItemRepository;
@@ -33,7 +33,7 @@ public class BuildServiceImpl implements BuildService {
     }
 
     @Override
-    public Build saveBuild(BuildRequestDTO buildRequest) {
+    public Build saveBuild(BuildReqDTO buildRequest) {
         Build newBuild = new Build();
 
         newBuild.setBuildStatus(buildRequest.getBuildStatus());
@@ -50,7 +50,7 @@ public class BuildServiceImpl implements BuildService {
     }
 
     @Override
-    public Build updateBuild(BuildRequestDTO buildRequest, Long buildId) {
+    public Build updateBuild(BuildReqDTO buildRequest, Long buildId) {
         Build buildInDb = buildRepository.findById(buildId).orElseThrow(RuntimeException::new);
 
         buildInDb.setBuildStatus(buildRequest.getBuildStatus());

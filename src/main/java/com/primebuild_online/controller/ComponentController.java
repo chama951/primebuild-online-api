@@ -1,7 +1,7 @@
 package com.primebuild_online.controller;
 
 import com.primebuild_online.model.Component;
-import com.primebuild_online.model.DTO.ComponentDTO;
+import com.primebuild_online.model.DTO.ComponentReqDTO;
 import com.primebuild_online.service.ComponentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +18,8 @@ public class ComponentController {
     private ComponentService componentService;
 
     @PostMapping
-    public ResponseEntity<Component> saveComponent(@RequestBody ComponentDTO componentDTO) {
-        return new ResponseEntity<>(componentService.saveComponent(componentDTO), HttpStatus.CREATED);
+    public ResponseEntity<Component> saveComponentFeatureTypeReq(@RequestBody ComponentReqDTO componentReqDTO) {
+        return new ResponseEntity<>(componentService.saveComponent(componentReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,8 +28,8 @@ public class ComponentController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Component> updateComponentById(@PathVariable("id") long id, @RequestBody ComponentDTO componentDTO) {
-        return new ResponseEntity<Component>(componentService.updateComponentRequest(componentDTO,id),HttpStatus.OK);
+    private ResponseEntity<Component> updateComponentById(@PathVariable("id") long id, @RequestBody ComponentReqDTO componentReqDTO) {
+        return new ResponseEntity<Component>(componentService.updateComponentRequest(componentReqDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")

@@ -1,6 +1,6 @@
 package com.primebuild_online.controller;
 
-import com.primebuild_online.model.DTO.FeatureRequestDTO;
+import com.primebuild_online.model.DTO.FeatureReqDTO;
 import com.primebuild_online.model.Feature;
 import com.primebuild_online.service.FeatureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,8 @@ public class FeatureController {
     private FeatureService featureService;
 
     @PostMapping
-    public ResponseEntity<Feature> saveFeature(@RequestBody FeatureRequestDTO featureRequestDTO) {
-        return new ResponseEntity<>(featureService.saveFeature(featureRequestDTO), HttpStatus.CREATED);
+    public ResponseEntity<Feature> saveFeature(@RequestBody FeatureReqDTO featureReqDTO) {
+        return new ResponseEntity<>(featureService.saveFeature(featureReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,8 +28,8 @@ public class FeatureController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Feature> updateFeature(@PathVariable("id") long id, @RequestBody FeatureRequestDTO featureRequestDTO) {
-        return new ResponseEntity<Feature>(featureService.updateFeature(featureRequestDTO,id),HttpStatus.OK);
+    private ResponseEntity<Feature> updateFeature(@PathVariable("id") long id, @RequestBody FeatureReqDTO featureReqDTO) {
+        return new ResponseEntity<Feature>(featureService.updateFeature(featureReqDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")

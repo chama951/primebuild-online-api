@@ -1,7 +1,7 @@
 package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.*;
-import com.primebuild_online.model.DTO.ItemRequestDTO;
+import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,28 +27,28 @@ public class ItemServiceImpl implements ItemService {
     private ManufacturerItemService manufacturerItemService;
 
     @Override
-    public Item saveItemRequest(ItemRequestDTO itemRequestDTO) {
+    public Item saveItemRequest(ItemReqDTO itemReqDTO) {
         Item newItem = new Item();
 
-        newItem = itemSetValues(itemRequestDTO, newItem);
+        newItem = itemSetValues(itemReqDTO, newItem);
 
         return itemRepository.save(newItem);
     }
 
-    public Item itemSetValues(ItemRequestDTO itemRequestDTO, Item item) {
-        item.setItemName(itemRequestDTO.getItemName());
-        item.setQuantity(itemRequestDTO.getQuantity());
-        item.setPrice(itemRequestDTO.getPrice());
+    public Item itemSetValues(ItemReqDTO itemReqDTO, Item item) {
+        item.setItemName(itemReqDTO.getItemName());
+        item.setQuantity(itemReqDTO.getQuantity());
+        item.setPrice(itemReqDTO.getPrice());
 
-        if (itemRequestDTO.getComponentId() != null) {
-            Component component = componentService.getComponentById(itemRequestDTO.getComponentId());
+        if (itemReqDTO.getComponentId() != null) {
+            Component component = componentService.getComponentById(itemReqDTO.getComponentId());
             item.setComponent(component);
         }
 
         Item savedItem = itemRepository.save(item);
 
-        if (itemRequestDTO.getManufacturerId() != null) {
-            Manufacturer manufacturer = manufacturerService.getManufacturerById(itemRequestDTO.getManufacturerId());
+        if (itemReqDTO.getManufacturerId() != null) {
+            Manufacturer manufacturer = manufacturerService.getManufacturerById(itemReqDTO.getManufacturerId());
             item.setManufacturer(manufacturer);
 
             ManufacturerItem manufacturerItem = new ManufacturerItem();
@@ -58,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
             manufacturerItemService.saveManufacturerItem(manufacturerItem);
         }
 
-        saveNewItemFeatures(savedItem, itemRequestDTO.getFeatureList());
+        saveNewItemFeatures(savedItem, itemReqDTO.getFeatureList());
 
         return savedItem;
     }
@@ -95,9 +95,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item updateItemRequest(ItemRequestDTO itemRequestDTO, long id) {
+    public Item updateItemRequest(ItemReqDTO itemReqDTO, long id) {
         Item itemInDb = itemRepository.findById(id).orElseThrow(RuntimeException::new);
-        itemInDb = itemSetValues(itemRequestDTO, itemInDb);
+        itemInDb = itemSetValues(itemReqDTO, itemInDb);
         return itemRepository.save(itemInDb);
     }
 

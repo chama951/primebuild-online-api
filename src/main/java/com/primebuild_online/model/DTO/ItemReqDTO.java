@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRequestDTO {
+public class ItemReqDTO {
     private String itemName;
     private Integer quantity;
     private Double price;

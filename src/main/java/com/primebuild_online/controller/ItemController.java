@@ -1,6 +1,6 @@
 package com.primebuild_online.controller;
 
-import com.primebuild_online.model.DTO.ItemRequestDTO;
+import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,8 @@ public class ItemController {
     private ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<Item> saveItem(@RequestBody ItemRequestDTO itemRequestDTO) {
-        return new ResponseEntity<>(itemService.saveItemRequest(itemRequestDTO), HttpStatus.CREATED);
+    public ResponseEntity<Item> saveItem(@RequestBody ItemReqDTO itemReqDTO) {
+        return new ResponseEntity<>(itemService.saveItemRequest(itemReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,8 +28,8 @@ public class ItemController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Item> updateItemById(@PathVariable("id") long id, @RequestBody ItemRequestDTO itemRequestDTO) {
-        return new ResponseEntity<Item>(itemService.updateItemRequest(itemRequestDTO,id),HttpStatus.OK);
+    private ResponseEntity<Item> updateItemById(@PathVariable("id") long id, @RequestBody ItemReqDTO itemReqDTO) {
+        return new ResponseEntity<Item>(itemService.updateItemRequest(itemReqDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")

@@ -2,13 +2,15 @@ package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.Component;
 import com.primebuild_online.model.ComponentFeatureType;
-import com.primebuild_online.model.DTO.ComponentDTO;
+import com.primebuild_online.model.DTO.ComponentReqDTO;
 import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.ComponentRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.FeatureTypeService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,29 +21,41 @@ public class ComponentServiceImpl implements ComponentService {
 
     @Autowired
     private ComponentRepository componentRepository;
-    @Autowired
+
+    @Getter
     private ComponentFeatureTypeService componentFeatureTypeService;
-    @Autowired
+
+    @Getter
     private FeatureTypeService featureTypeService;
 
+    @Autowired
+    public void setFeatureTypeService(@Lazy FeatureTypeService featureTypeService) {
+        this.featureTypeService = featureTypeService;
+    }
+
+    @Autowired
+    public void setComponentFeatureTypeService(@Lazy ComponentFeatureTypeService componentFeatureTypeService) {
+        this.componentFeatureTypeService = componentFeatureTypeService;
+    }
+
+
     @Override
-    public Component saveComponent(ComponentDTO componentDTO) {
+    public Component saveComponent(ComponentReqDTO componentReqDTO) {
         Component newComponent = new Component();
-        newComponent = setComponentValues(componentDTO, newComponent);
+        newComponent = setComponentValues(componentReqDTO, newComponent);
         return componentRepository.save(newComponent);
     }
 
-    private Component setComponentValues(ComponentDTO componentDTO, Component component) {
-        component.setComponentName(componentDTO.getComponentName());
+    private Component setComponentValues(ComponentReqDTO componentReqDTO, Component component) {
+        component.setComponentName(componentReqDTO.getComponentName());
         Component savedComponent = componentRepository.save(component);
-        saveNewComponentFeatureTypes(componentDTO.getFeatureTypeList(), savedComponent);
+        saveNewComponentFeatureTypes(componentReqDTO.getFeatureTypeList(), savedComponent);
         return savedComponent;
     }
 
     private void saveNewComponentFeatureTypes(List<FeatureType> featureTypeList, Component component) {
 
         if (featureTypeList != null) {
-            System.out.println("saveNewComponentFeatureTypes");
             componentFeatureTypeService.deleteAllComponentFeatureTypeByComponentId(component.getId());
             for (FeatureType featureTypeRequest : featureTypeList) {
                 FeatureType featureType = featureTypeService.getFeatureTypeById(featureTypeRequest.getId());
@@ -70,9 +84,9 @@ public class ComponentServiceImpl implements ComponentService {
     }
 
     @Override
-    public Component updateComponentRequest(ComponentDTO componentDTO, long id) {
+    public Component updateComponentRequest(ComponentReqDTO componentReqDTO, long id) {
         Component componentInDb = componentRepository.findById(id).orElseThrow(RuntimeException::new);
-        componentInDb = setComponentValues(componentDTO, componentInDb);
+        componentInDb = setComponentValues(componentReqDTO, componentInDb);
         return componentRepository.save(componentInDb);
     }
 

@@ -1,6 +1,6 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.DTO.FeatureRequestDTO;
+import com.primebuild_online.model.DTO.FeatureReqDTO;
 import com.primebuild_online.model.Feature;
 import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.FeatureRepository;
@@ -21,11 +21,11 @@ public class FeatureServiceImpl implements FeatureService {
     private FeatureTypeService featureTypeService;
 
     @Override
-    public Feature saveFeature(FeatureRequestDTO featureRequestDTO){
+    public Feature saveFeature(FeatureReqDTO featureReqDTO){
         Feature feature= new Feature();
-        feature.setFeatureName(featureRequestDTO.getFeatureName());
-        if(featureRequestDTO.getFeatureTypeId()!=null){
-            FeatureType featureType = featureTypeService.getFeatureTypeById(featureRequestDTO.getFeatureTypeId());
+        feature.setFeatureName(featureReqDTO.getFeatureName());
+        if(featureReqDTO.getFeatureTypeId()!=null){
+            FeatureType featureType = featureTypeService.getFeatureTypeById(featureReqDTO.getFeatureTypeId());
             feature.setFeatureType(featureType);
         }
         return featureRepository.save(feature);
@@ -47,12 +47,12 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public Feature updateFeature(FeatureRequestDTO featureRequestDTO, long id) {
+    public Feature updateFeature(FeatureReqDTO featureReqDTO, long id) {
         Feature featureInDb = featureRepository.findById(id).orElseThrow(RuntimeException::new);
-        featureInDb.setFeatureName(featureRequestDTO.getFeatureName());
+        featureInDb.setFeatureName(featureReqDTO.getFeatureName());
 
-        if(featureRequestDTO.getFeatureTypeId()!=null){
-            FeatureType featureType = featureTypeService.getFeatureTypeById(featureRequestDTO.getFeatureTypeId());
+        if(featureReqDTO.getFeatureTypeId()!=null){
+            FeatureType featureType = featureTypeService.getFeatureTypeById(featureReqDTO.getFeatureTypeId());
             featureInDb.setFeatureType(featureType);
         }
         featureRepository.save(featureInDb);

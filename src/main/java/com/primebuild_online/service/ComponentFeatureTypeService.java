@@ -1,19 +1,25 @@
 package com.primebuild_online.service;
 
 import com.primebuild_online.model.ComponentFeatureType;
+import com.primebuild_online.model.DTO.ComponentFeatureTypeReqDTO;
+import com.primebuild_online.model.FeatureType;
 
 import java.util.List;
 
 public interface ComponentFeatureTypeService {
-    ComponentFeatureType saveComponentFeatureType(ComponentFeatureType componentFeatureType);
+    ComponentFeatureType saveComponentFeatureTypeReq(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO);
 
     List<ComponentFeatureType> getAllComponentFeatureType();
 
-    ComponentFeatureType updateComponentFeatureType(ComponentFeatureType componentFeatureType, long id);
+    ComponentFeatureType updateComponentFeatureType(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO, long id);
 
     ComponentFeatureType getComponentFeatureTypeById(long id);
 
     void deleteComponentFeatureType(long id);
 
     void deleteAllComponentFeatureTypeByComponentId(Long id);
+
+    List<ComponentFeatureType> getComponentFeatureTypesByComponentId(Long componentId);
+
+    ComponentFeatureType saveComponentFeatureType(ComponentFeatureType componentFeatureType);
 }

@@ -26,10 +26,10 @@ public class Feature {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feature_type_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private FeatureType featureType;
 
-    @OneToMany(mappedBy = "feature",  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "feature", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
     private List<ItemFeature> itemFeatures = new ArrayList<>();
 }

@@ -1,7 +1,7 @@
 package com.primebuild_online.controller;
 
 import com.primebuild_online.model.Build;
-import com.primebuild_online.model.DTO.BuildRequestDTO;
+import com.primebuild_online.model.DTO.BuildReqDTO;
 import com.primebuild_online.service.BuildService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ public class BuildController {
     private BuildService buildService;
 
     @PostMapping
-    public ResponseEntity<Build> saveBuild(@RequestBody BuildRequestDTO buildRequest){
+    public ResponseEntity<Build> saveBuild(@RequestBody BuildReqDTO buildRequest){
         return new ResponseEntity<>(buildService.saveBuild(buildRequest), HttpStatus.CREATED);
     }
 
@@ -28,7 +28,7 @@ public class BuildController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Build> updateBuildById(@PathVariable("id") Long id, @RequestBody BuildRequestDTO buildRequest) {
+    public ResponseEntity<Build> updateBuildById(@PathVariable("id") Long id, @RequestBody BuildReqDTO buildRequest) {
         return new ResponseEntity<>(buildService.updateBuild(buildRequest,id),HttpStatus.OK);
     }
 
