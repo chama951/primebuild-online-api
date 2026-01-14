@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/build")
@@ -18,8 +20,8 @@ public class BuildController {
     private BuildService buildService;
 
     @PostMapping
-    public ResponseEntity<Build> saveBuild(@RequestBody BuildReqDTO buildRequest){
-        return new ResponseEntity<>(buildService.saveBuild(buildRequest), HttpStatus.CREATED);
+    public ResponseEntity<Build> saveBuildReq(@RequestBody BuildReqDTO buildReqDTO){
+        return new ResponseEntity<>(buildService.saveBuildReq(buildReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,8 +30,8 @@ public class BuildController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Build> updateBuildById(@PathVariable("id") Long id, @RequestBody BuildReqDTO buildRequest) {
-        return new ResponseEntity<>(buildService.updateBuild(buildRequest,id),HttpStatus.OK);
+    public ResponseEntity<Build> updateBuildReq(@PathVariable("id") Long id, @RequestBody BuildReqDTO buildReqDTO) {
+        return new ResponseEntity<>(buildService.updateBuildReq(buildReqDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")
@@ -38,9 +40,13 @@ public class BuildController {
     }
 
     @DeleteMapping("{id}")
-        public ResponseEntity<String> deleteBuild(@PathVariable("id")long id){
+        public ResponseEntity<Map<String, String>> deleteBuild(@PathVariable("id")long id){
         buildService.deleteBuild(id);
-        return new ResponseEntity<String>("Build Deleted Successfully",HttpStatus.OK);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Build Deleted Successfully");
+
+        return ResponseEntity.ok(response);
     }
 
 }

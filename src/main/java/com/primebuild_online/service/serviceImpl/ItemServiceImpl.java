@@ -5,6 +5,7 @@ import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,14 +21,21 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private FeatureService featureService;
     @Autowired
-    private ItemFeatureSevice itemFeatureSevice;
+    private ItemFeatureService itemFeatureSevice;
     @Autowired
     private ComponentService componentService;
     @Autowired
     private ManufacturerItemService manufacturerItemService;
 
+    private ItemFeatureService itemFeatureService;
+
+    @Autowired
+    public void setItemFeatureService(@Lazy ItemFeatureService itemFeatureService) {
+        this.itemFeatureService = itemFeatureService;
+    }
+
     @Override
-    public Item saveItemRequest(ItemReqDTO itemReqDTO) {
+    public Item saveItemReq(ItemReqDTO itemReqDTO) {
         Item newItem = new Item();
 
         newItem = itemSetValues(itemReqDTO, newItem);
@@ -83,21 +91,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item updateItem(Item item, long id) {
-        Item existingItem = itemRepository.findById(id).orElseThrow(RuntimeException::new);
-        existingItem.setItemName(item.getItemName());
-        existingItem.setManufacturer(item.getManufacturer());
-        existingItem.setComponent(item.getComponent());
-        existingItem.setQuantity(item.getQuantity());
-        existingItem.setPrice(item.getPrice());
-        itemRepository.save(existingItem);
-        return existingItem;
-    }
-
-    @Override
-    public Item updateItemRequest(ItemReqDTO itemReqDTO, long id) {
+    public Item updateItemReq(ItemReqDTO itemReqDTO, long id) {
         Item itemInDb = itemRepository.findById(id).orElseThrow(RuntimeException::new);
         itemInDb = itemSetValues(itemReqDTO, itemInDb);
+
         return itemRepository.save(itemInDb);
     }
 

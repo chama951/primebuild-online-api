@@ -40,7 +40,7 @@ public class ComponentServiceImpl implements ComponentService {
 
 
     @Override
-    public Component saveComponent(ComponentReqDTO componentReqDTO) {
+    public Component saveComponentReq(ComponentReqDTO componentReqDTO) {
         Component newComponent = new Component();
         newComponent = setComponentValues(componentReqDTO, newComponent);
         return componentRepository.save(newComponent);
@@ -84,7 +84,7 @@ public class ComponentServiceImpl implements ComponentService {
     }
 
     @Override
-    public Component updateComponentRequest(ComponentReqDTO componentReqDTO, long id) {
+    public Component updateComponentReq(ComponentReqDTO componentReqDTO, long id) {
         Component componentInDb = componentRepository.findById(id).orElseThrow(RuntimeException::new);
         componentInDb = setComponentValues(componentReqDTO, componentInDb);
         return componentRepository.save(componentInDb);

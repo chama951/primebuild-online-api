@@ -33,27 +33,27 @@ public class BuildServiceImpl implements BuildService {
     }
 
     @Override
-    public Build saveBuild(BuildReqDTO buildRequest) {
+    public Build saveBuildReq(BuildReqDTO buildReqDTO) {
         Build newBuild = new Build();
 
-        newBuild.setBuildStatus(buildRequest.getBuildStatus());
+        newBuild.setBuildStatus(buildReqDTO.getBuildStatus());
         newBuild.setCreatedDate(LocalDateTime.now());
 
         Build savedBuild = buildRepository.save(newBuild);
 
         // Adding New Items
-        if (buildRequest.getItemList() != null && !buildRequest.getItemList().isEmpty()) {
-            newBuild = addNewBuildItems(buildRequest.getItemList(), savedBuild);
+        if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
+            newBuild = addNewBuildItems(buildReqDTO.getItemList(), savedBuild);
         }
 
         return buildRepository.save(newBuild);
     }
 
     @Override
-    public Build updateBuild(BuildReqDTO buildRequest, Long buildId) {
+    public Build updateBuildReq(BuildReqDTO buildReqDTO, Long buildId) {
         Build buildInDb = buildRepository.findById(buildId).orElseThrow(RuntimeException::new);
 
-        buildInDb.setBuildStatus(buildRequest.getBuildStatus());
+        buildInDb.setBuildStatus(buildReqDTO.getBuildStatus());
         buildInDb.setLastModified(LocalDateTime.now());
 
         List<BuildItem> buildItemListByBuild = buildItemService.findAllByBuildId(buildId);
@@ -70,8 +70,8 @@ public class BuildServiceImpl implements BuildService {
 
         buildItemService.deleteAllByBuildId(buildId);
 
-        if (buildRequest.getItemList() != null && !buildRequest.getItemList().isEmpty()) {
-            addNewBuildItems(buildRequest.getItemList(), buildInDb);
+        if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
+            addNewBuildItems(buildReqDTO.getItemList(), buildInDb);
         }
         return buildRepository.save(buildInDb);
     }

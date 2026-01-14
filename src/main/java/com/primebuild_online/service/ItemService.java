@@ -6,13 +6,12 @@ import com.primebuild_online.model.Item;
 import java.util.List;
 
 public interface ItemService {
-    Item saveItemRequest(ItemReqDTO itemReqDTO);
+    Item saveItemReq(ItemReqDTO itemReqDTO);
 
     List<Item> getAllItem();
 
-    Item updateItem(Item item, long id);
 
-    Item updateItemRequest(ItemReqDTO itemReqDTO, long id);
+    Item updateItemReq(ItemReqDTO itemReqDTO, long id);
 
     Item getItemById(long id);
 

@@ -1,6 +1,7 @@
 package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.Component;
+import com.primebuild_online.model.DTO.ManufacturerDTO;
 import com.primebuild_online.model.Manufacturer;
 import com.primebuild_online.repository.ManufacturerRepository;
 import com.primebuild_online.service.ManufacturerService;
@@ -17,7 +18,9 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     private ManufacturerRepository manufacturerRepository;
 
     @Override
-    public Manufacturer saveManufacturer(Manufacturer manufacturer) {
+    public Manufacturer saveManufacturerDTO(ManufacturerDTO manufacturerDTO) {
+        Manufacturer manufacturer = new Manufacturer();
+        manufacturer.setManufacturerName(manufacturerDTO.getManufacturerName());
         return manufacturerRepository.save(manufacturer);
     }
 
@@ -27,11 +30,11 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
-    public Manufacturer updateManufacturer(Manufacturer manufacturer, long id) {
-        Manufacturer existingManufacturer = manufacturerRepository.findById(id).orElseThrow(RuntimeException::new);
-        existingManufacturer.setManufacturerName(manufacturer.getManufacturerName());
-        manufacturerRepository.save(existingManufacturer);
-        return existingManufacturer;
+    public Manufacturer updateManufacturerReq(ManufacturerDTO manufacturerDTO, long id) {
+        Manufacturer manufacturerInDb = manufacturerRepository.findById(id).orElseThrow(RuntimeException::new);
+        manufacturerInDb.setManufacturerName(manufacturerDTO.getManufacturerName());
+        manufacturerRepository.save(manufacturerInDb);
+        return manufacturerInDb;
     }
 
     @Override

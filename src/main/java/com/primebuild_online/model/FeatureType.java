@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Table(name = "feature_type")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class FeatureType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +23,11 @@ public class FeatureType {
     private String featureTypeName;
 
     @OneToMany(mappedBy = "featureType", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "featureType"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<Feature> featureList = new ArrayList<>();
 
     @OneToMany(mappedBy = "featureType", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "featureType"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore
     private List<ComponentFeatureType> componentFeatureTypes = new ArrayList<>();
 }

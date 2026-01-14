@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface BuildService {
 
-    Build saveBuild(BuildReqDTO buildRequest);
+    Build saveBuildReq(BuildReqDTO buildReqDTO);
 
-    Build updateBuild(BuildReqDTO buildReqDTO, Long id);
+    Build updateBuildReq(BuildReqDTO buildReqDTO, Long id);
 
     List<Build> getAllBuild();
 

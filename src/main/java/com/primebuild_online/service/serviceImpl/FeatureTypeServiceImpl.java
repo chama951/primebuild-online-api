@@ -38,10 +38,12 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
         this.componentFeatureTypeService = componentFeatureTypeService;
     }
 
-//    @Override
-//    public FeatureType saveFeatureType(FeatureType featureType) {
-//        return featureTypeRepository.save(featureType);
-//    }
+    @Override
+    public FeatureType saveFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO) {
+        FeatureType featureType = new FeatureType();
+        featureType.setFeatureTypeName(featureTypeReqDTO.getFeatureTypeName());
+        return featureTypeRepository.save(featureType);
+    }
 
     @Override
     public List<FeatureType> getAllFeatureType() {
@@ -59,15 +61,11 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     }
 
     @Override
-    public FeatureType updateFeatureTypeById(FeatureTypeReqDTO featureTypeReqDTO, long id) {
+    public FeatureType updateFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO, long id) {
+
         FeatureType featureTypeInDb = featureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         featureTypeInDb.setFeatureTypeName(featureTypeReqDTO.getFeatureTypeName());
-        if (featureTypeReqDTO.getComponentId() != null) {
-            Component componentInDb = componentService.getComponentById(featureTypeReqDTO.getComponentId());
-            ComponentFeatureType newcomponentFeatureType = new ComponentFeatureType();
-            newcomponentFeatureType.setComponent(componentInDb);
-            newcomponentFeatureType.setFeatureType(featureTypeInDb);
-        }
+
         featureTypeRepository.save(featureTypeInDb);
         return featureTypeInDb;
     }

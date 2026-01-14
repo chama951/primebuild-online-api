@@ -41,7 +41,7 @@ public class Item {
 
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
-    private List<ItemFeature> itemFeatures = new ArrayList<>();
+    private List<ItemFeature> itemFeatureList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")

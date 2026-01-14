@@ -15,7 +15,7 @@ public class ItemReqDTO {
     private String itemName;
     private Integer quantity;
     private Double price;
-    private Integer componentId;
-    private Integer manufacturerId;
+    private Long componentId;
+    private Long manufacturerId;
     private List<Feature> featureList = new ArrayList<>();
 }

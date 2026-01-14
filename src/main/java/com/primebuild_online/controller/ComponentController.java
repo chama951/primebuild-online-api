@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/component")
@@ -19,7 +21,7 @@ public class ComponentController {
 
     @PostMapping
     public ResponseEntity<Component> saveComponentFeatureTypeReq(@RequestBody ComponentReqDTO componentReqDTO) {
-        return new ResponseEntity<>(componentService.saveComponent(componentReqDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(componentService.saveComponentReq(componentReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,19 +30,23 @@ public class ComponentController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Component> updateComponentById(@PathVariable("id") long id, @RequestBody ComponentReqDTO componentReqDTO) {
-        return new ResponseEntity<Component>(componentService.updateComponentRequest(componentReqDTO,id),HttpStatus.OK);
+    private ResponseEntity<Component> updateComponentReq(@PathVariable("id") long id, @RequestBody ComponentReqDTO componentReqDTO) {
+        return new ResponseEntity<Component>(componentService.updateComponentReq(componentReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Component> getComponentById(@PathVariable("id") long id){
-        return new ResponseEntity<Component>(componentService.getComponentById(id),HttpStatus.OK);
+    public ResponseEntity<Component> getComponentById(@PathVariable("id") long id) {
+        return new ResponseEntity<Component>(componentService.getComponentById(id), HttpStatus.OK);
     }
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteComponent(@PathVariable("id") long id){
+    public ResponseEntity<Map<String, String>> deleteComponent(@PathVariable("id") long id) {
         componentService.deleteComponent(id);
-        return new ResponseEntity<String>("Component deleted Successfully",HttpStatus.OK);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Component deleted Successfully");
+
+        return ResponseEntity.ok(response);
     }
 }

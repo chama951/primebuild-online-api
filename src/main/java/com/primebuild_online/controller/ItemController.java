@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/item")
@@ -18,8 +20,8 @@ public class ItemController {
     private ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<Item> saveItem(@RequestBody ItemReqDTO itemReqDTO) {
-        return new ResponseEntity<>(itemService.saveItemRequest(itemReqDTO), HttpStatus.CREATED);
+    public ResponseEntity<Item> saveItemReq(@RequestBody ItemReqDTO itemReqDTO) {
+        return new ResponseEntity<>(itemService.saveItemReq(itemReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,8 +30,8 @@ public class ItemController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Item> updateItemById(@PathVariable("id") long id, @RequestBody ItemReqDTO itemReqDTO) {
-        return new ResponseEntity<Item>(itemService.updateItemRequest(itemReqDTO,id),HttpStatus.OK);
+    private ResponseEntity<Item> updateItemReq(@PathVariable("id") long id, @RequestBody ItemReqDTO itemReqDTO) {
+        return new ResponseEntity<Item>(itemService.updateItemReq(itemReqDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")
@@ -38,9 +40,13 @@ public class ItemController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteItem(@PathVariable("id") long id){
+    public ResponseEntity<Map<String, String>> deleteItem(@PathVariable("id") long id){
         itemService.deleteItem(id);
-        return new ResponseEntity<String>("Item deleted Successfully",HttpStatus.OK);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Item deleted Successfully");
+
+        return ResponseEntity.ok(response);
     }
 
 

@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/feature")
@@ -18,29 +20,38 @@ public class FeatureController {
     private FeatureService featureService;
 
     @PostMapping
-    public ResponseEntity<Feature> saveFeature(@RequestBody FeatureReqDTO featureReqDTO) {
-        return new ResponseEntity<>(featureService.saveFeature(featureReqDTO), HttpStatus.CREATED);
+    public ResponseEntity<Feature> saveFeatureReq(@RequestBody FeatureReqDTO featureReqDTO) {
+        return new ResponseEntity<>(featureService.saveFeatureReq(featureReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<Feature> getAllFeature() {
-        return featureService.getAllFeature();
+    public List<Feature> getFeatureListByFeatureType(@RequestParam(value = "feature_type", required = false) Long featureTypeId) {
+        if (featureTypeId != null) {
+            return (featureService.getFeatureListByFeatureType(featureTypeId));
+        } else {
+            return featureService.getAllFeature();
+        }
+
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Feature> updateFeature(@PathVariable("id") long id, @RequestBody FeatureReqDTO featureReqDTO) {
-        return new ResponseEntity<Feature>(featureService.updateFeature(featureReqDTO,id),HttpStatus.OK);
+    private ResponseEntity<Feature> updateFeatureReq(@PathVariable("id") long id, @RequestBody FeatureReqDTO featureReqDTO) {
+        return new ResponseEntity<Feature>(featureService.updateFeatureReq(featureReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Feature> getFeatureTypeById(@PathVariable("id") long id){
-        return new ResponseEntity<Feature>(featureService.getFeatureById(id),HttpStatus.OK);
+    public ResponseEntity<Feature> getFeatureTypeById(@PathVariable("id") long id) {
+        return new ResponseEntity<Feature>(featureService.getFeatureById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteFeature(@PathVariable("id") long id){
+    public ResponseEntity<Map<String, String>> deleteFeature(@PathVariable("id") long id) {
         featureService.deleteFeature(id);
-        return new ResponseEntity<String>("Feature deleted Successfully",HttpStatus.OK);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Feature deleted Successfully");
+
+        return ResponseEntity.ok(response);
     }
 }
 

@@ -21,11 +21,11 @@ public class Component {
     @Column(name = "component_name", nullable = false)
     private String componentName;
 
-    @OneToMany(mappedBy = "component",  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Item> itemList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "component",  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component"})
+    @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component", "featureList"})
     private List<ComponentFeatureType> componentFeatureTypeList = new ArrayList<>();
 
 }

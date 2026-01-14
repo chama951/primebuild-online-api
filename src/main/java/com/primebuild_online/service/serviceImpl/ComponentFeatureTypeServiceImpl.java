@@ -64,7 +64,7 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
     }
 
     @Override
-    public ComponentFeatureType updateComponentFeatureType(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO, long id) {
+    public ComponentFeatureType updateComponentFeatureTypeReq(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO, long id) {
         ComponentFeatureType componentFeatureTypeInDb = componentFeatureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         if (componentFeatureTypeReqDTO.getComponentId() != null) {
             Component component = componentService.getComponentById(componentFeatureTypeReqDTO.getComponentId());
@@ -107,6 +107,7 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
 
     @Override
     public List<ComponentFeatureType> getComponentFeatureTypesByComponentId(Long componentId) {
+        System.out.println("componentId " + componentId);
         return componentFeatureTypeRepository.getComponentFeatureTypesByComponentId(componentId);
     }
 }

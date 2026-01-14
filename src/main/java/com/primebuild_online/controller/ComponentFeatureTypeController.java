@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/component_feature_type")
@@ -20,16 +22,12 @@ public class ComponentFeatureTypeController {
     @PostMapping
     public ResponseEntity<ComponentFeatureType> saveComponentFeatureTypeReq(@RequestBody ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO) {
         return new ResponseEntity<>(componentFeatureTypeService.saveComponentFeatureTypeReq(componentFeatureTypeReqDTO), HttpStatus.CREATED);
-    }
 
-    @GetMapping
-    public List<ComponentFeatureType> getAllComponentFeatureType() {
-        return componentFeatureTypeService.getAllComponentFeatureType();
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<ComponentFeatureType> updateComponentFeatureType(@PathVariable("id") long id, @RequestBody ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO) {
-        return new ResponseEntity<ComponentFeatureType>(componentFeatureTypeService.updateComponentFeatureType(componentFeatureTypeReqDTO,id),HttpStatus.OK);
+    private ResponseEntity<ComponentFeatureType> updateComponentFeatureTypeReq(@PathVariable("id") long id, @RequestBody ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO) {
+        return new ResponseEntity<ComponentFeatureType>(componentFeatureTypeService.updateComponentFeatureTypeReq(componentFeatureTypeReqDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")
@@ -38,9 +36,23 @@ public class ComponentFeatureTypeController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteComponentFeatureType(@PathVariable("id") long id){
+    public ResponseEntity<Map<String, String>> deleteComponentFeatureType(@PathVariable("id") long id){
         componentFeatureTypeService.deleteComponentFeatureType(id);
-        return new ResponseEntity<String>("ComponentFeature deleted Successfully",HttpStatus.OK);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "ComponentFeature deleted Successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public List<ComponentFeatureType> getFeatureComponentTypesByComponent(@RequestParam(value = "component", required = false) Long componentId) {
+        if (componentId != null) {
+            return (componentFeatureTypeService.getComponentFeatureTypesByComponentId(componentId));
+        } else {
+            return componentFeatureTypeService.getAllComponentFeatureType();
+        }
+
     }
 
 }

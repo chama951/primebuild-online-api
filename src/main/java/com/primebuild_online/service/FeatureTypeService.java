@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface FeatureTypeService {
 
-//    FeatureType saveFeatureType(FeatureType featureType);
+    FeatureType saveFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO);
 
     List<FeatureType> getAllFeatureType();
 
     FeatureType getFeatureTypeById(long id);
 
-    FeatureType updateFeatureTypeById(FeatureTypeReqDTO featureTypeReqDTO, long id);
+    FeatureType updateFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO, long id);
 
     void deleteFeatureType(long id);
 

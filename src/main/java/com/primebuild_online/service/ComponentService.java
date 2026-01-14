@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface ComponentService {
 
-    Component saveComponent(ComponentReqDTO componentReqDTO);
+    Component saveComponentReq(ComponentReqDTO componentReqDTO);
 
     List<Component> getAllComponent();
 
     Component getComponentById(long id);
 
-    Component updateComponentRequest(ComponentReqDTO componentReqDTO, long id);
+    Component updateComponentReq(ComponentReqDTO componentReqDTO, long id);
 
     void deleteComponent(long id);
 }

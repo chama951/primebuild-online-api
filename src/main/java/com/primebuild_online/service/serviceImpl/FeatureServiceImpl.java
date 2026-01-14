@@ -4,6 +4,7 @@ import com.primebuild_online.model.DTO.FeatureReqDTO;
 import com.primebuild_online.model.Feature;
 import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.FeatureRepository;
+import com.primebuild_online.repository.FeatureTypeRepository;
 import com.primebuild_online.service.FeatureService;
 import com.primebuild_online.service.FeatureTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,11 @@ public class FeatureServiceImpl implements FeatureService {
     private FeatureRepository featureRepository;
     @Autowired
     private FeatureTypeService featureTypeService;
+    @Autowired
+    private FeatureTypeRepository featureTypeRepository;
 
     @Override
-    public Feature saveFeature(FeatureReqDTO featureReqDTO){
+    public Feature saveFeatureReq(FeatureReqDTO featureReqDTO){
         Feature feature= new Feature();
         feature.setFeatureName(featureReqDTO.getFeatureName());
         if(featureReqDTO.getFeatureTypeId()!=null){
@@ -47,7 +50,7 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public Feature updateFeature(FeatureReqDTO featureReqDTO, long id) {
+    public Feature updateFeatureReq(FeatureReqDTO featureReqDTO, long id) {
         Feature featureInDb = featureRepository.findById(id).orElseThrow(RuntimeException::new);
         featureInDb.setFeatureName(featureReqDTO.getFeatureName());
 
@@ -63,6 +66,15 @@ public class FeatureServiceImpl implements FeatureService {
     public void deleteFeature(long id){
         featureRepository.findById(id).orElseThrow(RuntimeException::new);
         featureRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Feature> getFeatureListByFeatureType(Long featureTypeId) {
+        return featureRepository.findAllByFeatureTypeId(featureTypeId);
+    }
+
+    public List<Feature> getFeaturesListByItem(Long itemId){
+        return null;
     }
 
 }
