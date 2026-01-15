@@ -18,4 +18,6 @@ public interface ItemService {
     void deleteItem(long id);
 
     void saveItem(Item itemByBuildItem);
+
+    List<Item> getInStockItemListByComponent(long componentId);
 }

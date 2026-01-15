@@ -24,23 +24,18 @@ public class ItemController {
         return new ResponseEntity<>(itemService.saveItemReq(itemReqDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public List<Item> getAllItem() {
-        return itemService.getAllItem();
-    }
-
     @PutMapping("{id}")
     private ResponseEntity<Item> updateItemReq(@PathVariable("id") long id, @RequestBody ItemReqDTO itemReqDTO) {
-        return new ResponseEntity<Item>(itemService.updateItemReq(itemReqDTO,id),HttpStatus.OK);
+        return new ResponseEntity<Item>(itemService.updateItemReq(itemReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Item> getItemById(@PathVariable("id") long id){
-        return new ResponseEntity<Item>(itemService.getItemById(id),HttpStatus.OK);
+    public ResponseEntity<Item> getItemById(@PathVariable("id") long id) {
+        return new ResponseEntity<Item>(itemService.getItemById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteItem(@PathVariable("id") long id){
+    public ResponseEntity<Map<String, String>> deleteItem(@PathVariable("id") long id) {
         itemService.deleteItem(id);
 
         Map<String, String> response = new HashMap<>();
@@ -49,5 +44,13 @@ public class ItemController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping()
+    public List<Item> getInStockItemListByComponent(@RequestParam(value = "component", required = false) Long componentId) {
+        if (componentId != null) {
+            return itemService.getInStockItemListByComponent(componentId);
+        } else {
+            return itemService.getAllItem();
+        }
+    }
 
 }

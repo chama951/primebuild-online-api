@@ -19,21 +19,10 @@ public class ItemFeatureController {
     @Autowired
     private ItemFeatureService itemFeatureService;
 
-    @GetMapping("/item={itemId}")
-    public List<ItemFeature> getItemFeaturesByItemId(
-            @PathVariable("itemId") Long itemId) {
-        return itemFeatureService.findByItemId(itemId);
-    }
-
     @PostMapping
     public ResponseEntity<ItemFeature> saveItemFeature(@RequestBody ItemFeatureDTO itemFeatureDTO) {
         return new ResponseEntity<>(itemFeatureService.saveItemFeatureRequest(itemFeatureDTO), HttpStatus.CREATED);
     }
-
-//    @GetMapping
-//    public List<ItemFeature> getAllItemFeature() {
-//        return itemFeatureService.getAllItemFeature();
-//    }
 
     @GetMapping
     public List<ItemFeature> getItemFeatureByItem(

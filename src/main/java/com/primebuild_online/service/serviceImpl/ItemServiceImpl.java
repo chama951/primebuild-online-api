@@ -119,4 +119,9 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.save(itemByBuildItem);
     }
 
+    @Override
+    public List<Item> getInStockItemListByComponent(long componentId) {
+        return itemRepository.findByQuantityGreaterThanAndComponentId(0,componentId);
+    }
+
 }

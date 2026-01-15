@@ -21,7 +21,7 @@ public class Item {
     private Long id;
 
     @Column(name = "item_name")
-    private String itemName;  // "Intel Core i7-13700K", "ASUS Z790", etc.
+    private String itemName;
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -35,7 +35,7 @@ public class Item {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemList"})
     private Component component;
 
-    @OneToMany(mappedBy = "item",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
     private List<BuildItem> buildItems = new ArrayList<>();
 
@@ -49,5 +49,7 @@ public class Item {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
     private Manufacturer manufacturer;
 
-
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnore
+    private List<ItemComponentCount> itemComponentCountList = new ArrayList<>();
 }
