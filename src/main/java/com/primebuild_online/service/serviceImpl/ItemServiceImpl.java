@@ -21,13 +21,11 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private FeatureService featureService;
     @Autowired
-    private ItemFeatureService itemFeatureSevice;
+    private ItemFeatureService itemFeatureService;
     @Autowired
     private ComponentService componentService;
     @Autowired
     private ManufacturerItemService manufacturerItemService;
-
-    private ItemFeatureService itemFeatureService;
 
     @Autowired
     public void setItemFeatureService(@Lazy ItemFeatureService itemFeatureService) {
@@ -65,7 +63,6 @@ public class ItemServiceImpl implements ItemService {
 
             manufacturerItemService.saveManufacturerItem(manufacturerItem);
         }
-
         saveNewItemFeatures(savedItem, itemReqDTO.getFeatureList());
 
         return savedItem;
@@ -74,13 +71,13 @@ public class ItemServiceImpl implements ItemService {
 
     private void saveNewItemFeatures(Item item, List<Feature> featureList) {
         if (featureList != null && !featureList.isEmpty()) {
-            itemFeatureSevice.deleteAllByItemId(item.getId());
+            itemFeatureService.deleteAllByItemId(item.getId());
             for (Feature featureRequest : featureList) {
                 Feature feature = featureService.getFeatureById(featureRequest.getId());
                 ItemFeature itemFeature = new ItemFeature();
                 itemFeature.setItem(item);
                 itemFeature.setFeature(feature);
-                itemFeatureSevice.saveItemFeature(itemFeature);
+                itemFeatureService.saveItemFeature(itemFeature);
             }
         }
     }
@@ -121,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getInStockItemListByComponent(long componentId) {
-        return itemRepository.findByQuantityGreaterThanAndComponentId(0,componentId);
+        return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId);
     }
 
 }

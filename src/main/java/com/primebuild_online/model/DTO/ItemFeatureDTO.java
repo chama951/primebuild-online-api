@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class ItemFeatureDTO {
     private Long itemId;
     private Long featureId;
+    private Integer slotCount;
 }

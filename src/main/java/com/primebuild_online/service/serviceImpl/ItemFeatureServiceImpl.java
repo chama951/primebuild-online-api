@@ -47,7 +47,7 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
             Feature feature = featureService.getFeatureById(itemFeatureDTO.getFeatureId());
             newItemFeature.setFeature(feature);
         }
-
+        newItemFeature.setSlotCount(itemFeatureDTO.getSlotCount());
         return itemFeatureRepository.save(newItemFeature);
     }
 
@@ -76,6 +76,7 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
             itemFeatureInDb.setFeature(feature);
         }
 
+        itemFeatureInDb.setSlotCount(itemFeatureDTO.getSlotCount());
         itemFeatureRepository.save(itemFeatureInDb);
 
         return itemFeatureInDb;

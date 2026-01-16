@@ -48,8 +48,4 @@ public class Item {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
     private Manufacturer manufacturer;
-
-    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnore
-    private List<ItemComponentCount> itemComponentCountList = new ArrayList<>();
 }
