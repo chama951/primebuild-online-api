@@ -35,18 +35,18 @@ public class ItemFeatureController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<ItemFeature> updateItemFeatureById(@PathVariable("id") long id,
+    public ResponseEntity<ItemFeature> updateItemFeatureById(@PathVariable("id") Long id,
                                                              @RequestBody ItemFeatureDTO itemFeatureDTO) {
         return new ResponseEntity<ItemFeature>(itemFeatureService.updateItemFeatureRequest(itemFeatureDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ItemFeature> getItemFeatureById(@PathVariable("id") long id) {
+    public ResponseEntity<ItemFeature> getItemFeatureById(@PathVariable("id") Long id) {
         return new ResponseEntity<ItemFeature>(itemFeatureService.getItemFeatureById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteItemFeature(@PathVariable("id") long id) {
+    public ResponseEntity<Map<String, String>> deleteItemFeature(@PathVariable("id") Long id) {
         itemFeatureService.deleteItemFeature(id);
 
         Map<String, String> response = new HashMap<>();

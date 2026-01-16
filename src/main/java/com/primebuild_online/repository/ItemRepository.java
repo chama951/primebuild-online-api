@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    List<Item> findByQuantityGreaterThanAndComponentId(int i, long componentId);
+    List<Item> findByQuantityGreaterThanAndComponentId(int i, Long componentId);
 }

@@ -30,7 +30,7 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
-    public Manufacturer updateManufacturerReq(ManufacturerDTO manufacturerDTO, long id) {
+    public Manufacturer updateManufacturerReq(ManufacturerDTO manufacturerDTO, Long id) {
         Manufacturer manufacturerInDb = manufacturerRepository.findById(id).orElseThrow(RuntimeException::new);
         manufacturerInDb.setManufacturerName(manufacturerDTO.getManufacturerName());
         manufacturerRepository.save(manufacturerInDb);
@@ -38,7 +38,7 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
-    public Manufacturer getManufacturerById(long id) {
+    public Manufacturer getManufacturerById(Long id) {
         Optional<Manufacturer> Manufacturer = manufacturerRepository.findById(id);
         if (Manufacturer.isPresent()) {
             return Manufacturer.get();
@@ -48,7 +48,7 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
-    public void deleteManufacturer(long id) {
+    public void deleteManufacturer(Long id) {
         manufacturerRepository.findById(id).orElseThrow(RuntimeException::new);
         manufacturerRepository.deleteById(id);
     }

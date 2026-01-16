@@ -12,17 +12,17 @@ public interface ItemFeatureService {
 
     List<ItemFeature> getItemFeatureByItem(Long itemId);
 
-    ItemFeature updateItemFeatureRequest(ItemFeatureDTO itemFeatureDTO, long id);
+    ItemFeature updateItemFeatureRequest(ItemFeatureDTO itemFeatureDTO, Long id);
 
-    ItemFeature getItemFeatureById(long id);
+    ItemFeature getItemFeatureById(Long id);
 
-    void deleteAllByItemId(long itemId);
+    void deleteAllByItemId(Long itemId);
 
-    void deleteItemFeature(long id);
+    void deleteItemFeature(Long id);
 
     List<ItemFeature> findByItemId(Long itemId);
 
     void saveItemFeature(ItemFeature itemFeature);
 
-    void deleteAllByFeatureId(long id);
+    void deleteAllByFeatureId(Long id);
 }

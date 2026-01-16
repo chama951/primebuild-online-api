@@ -23,7 +23,7 @@ public class BuildItemServiceImpl implements BuildItemService {
 
 
     @Override
-    public void updateBuildItem(BuildItem buildItem, long id) {
+    public void updateBuildItem(BuildItem buildItem, Long id) {
         BuildItem existingBuildItem = buildItemRepository.findById(id).orElseThrow(RuntimeException::new);
         existingBuildItem.setBuildQuantity(buildItem.getBuildQuantity());
     }

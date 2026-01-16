@@ -112,13 +112,13 @@ public class BuildServiceImpl implements BuildService {
     }
 
     @Override
-    public void deleteBuild(long id) {
+    public void deleteBuild(Long id) {
         buildRepository.findById(id).orElseThrow(RuntimeException::new);
         buildRepository.deleteById(id);
     }
 
     @Override
-    public Build getBuildById(long id) {
+    public Build getBuildById(Long id) {
         Optional<Build> build = buildRepository.findById(id);
         if (build.isPresent()) {
             return build.get();

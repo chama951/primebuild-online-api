@@ -11,9 +11,9 @@ public interface ManufacturerService {
 
     List<Manufacturer> getAllManufacturers();
 
-    Manufacturer updateManufacturerReq(ManufacturerDTO manufacturerDTO, long id);
+    Manufacturer updateManufacturerReq(ManufacturerDTO manufacturerDTO, Long id);
 
-    Manufacturer getManufacturerById(long id);
+    Manufacturer getManufacturerById(Long id);
 
-    void deleteManufacturer(long id);
+    void deleteManufacturer(Long id);
 }

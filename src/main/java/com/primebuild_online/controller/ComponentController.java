@@ -30,18 +30,18 @@ public class ComponentController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Component> updateComponentReq(@PathVariable("id") long id, @RequestBody ComponentReqDTO componentReqDTO) {
+    private ResponseEntity<Component> updateComponentReq(@PathVariable("id") Long id, @RequestBody ComponentReqDTO componentReqDTO) {
         return new ResponseEntity<Component>(componentService.updateComponentReq(componentReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Component> getComponentById(@PathVariable("id") long id) {
+    public ResponseEntity<Component> getComponentById(@PathVariable("id") Long id) {
         return new ResponseEntity<Component>(componentService.getComponentById(id), HttpStatus.OK);
     }
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteComponent(@PathVariable("id") long id) {
+    public ResponseEntity<Map<String, String>> deleteComponent(@PathVariable("id") Long id) {
         componentService.deleteComponent(id);
 
         Map<String, String> response = new HashMap<>();

@@ -63,7 +63,7 @@ public class ComponentServiceImpl implements ComponentService {
     }
 
     @Override
-    public Component getComponentById(long id) {
+    public Component getComponentById(Long id) {
         Optional<Component> component = componentRepository.findById(id);
         if (component.isPresent()) {
             return component.get();
@@ -73,14 +73,14 @@ public class ComponentServiceImpl implements ComponentService {
     }
 
     @Override
-    public Component updateComponentReq(ComponentReqDTO componentReqDTO, long id) {
+    public Component updateComponentReq(ComponentReqDTO componentReqDTO, Long id) {
         Component componentInDb = componentRepository.findById(id).orElseThrow(RuntimeException::new);
         componentInDb = setComponentValues(componentReqDTO, componentInDb);
         return componentRepository.save(componentInDb);
     }
 
     @Override
-    public void deleteComponent(long id) {
+    public void deleteComponent(Long id) {
         componentRepository.findById(id).orElseThrow(RuntimeException::new);
         componentRepository.deleteById(id);
     }

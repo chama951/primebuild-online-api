@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface BuildItemService{
     void saveBuildItem(BuildItem buildItem);
 
-    void updateBuildItem(BuildItem buildItem, long id);
+    void updateBuildItem(BuildItem buildItem, Long id);
 
     BuildItem findByBuildIdAndItemId(Long buildId, Long itemId);
 

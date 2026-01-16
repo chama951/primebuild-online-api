@@ -25,18 +25,18 @@ public class FeatureTypeController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<FeatureType> updateFeatureTypeReq(@PathVariable("id") long id, @RequestBody FeatureTypeReqDTO featureTypeReqDTO) {
+    private ResponseEntity<FeatureType> updateFeatureTypeReq(@PathVariable("id") Long id, @RequestBody FeatureTypeReqDTO featureTypeReqDTO) {
         return new ResponseEntity<FeatureType>(featureTypeService.updateFeatureTypeReq(featureTypeReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<FeatureType> getFeatureTypeById(@PathVariable("id") long id) {
+    public ResponseEntity<FeatureType> getFeatureTypeById(@PathVariable("id") Long id) {
         return new ResponseEntity<FeatureType>(featureTypeService.getFeatureTypeById(id), HttpStatus.OK);
     }
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteFeatureType(@PathVariable("id") long id) {
+    public ResponseEntity<Map<String, String>> deleteFeatureType(@PathVariable("id") Long id) {
         featureTypeService.deleteFeatureType(id);
 
         Map<String, String> response = new HashMap<>();

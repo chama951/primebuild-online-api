@@ -19,7 +19,10 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     private final FeatureService featureService;
     private final ItemService itemService;
 
-    public ItemFeatureServiceImpl(ItemService itemService, ItemFeatureRepository itemFeatureRepository, FeatureService featureService) {
+    public ItemFeatureServiceImpl(
+            ItemService itemService,
+            ItemFeatureRepository itemFeatureRepository,
+            FeatureService featureService) {
         this.itemService = itemService;
         this.itemFeatureRepository = itemFeatureRepository;
         this.featureService = featureService;
@@ -54,7 +57,7 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
 
 
     @Override
-    public ItemFeature updateItemFeatureRequest(ItemFeatureDTO itemFeatureDTO, long id) {
+    public ItemFeature updateItemFeatureRequest(ItemFeatureDTO itemFeatureDTO, Long id) {
 
         ItemFeature itemFeatureInDb = itemFeatureRepository.findById(id).orElseThrow(RuntimeException::new);
 
@@ -74,7 +77,7 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     }
 
     @Override
-    public ItemFeature getItemFeatureById(long id) {
+    public ItemFeature getItemFeatureById(Long id) {
         Optional<ItemFeature> itemFeature = itemFeatureRepository.findById(id);
         if (itemFeature.isPresent()) {
             return itemFeature.get();
@@ -84,12 +87,12 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     }
 
     @Override
-    public void deleteAllByItemId(long itemId) {
+    public void deleteAllByItemId(Long itemId) {
         itemFeatureRepository.deleteByItemId(itemId);
     }
 
     @Override
-    public void deleteItemFeature(long id) {
+    public void deleteItemFeature(Long id) {
         itemFeatureRepository.findById(id).orElseThrow(RuntimeException::new);
         itemFeatureRepository.deleteById(id);
     }
@@ -105,8 +108,8 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     }
 
     @Override
-    public void deleteAllByFeatureId(long id) {
-        itemFeatureRepository.deleteAllByItemId(id);
+    public void deleteAllByFeatureId(Long id) {
+        itemFeatureRepository.deleteAllByFeatureId(id);
     }
 
 }

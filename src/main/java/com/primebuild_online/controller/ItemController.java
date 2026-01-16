@@ -25,17 +25,17 @@ public class ItemController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Item> updateItemReq(@PathVariable("id") long id, @RequestBody ItemReqDTO itemReqDTO) {
+    private ResponseEntity<Item> updateItemReq(@PathVariable("id") Long id, @RequestBody ItemReqDTO itemReqDTO) {
         return new ResponseEntity<Item>(itemService.updateItemReq(itemReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Item> getItemById(@PathVariable("id") long id) {
+    public ResponseEntity<Item> getItemById(@PathVariable("id") Long id) {
         return new ResponseEntity<Item>(itemService.getItemById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteItem(@PathVariable("id") long id) {
+    public ResponseEntity<Map<String, String>> deleteItem(@PathVariable("id") Long id) {
         itemService.deleteItem(id);
 
         Map<String, String> response = new HashMap<>();

@@ -10,11 +10,11 @@ public interface FeatureService {
 
     List<Feature> getAllFeature();
 
-    Feature getFeatureById(long id);
+    Feature getFeatureById(Long id);
 
-    Feature updateFeatureReq(FeatureReqDTO featureReqDTO, long id);
+    Feature updateFeatureReq(FeatureReqDTO featureReqDTO, Long id);
 
-    void deleteFeature(long id);
+    void deleteFeature(Long id);
 
     List<Feature> getFeatureListByFeatureType(Long featureTypeId);
 }

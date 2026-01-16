@@ -11,11 +11,11 @@ public interface FeatureTypeService {
 
     List<FeatureType> getAllFeatureType();
 
-    FeatureType getFeatureTypeById(long id);
+    FeatureType getFeatureTypeById(Long id);
 
-    FeatureType updateFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO, long id);
+    FeatureType updateFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO, Long id);
 
-    void deleteFeatureType(long id);
+    void deleteFeatureType(Long id);
 
     FeatureType saveFeatureTypeByComponent(FeatureTypeReqDTO featureTypeReqDTO);
 

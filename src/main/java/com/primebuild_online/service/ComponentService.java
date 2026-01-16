@@ -11,9 +11,9 @@ public interface ComponentService {
 
     List<Component> getAllComponent();
 
-    Component getComponentById(long id);
+    Component getComponentById(Long id);
 
-    Component updateComponentReq(ComponentReqDTO componentReqDTO, long id);
+    Component updateComponentReq(ComponentReqDTO componentReqDTO, Long id);
 
-    void deleteComponent(long id);
+    void deleteComponent(Long id);
 }

@@ -42,7 +42,7 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     }
 
     @Override
-    public FeatureType getFeatureTypeById(long id) {
+    public FeatureType getFeatureTypeById(Long id) {
         Optional<FeatureType> featureType = featureTypeRepository.findById(id);
         if (featureType.isPresent()) {
             return featureType.get();
@@ -52,7 +52,7 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     }
 
     @Override
-    public FeatureType updateFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO, long id) {
+    public FeatureType updateFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO, Long id) {
 
         FeatureType featureTypeInDb = featureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         featureTypeInDb.setFeatureTypeName(featureTypeReqDTO.getFeatureTypeName());
@@ -62,7 +62,7 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     }
 
     @Override
-    public void deleteFeatureType(long id) {
+    public void deleteFeatureType(Long id) {
         featureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         featureTypeRepository.deleteById(id);
     }

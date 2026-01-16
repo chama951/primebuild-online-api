@@ -26,17 +26,17 @@ public class ComponentFeatureTypeController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<ComponentFeatureType> updateComponentFeatureTypeReq(@PathVariable("id") long id, @RequestBody ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO) {
+    private ResponseEntity<ComponentFeatureType> updateComponentFeatureTypeReq(@PathVariable("id") Long id, @RequestBody ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO) {
         return new ResponseEntity<ComponentFeatureType>(componentFeatureTypeService.updateComponentFeatureTypeReq(componentFeatureTypeReqDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ComponentFeatureType> getComponentFeatureTypeById(@PathVariable("id") long id){
+    public ResponseEntity<ComponentFeatureType> getComponentFeatureTypeById(@PathVariable("id") Long id){
         return new ResponseEntity<ComponentFeatureType>(componentFeatureTypeService.getComponentFeatureTypeById(id),HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteComponentFeatureType(@PathVariable("id") long id){
+    public ResponseEntity<Map<String, String>> deleteComponentFeatureType(@PathVariable("id") Long id){
         componentFeatureTypeService.deleteComponentFeatureType(id);
 
         Map<String, String> response = new HashMap<>();

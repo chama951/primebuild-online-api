@@ -30,6 +30,6 @@ public class Feature {
     private FeatureType featureType;
 
     @OneToMany(mappedBy = "feature", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<ItemFeature> itemFeatures = new ArrayList<>();
 }

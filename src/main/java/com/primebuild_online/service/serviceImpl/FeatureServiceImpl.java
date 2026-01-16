@@ -6,6 +6,8 @@ import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.FeatureRepository;
 import com.primebuild_online.service.FeatureService;
 import com.primebuild_online.service.FeatureTypeService;
+import com.primebuild_online.service.ItemFeatureService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +17,14 @@ import java.util.Optional;
 public class FeatureServiceImpl implements FeatureService {
     private final FeatureRepository featureRepository;
     private final FeatureTypeService featureTypeService;
+    private final ItemFeatureService itemFeatureService;
 
     public FeatureServiceImpl(FeatureRepository featureRepository,
-                              FeatureTypeService featureTypeService) {
+                              FeatureTypeService featureTypeService,
+                              @Lazy ItemFeatureService itemFeatureService) {
         this.featureRepository = featureRepository;
         this.featureTypeService = featureTypeService;
+        this.itemFeatureService = itemFeatureService;
     }
 
     @Override
@@ -39,7 +44,7 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public Feature getFeatureById(long id) {
+    public Feature getFeatureById(Long id) {
         Optional<Feature> feature = featureRepository.findById(id);
         if (feature.isPresent()) {
             return feature.get();
@@ -49,7 +54,7 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public Feature updateFeatureReq(FeatureReqDTO featureReqDTO, long id) {
+    public Feature updateFeatureReq(FeatureReqDTO featureReqDTO, Long id) {
         Feature featureInDb = featureRepository.findById(id).orElseThrow(RuntimeException::new);
         featureInDb.setFeatureName(featureReqDTO.getFeatureName());
 
@@ -62,8 +67,8 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public void deleteFeature(long id){
-        featureRepository.findById(id).orElseThrow(RuntimeException::new);
+    public void deleteFeature(Long id){
+        itemFeatureService.deleteAllByFeatureId(id);
         featureRepository.deleteById(id);
     }
 

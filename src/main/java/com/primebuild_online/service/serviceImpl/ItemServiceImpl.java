@@ -20,7 +20,7 @@ public class ItemServiceImpl implements ItemService {
     private final ManufacturerItemService manufacturerItemService;
 
     public ItemServiceImpl(ComponentService componentService,
-                           FeatureService featureService,
+                           @Lazy FeatureService featureService,
                            @Lazy ItemFeatureService itemFeatureService,
                            ItemRepository itemRepository,
                            ManufacturerItemService manufacturerItemService,
@@ -89,7 +89,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item updateItemReq(ItemReqDTO itemReqDTO, long id) {
+    public Item updateItemReq(ItemReqDTO itemReqDTO, Long id) {
         Item itemInDb = itemRepository.findById(id).orElseThrow(RuntimeException::new);
         itemInDb = itemSetValues(itemReqDTO, itemInDb);
 
@@ -97,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getItemById(long id) {
+    public Item getItemById(Long id) {
         Optional<Item> item = itemRepository.findById(id);
         if (item.isPresent()) {
             return item.get();
@@ -107,8 +107,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void deleteItem(long id) {
-        itemRepository.findById(id).orElseThrow(RuntimeException::new);
+    public void deleteItem(Long id) {
+        itemFeatureService.deleteAllByItemId(id);
         itemRepository.deleteById(id);
     }
 
@@ -118,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getInStockItemListByComponent(long componentId) {
+    public List<Item> getInStockItemListByComponent(Long componentId) {
         return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId);
     }
 

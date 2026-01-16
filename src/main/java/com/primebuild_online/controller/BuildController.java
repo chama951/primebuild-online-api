@@ -35,12 +35,12 @@ public class BuildController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Build> getBuildById(@PathVariable("id") long id){
+    public ResponseEntity<Build> getBuildById(@PathVariable("id") Long id){
         return new ResponseEntity<Build>(buildService.getBuildById(id),HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-        public ResponseEntity<Map<String, String>> deleteBuild(@PathVariable("id")long id){
+        public ResponseEntity<Map<String, String>> deleteBuild(@PathVariable("id")Long id){
         buildService.deleteBuild(id);
 
         Map<String, String> response = new HashMap<>();

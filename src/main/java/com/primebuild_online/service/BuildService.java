@@ -13,8 +13,8 @@ public interface BuildService {
 
     List<Build> getAllBuild();
 
-    void deleteBuild(long id);
+    void deleteBuild(Long id);
 
-    Build getBuildById(long id);
+    Build getBuildById(Long id);
 
 }

@@ -27,15 +27,9 @@ public class Build {
     private LocalDateTime lastModified;
 
     @Column(name = "build_status")
-    private String buildStatus; // "DRAFT", "COMPLETED", "COMPATIBLE", "INCOMPATIBLE"
-//
-//    @Column(name = "customer_id")
-//    private Long customerId;
+    private String buildStatus;
 
     @OneToMany(mappedBy = "build",   cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<BuildItem> buildItems = new ArrayList<>();
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "customer_id")
-//    private Customer customer;
 }

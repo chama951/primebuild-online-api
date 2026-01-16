@@ -11,13 +11,13 @@ public interface ItemService {
     List<Item> getAllItem();
 
 
-    Item updateItemReq(ItemReqDTO itemReqDTO, long id);
+    Item updateItemReq(ItemReqDTO itemReqDTO, Long id);
 
-    Item getItemById(long id);
+    Item getItemById(Long id);
 
-    void deleteItem(long id);
+    void deleteItem(Long id);
 
     void saveItem(Item itemByBuildItem);
 
-    List<Item> getInStockItemListByComponent(long componentId);
+    List<Item> getInStockItemListByComponent(Long componentId);
 }

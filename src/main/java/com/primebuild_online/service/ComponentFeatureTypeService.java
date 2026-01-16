@@ -10,11 +10,11 @@ public interface ComponentFeatureTypeService {
 
     List<ComponentFeatureType> getAllComponentFeatureType();
 
-    ComponentFeatureType updateComponentFeatureTypeReq(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO, long id);
+    ComponentFeatureType updateComponentFeatureTypeReq(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO, Long id);
 
-    ComponentFeatureType getComponentFeatureTypeById(long id);
+    ComponentFeatureType getComponentFeatureTypeById(Long id);
 
-    void deleteComponentFeatureType(long id);
+    void deleteComponentFeatureType(Long id);
 
     void deleteAllComponentFeatureTypeByComponentId(Long id);
 
