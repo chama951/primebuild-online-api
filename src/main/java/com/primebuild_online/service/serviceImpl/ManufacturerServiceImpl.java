@@ -1,11 +1,9 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.Component;
 import com.primebuild_online.model.DTO.ManufacturerDTO;
 import com.primebuild_online.model.Manufacturer;
 import com.primebuild_online.repository.ManufacturerRepository;
 import com.primebuild_online.service.ManufacturerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +11,11 @@ import java.util.Optional;
 
 @Service
 public class ManufacturerServiceImpl implements ManufacturerService {
+    private final ManufacturerRepository manufacturerRepository;
 
-    @Autowired
-    private ManufacturerRepository manufacturerRepository;
+    public ManufacturerServiceImpl(ManufacturerRepository manufacturerRepository) {
+        this.manufacturerRepository = manufacturerRepository;
+    }
 
     @Override
     public Manufacturer saveManufacturerDTO(ManufacturerDTO manufacturerDTO) {

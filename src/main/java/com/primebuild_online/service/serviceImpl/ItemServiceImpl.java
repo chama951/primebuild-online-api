@@ -4,7 +4,6 @@ import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -13,23 +12,25 @@ import java.util.Optional;
 
 @Service
 public class ItemServiceImpl implements ItemService {
+    private final ItemRepository itemRepository;
+    private final ManufacturerService manufacturerService;
+    private final FeatureService featureService;
+    private final ItemFeatureService itemFeatureService;
+    private final ComponentService componentService;
+    private final ManufacturerItemService manufacturerItemService;
 
-    @Autowired
-    private ItemRepository itemRepository;
-    @Autowired
-    private ManufacturerService manufacturerService;
-    @Autowired
-    private FeatureService featureService;
-    @Autowired
-    private ItemFeatureService itemFeatureService;
-    @Autowired
-    private ComponentService componentService;
-    @Autowired
-    private ManufacturerItemService manufacturerItemService;
-
-    @Autowired
-    public void setItemFeatureService(@Lazy ItemFeatureService itemFeatureService) {
+    public ItemServiceImpl(ComponentService componentService,
+                           FeatureService featureService,
+                           @Lazy ItemFeatureService itemFeatureService,
+                           ItemRepository itemRepository,
+                           ManufacturerItemService manufacturerItemService,
+                           ManufacturerService manufacturerService) {
+        this.componentService = componentService;
+        this.featureService = featureService;
         this.itemFeatureService = itemFeatureService;
+        this.itemRepository = itemRepository;
+        this.manufacturerItemService = manufacturerItemService;
+        this.manufacturerService = manufacturerService;
     }
 
     @Override

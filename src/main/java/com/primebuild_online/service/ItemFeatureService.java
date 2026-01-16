@@ -23,4 +23,6 @@ public interface ItemFeatureService {
     List<ItemFeature> findByItemId(Long itemId);
 
     void saveItemFeature(ItemFeature itemFeature);
+
+    void deleteAllByFeatureId(long id);
 }

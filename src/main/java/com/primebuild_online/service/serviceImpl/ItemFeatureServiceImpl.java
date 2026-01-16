@@ -8,9 +8,6 @@ import com.primebuild_online.repository.ItemFeatureRepository;
 import com.primebuild_online.service.FeatureService;
 import com.primebuild_online.service.ItemFeatureService;
 import com.primebuild_online.service.ItemService;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,21 +15,15 @@ import java.util.Optional;
 
 @Service
 public class ItemFeatureServiceImpl implements ItemFeatureService {
+    private final ItemFeatureRepository itemFeatureRepository;
+    private final FeatureService featureService;
+    private final ItemService itemService;
 
-    @Autowired
-    private ItemFeatureRepository itemFeatureRepository;
-
-    @Autowired
-    private FeatureService featureService;
-
-    @Getter
-    private ItemService itemService;
-
-    @Autowired
-    public void setItemService(@Lazy ItemService itemService) {
+    public ItemFeatureServiceImpl(ItemService itemService, ItemFeatureRepository itemFeatureRepository, FeatureService featureService) {
         this.itemService = itemService;
+        this.itemFeatureRepository = itemFeatureRepository;
+        this.featureService = featureService;
     }
-
 
     @Override
     public ItemFeature saveItemFeatureRequest(ItemFeatureDTO itemFeatureDTO) {
@@ -95,7 +86,6 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     @Override
     public void deleteAllByItemId(long itemId) {
         itemFeatureRepository.deleteByItemId(itemId);
-
     }
 
     @Override
@@ -112,6 +102,11 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     @Override
     public void saveItemFeature(ItemFeature itemFeature) {
         itemFeatureRepository.save(itemFeature);
+    }
+
+    @Override
+    public void deleteAllByFeatureId(long id) {
+        itemFeatureRepository.deleteAllByItemId(id);
     }
 
 }

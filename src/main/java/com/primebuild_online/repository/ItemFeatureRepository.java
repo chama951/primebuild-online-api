@@ -15,4 +15,8 @@ public interface ItemFeatureRepository extends JpaRepository<ItemFeature, Long> 
     void deleteByItemId(Long itemId);
 
     List<ItemFeature> findAllByItemId(Long itemId);
+
+    @Transactional
+    @Modifying
+    void deleteAllByItemId(long id);
 }

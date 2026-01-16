@@ -19,11 +19,8 @@ import java.util.Optional;
 
 @Service
 public class BuildServiceImpl implements BuildService {
-
     private final ItemService itemService;
-
     private final BuildItemService buildItemService;
-
     private final BuildRepository buildRepository;
 
     public BuildServiceImpl(ItemService itemService, BuildItemService buildItemService, BuildRepository buildRepository, BuildItemRepository buildItemRepository) {

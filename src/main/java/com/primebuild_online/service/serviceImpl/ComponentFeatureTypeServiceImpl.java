@@ -8,8 +8,6 @@ import com.primebuild_online.repository.ComponentFeatureTypeRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.FeatureTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,21 +15,15 @@ import java.util.Optional;
 
 @Service
 public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeService {
+    private final ComponentFeatureTypeRepository componentFeatureTypeRepository;
+    private final ComponentService componentService;
+    private final FeatureTypeService featureTypeService;
 
-    @Autowired
-    private ComponentFeatureTypeRepository componentFeatureTypeRepository;
-
-    private ComponentService componentService;
-
-    private FeatureTypeService featureTypeService;
-
-    @Autowired
-    public void setComponentService(@Lazy ComponentService componentService) {
+    public ComponentFeatureTypeServiceImpl(ComponentFeatureTypeRepository componentFeatureTypeRepository,
+                                           ComponentService componentService,
+                                           FeatureTypeService featureTypeService) {
+        this.componentFeatureTypeRepository = componentFeatureTypeRepository;
         this.componentService = componentService;
-    }
-
-    @Autowired
-    public void setFeatureTypeService(@Lazy FeatureTypeService featureTypeService) {
         this.featureTypeService = featureTypeService;
     }
 

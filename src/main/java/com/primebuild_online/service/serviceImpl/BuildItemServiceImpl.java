@@ -3,7 +3,6 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.BuildItem;
 import com.primebuild_online.repository.BuildItemRepository;
 import com.primebuild_online.service.BuildItemService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +10,11 @@ import java.util.Optional;
 
 @Service
 public class BuildItemServiceImpl implements BuildItemService {
+    private final BuildItemRepository buildItemRepository;
 
-    @Autowired
-    private BuildItemRepository buildItemRepository;
+    public BuildItemServiceImpl(BuildItemRepository buildItemRepository) {
+        this.buildItemRepository = buildItemRepository;
+    }
 
     @Override
     public void saveBuildItem(BuildItem buildItem) {

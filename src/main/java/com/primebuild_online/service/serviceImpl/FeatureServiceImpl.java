@@ -4,10 +4,8 @@ import com.primebuild_online.model.DTO.FeatureReqDTO;
 import com.primebuild_online.model.Feature;
 import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.FeatureRepository;
-import com.primebuild_online.repository.FeatureTypeRepository;
 import com.primebuild_online.service.FeatureService;
 import com.primebuild_online.service.FeatureTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,13 +13,14 @@ import java.util.Optional;
 
 @Service
 public class FeatureServiceImpl implements FeatureService {
+    private final FeatureRepository featureRepository;
+    private final FeatureTypeService featureTypeService;
 
-    @Autowired
-    private FeatureRepository featureRepository;
-    @Autowired
-    private FeatureTypeService featureTypeService;
-    @Autowired
-    private FeatureTypeRepository featureTypeRepository;
+    public FeatureServiceImpl(FeatureRepository featureRepository,
+                              FeatureTypeService featureTypeService) {
+        this.featureRepository = featureRepository;
+        this.featureTypeService = featureTypeService;
+    }
 
     @Override
     public Feature saveFeatureReq(FeatureReqDTO featureReqDTO){
