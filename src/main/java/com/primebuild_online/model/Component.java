@@ -21,6 +21,9 @@ public class Component {
     @Column(name = "component_name", nullable = false)
     private String componentName;
 
+    @Column(name = "is_build_component")
+    private boolean isBuildComponent=true;
+
     @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Item> itemList = new ArrayList<>();
 

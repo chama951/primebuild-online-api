@@ -38,7 +38,7 @@ public class ComponentServiceImpl implements ComponentService {
     private Component setComponentValues(ComponentReqDTO componentReqDTO, Component component) {
         component.setComponentName(componentReqDTO.getComponentName());
         Component savedComponent = componentRepository.save(component);
-        saveNewComponentFeatureTypes(componentReqDTO.getFeatureTypeList(), savedComponent);
+        saveNewComponentFeatureTypes(componentReqDTO.getComponentFeatureTypeList(), savedComponent);
         return savedComponent;
     }
 
