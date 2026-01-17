@@ -45,8 +45,9 @@ public class ItemController {
     }
 
     @GetMapping()
-    public List<Item> getInStockItemListByComponent(@RequestParam(value = "component", required = false) Long componentId) {
+    public List<Item> getItemList(@RequestParam(value = "component", required = false) Long componentId) {
         if (componentId != null) {
+//            inStockItemListByComponent
             return itemService.getInStockItemListByComponent(componentId);
         } else {
             return itemService.getAllItem();

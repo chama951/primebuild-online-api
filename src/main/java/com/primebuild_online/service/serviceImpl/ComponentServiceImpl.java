@@ -31,15 +31,15 @@ public class ComponentServiceImpl implements ComponentService {
     @Override
     public Component saveComponentReq(ComponentReqDTO componentReqDTO) {
         Component newComponent = new Component();
-        newComponent = setComponentValues(componentReqDTO, newComponent);
-        return componentRepository.save(newComponent);
+        return componentRepository.save(setComponentValues(componentReqDTO, newComponent));
     }
 
     private Component setComponentValues(ComponentReqDTO componentReqDTO, Component component) {
         component.setComponentName(componentReqDTO.getComponentName());
-        Component savedComponent = componentRepository.save(component);
-        saveNewComponentFeatureTypes(componentReqDTO.getComponentFeatureTypeList(), savedComponent);
-        return savedComponent;
+        component.setBuildComponent(componentReqDTO.isBuildComponent());
+
+        saveNewComponentFeatureTypes(componentReqDTO.getComponentFeatureTypeList(), component);
+        return component;
     }
 
     private void saveNewComponentFeatureTypes(List<FeatureType> featureTypeList, Component component) {
@@ -83,5 +83,10 @@ public class ComponentServiceImpl implements ComponentService {
     public void deleteComponent(Long id) {
         componentRepository.findById(id).orElseThrow(RuntimeException::new);
         componentRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Component> getIsBuildComponentList() {
+        return componentRepository.findAllByBuildComponent(true);
     }
 }

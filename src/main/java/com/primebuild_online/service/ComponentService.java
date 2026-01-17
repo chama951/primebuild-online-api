@@ -16,4 +16,6 @@ public interface ComponentService {
     Component updateComponentReq(ComponentReqDTO componentReqDTO, Long id);
 
     void deleteComponent(Long id);
+
+    List<Component> getIsBuildComponentList();
 }
