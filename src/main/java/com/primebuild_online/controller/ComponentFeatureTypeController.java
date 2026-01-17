@@ -46,7 +46,7 @@ public class ComponentFeatureTypeController {
     }
 
     @GetMapping
-    public List<ComponentFeatureType> getFeatureComponentTypesByComponent(@RequestParam(value = "component", required = false) Long componentId) {
+    public List<ComponentFeatureType> getComponentFeatureTypesByComponent(@RequestParam(value = "component", required = false) Long componentId) {
         if (componentId != null) {
             return (componentFeatureTypeService.getComponentFeatureTypesByComponentId(componentId));
         } else {

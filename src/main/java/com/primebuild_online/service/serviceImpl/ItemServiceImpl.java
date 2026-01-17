@@ -64,8 +64,6 @@ public class ItemServiceImpl implements ItemService {
 
             manufacturerItemService.saveManufacturerItem(manufacturerItem);
         }
-        saveNewItemFeatures(savedItem, itemReqDTO.getFeatureList());
-
         return savedItem;
     }
 

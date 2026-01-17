@@ -38,14 +38,12 @@ public class ComponentServiceImpl implements ComponentService {
         component.setComponentName(componentReqDTO.getComponentName());
         component.setBuildComponent(componentReqDTO.isBuildComponent());
 
-        saveNewComponentFeatureTypes(componentReqDTO.getComponentFeatureTypeList(), component);
-        return component;
+       return component;
     }
 
     private void saveNewComponentFeatureTypes(List<FeatureType> featureTypeList, Component component) {
 
         if (featureTypeList != null) {
-            componentFeatureTypeService.deleteAllComponentFeatureTypeByComponentId(component.getId());
             for (FeatureType featureTypeRequest : featureTypeList) {
                 FeatureType featureType = featureTypeService.getFeatureTypeById(featureTypeRequest.getId());
                 ComponentFeatureType componentFeatureType = new ComponentFeatureType();
