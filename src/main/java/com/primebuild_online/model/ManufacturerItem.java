@@ -3,22 +3,21 @@ package com.primebuild_online.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
-@Table(name = "item_feature")
-public class ItemFeature {
+@Table(name = "manufacturer_item")
+public class ManufacturerItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "slot_count")
-    private Integer slotCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
@@ -27,8 +26,10 @@ public class ItemFeature {
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feature_id")
+    @JoinColumn(name = "manufacturer_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemFeatures"})
-    private Feature feature;
+    @JsonIgnore
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
+    private Manufacturer manufacturer;
+
 }

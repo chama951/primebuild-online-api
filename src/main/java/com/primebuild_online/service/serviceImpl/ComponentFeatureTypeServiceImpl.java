@@ -1,0 +1,105 @@
+package com.primebuild_online.service.serviceImpl;
+
+import com.primebuild_online.model.Component;
+import com.primebuild_online.model.ComponentFeatureType;
+import com.primebuild_online.model.DTO.ComponentFeatureTypeReqDTO;
+import com.primebuild_online.model.FeatureType;
+import com.primebuild_online.repository.ComponentFeatureTypeRepository;
+import com.primebuild_online.service.ComponentFeatureTypeService;
+import com.primebuild_online.service.ComponentService;
+import com.primebuild_online.service.FeatureTypeService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeService {
+    private final ComponentFeatureTypeRepository componentFeatureTypeRepository;
+    private final ComponentService componentService;
+    private final FeatureTypeService featureTypeService;
+
+    public ComponentFeatureTypeServiceImpl(ComponentFeatureTypeRepository componentFeatureTypeRepository,
+                                           ComponentService componentService,
+                                           FeatureTypeService featureTypeService) {
+        this.componentFeatureTypeRepository = componentFeatureTypeRepository;
+        this.componentService = componentService;
+        this.featureTypeService = featureTypeService;
+    }
+
+    @Override
+    public ComponentFeatureType saveComponentFeatureType(ComponentFeatureType componentFeatureType) {
+        componentFeatureType.setComponent(componentFeatureType.getComponent());
+        componentFeatureType.setFeatureType(componentFeatureType.getFeatureType());
+        return componentFeatureTypeRepository.save(componentFeatureType);
+    }
+
+    @Override
+    public ComponentFeatureType saveComponentFeatureTypeReq(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO) {
+        ComponentFeatureType newComponentFeatureType = new ComponentFeatureType();
+        if (componentFeatureTypeReqDTO.getComponentId() != null) {
+            Component component = componentService.getComponentById(componentFeatureTypeReqDTO.getComponentId());
+            newComponentFeatureType.setComponent(component);
+        }
+        if (componentFeatureTypeReqDTO.getFeatureTypeId() != null) {
+            FeatureType featureType = featureTypeService.getFeatureTypeById(componentFeatureTypeReqDTO.getFeatureTypeId());
+            newComponentFeatureType.setFeatureType(featureType);
+        }
+        componentFeatureTypeRepository.save(newComponentFeatureType);
+        return newComponentFeatureType;
+
+    }
+
+    @Override
+    public List<ComponentFeatureType> getAllComponentFeatureType() {
+        return componentFeatureTypeRepository.findAll();
+    }
+
+    @Override
+    public ComponentFeatureType updateComponentFeatureTypeReq(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO, Long id) {
+        ComponentFeatureType componentFeatureTypeInDb = componentFeatureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
+        if (componentFeatureTypeReqDTO.getComponentId() != null) {
+            Component component = componentService.getComponentById(componentFeatureTypeReqDTO.getComponentId());
+            componentFeatureTypeInDb.setComponent(component);
+            componentFeatureTypeRepository.save(componentFeatureTypeInDb);
+        } else {
+            componentFeatureTypeRepository.delete(componentFeatureTypeInDb);
+        }
+        if (componentFeatureTypeReqDTO.getFeatureTypeId() != null) {
+            FeatureType featureType = featureTypeService.getFeatureTypeById(componentFeatureTypeReqDTO.getFeatureTypeId());
+            componentFeatureTypeInDb.setFeatureType(featureType);
+            componentFeatureTypeRepository.save(componentFeatureTypeInDb);
+        } else {
+            componentFeatureTypeRepository.delete(componentFeatureTypeInDb);
+        }
+
+        return componentFeatureTypeInDb;
+    }
+
+    @Override
+    public ComponentFeatureType getComponentFeatureTypeById(Long id) {
+        Optional<ComponentFeatureType> componentFeature = componentFeatureTypeRepository.findById(id);
+        if (componentFeature.isPresent()) {
+            return componentFeature.get();
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public void deleteComponentFeatureType(Long id) {
+        componentFeatureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
+        componentFeatureTypeRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllComponentFeatureTypeByComponentId(Long id) {
+        componentFeatureTypeRepository.deleteAllComponentFeatureTypeByComponentId(id);
+    }
+
+    @Override
+    public List<ComponentFeatureType> getComponentFeatureTypesByComponentId(Long componentId) {
+        System.out.println("componentId " + componentId);
+        return componentFeatureTypeRepository.getComponentFeatureTypesByComponentId(componentId);
+    }
+}

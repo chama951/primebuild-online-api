@@ -1,11 +1,13 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,12 +21,10 @@ public class Manufacturer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column(name = "manufacturer_name")
     private String manufacturerName;
 
-
-    @OneToMany(mappedBy = "manufacturer")
-    @JsonIgnore
-    private List<Item> itemList;
+    @OneToMany(mappedBy = "manufacturer",  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private List<ManufacturerItem> manufacturerItemList = new ArrayList<>();
 }

@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,7 +21,7 @@ public class Item {
     private Long id;
 
     @Column(name = "item_name")
-    private String itemName;  // "Intel Core i7-13700K", "ASUS Z790", etc.
+    private String itemName;
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -28,17 +31,21 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemList"})
     private Component component;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
-    private List<BuildItem> buildItems;
+    private List<BuildItem> buildItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<ItemFeature> itemFeatureList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
     private Manufacturer manufacturer;
-
-
 }

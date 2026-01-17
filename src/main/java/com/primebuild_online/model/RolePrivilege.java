@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @AllArgsConstructor
@@ -19,11 +21,13 @@ public class RolePrivilege {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "role_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnore
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "privilege", nullable = false, length = 50)
+    @Column(name = "privilege")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Privilege privilege;
 }

@@ -1,9 +1,13 @@
 package com.primebuild_online.service.serviceImpl;
 
+import com.primebuild_online.model.DTO.FeatureReqDTO;
 import com.primebuild_online.model.Feature;
+import com.primebuild_online.model.FeatureType;
 import com.primebuild_online.repository.FeatureRepository;
 import com.primebuild_online.service.FeatureService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.primebuild_online.service.FeatureTypeService;
+import com.primebuild_online.service.ItemFeatureService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,13 +15,26 @@ import java.util.Optional;
 
 @Service
 public class FeatureServiceImpl implements FeatureService {
+    private final FeatureRepository featureRepository;
+    private final FeatureTypeService featureTypeService;
+    private final ItemFeatureService itemFeatureService;
 
-    @Autowired
-    private FeatureRepository featureRepository;
+    public FeatureServiceImpl(FeatureRepository featureRepository,
+                              FeatureTypeService featureTypeService,
+                              @Lazy ItemFeatureService itemFeatureService) {
+        this.featureRepository = featureRepository;
+        this.featureTypeService = featureTypeService;
+        this.itemFeatureService = itemFeatureService;
+    }
 
     @Override
-    public Feature saveFeature(Feature feature){
-        feature.setFeatureType(feature.getFeatureType());
+    public Feature saveFeatureReq(FeatureReqDTO featureReqDTO){
+        Feature feature= new Feature();
+        feature.setFeatureName(featureReqDTO.getFeatureName());
+        if(featureReqDTO.getFeatureTypeId()!=null){
+            FeatureType featureType = featureTypeService.getFeatureTypeById(featureReqDTO.getFeatureTypeId());
+            feature.setFeatureType(featureType);
+        }
         return featureRepository.save(feature);
     }
 
@@ -27,7 +44,7 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public Feature getFeatureById(long id) {
+    public Feature getFeatureById(Long id) {
         Optional<Feature> feature = featureRepository.findById(id);
         if (feature.isPresent()) {
             return feature.get();
@@ -37,19 +54,31 @@ public class FeatureServiceImpl implements FeatureService {
     }
 
     @Override
-    public Feature updateFeature(Feature feature, long id) {
-        Feature existingFeature = featureRepository.findById(id).orElseThrow(RuntimeException::new);
-        existingFeature.setFeatureName(feature.getFeatureName());
-        existingFeature.setFeatureType(feature.getFeatureType());
-        existingFeature.setItemFeatures(feature.getItemFeatures());
-        featureRepository.save(existingFeature);
-        return existingFeature;
+    public Feature updateFeatureReq(FeatureReqDTO featureReqDTO, Long id) {
+        Feature featureInDb = featureRepository.findById(id).orElseThrow(RuntimeException::new);
+        featureInDb.setFeatureName(featureReqDTO.getFeatureName());
+
+        if(featureReqDTO.getFeatureTypeId()!=null){
+            FeatureType featureType = featureTypeService.getFeatureTypeById(featureReqDTO.getFeatureTypeId());
+            featureInDb.setFeatureType(featureType);
+        }
+        featureRepository.save(featureInDb);
+        return featureInDb;
     }
 
     @Override
-    public void deleteFeature(long id){
-        featureRepository.findById(id).orElseThrow(RuntimeException::new);
+    public void deleteFeature(Long id){
+        itemFeatureService.deleteAllByFeatureId(id);
         featureRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Feature> getFeatureListByFeatureType(Long featureTypeId) {
+        return featureRepository.findAllByFeatureTypeId(featureTypeId);
+    }
+
+    public List<Feature> getFeaturesListByItem(Long itemId){
+        return null;
     }
 
 }

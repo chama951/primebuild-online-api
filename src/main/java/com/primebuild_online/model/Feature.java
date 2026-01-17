@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -21,10 +25,11 @@ public class Feature {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feature_type_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "featureList", "featureTypeName"})
     private FeatureType featureType;
 
-    @OneToMany(mappedBy = "feature")
-    @JsonIgnore
-    private List<ItemFeature> itemFeatures;
+    @OneToMany(mappedBy = "feature", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<ItemFeature> itemFeatures = new ArrayList<>();
 }

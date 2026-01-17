@@ -1,6 +1,6 @@
 package com.primebuild_online.controller;
 
-import com.primebuild_online.model.Component;
+import com.primebuild_online.model.DTO.ManufacturerDTO;
 import com.primebuild_online.model.Manufacturer;
 import com.primebuild_online.service.ManufacturerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/manufacturer")
@@ -18,8 +20,8 @@ public class ManufacturerController {
     private ManufacturerService manufacturerService;
 
     @PostMapping
-    public ResponseEntity<Manufacturer> saveComponent(@RequestBody Manufacturer manufacturer) {
-        return new ResponseEntity<>(manufacturerService.saveManufacturer(manufacturer), HttpStatus.CREATED);
+    public ResponseEntity<Manufacturer> saveComponentReq(@RequestBody ManufacturerDTO manufacturerDTO) {
+        return new ResponseEntity<>(manufacturerService.saveManufacturerDTO(manufacturerDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -28,19 +30,23 @@ public class ManufacturerController {
     }
 
     @PutMapping("{id}")
-    private ResponseEntity<Manufacturer> updateManufacturerById(@PathVariable("id") long id, @RequestBody Manufacturer manufacturer) {
-        return new ResponseEntity<Manufacturer>(manufacturerService.updateManufacturer(manufacturer,id),HttpStatus.OK);
+    private ResponseEntity<Manufacturer> updateManufacturerReq(@PathVariable("id") Long id, @RequestBody ManufacturerDTO manufacturerDTO) {
+        return new ResponseEntity<Manufacturer>(manufacturerService.updateManufacturerReq(manufacturerDTO,id),HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Manufacturer> getManufacturerById(@PathVariable("id") long id){
+    public ResponseEntity<Manufacturer> getManufacturerById(@PathVariable("id") Long id){
         return new ResponseEntity<Manufacturer>(manufacturerService.getManufacturerById(id),HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteManufacturer(@PathVariable("id") long id){
+    public ResponseEntity<Map<String, String>> deleteManufacturer(@PathVariable("id") Long id){
         manufacturerService.deleteManufacturer(id);
-        return new ResponseEntity<String>("Manufacturer deleted Successfully",HttpStatus.OK);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Manufacturer deleted Successfully");
+
+        return ResponseEntity.ok(response);
     }
 
 

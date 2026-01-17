@@ -1,23 +1,20 @@
 package com.primebuild_online.service;
 
 import com.primebuild_online.model.Build;
-import com.primebuild_online.model.DTO.BuildRequestDTO;
-import com.primebuild_online.model.DTO.ItemListDTO;
-import com.primebuild_online.model.Item;
+import com.primebuild_online.model.DTO.BuildReqDTO;
 
 import java.util.List;
 
 public interface BuildService {
 
-    Build saveBuild(BuildRequestDTO buildRequest);
+    Build saveBuildReq(BuildReqDTO buildReqDTO);
 
-    Build updateBuild(BuildRequestDTO buildRequestDTO, long id);
+    Build updateBuildReq(BuildReqDTO buildReqDTO, Long id);
 
     List<Build> getAllBuild();
 
-    void deleteBuild(long id);
+    void deleteBuild(Long id);
 
-    Build getBuildById(long id);
+    Build getBuildById(Long id);
 
-    Build addNewItems(ItemListDTO items, long id);
 }

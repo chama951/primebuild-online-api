@@ -1,9 +1,11 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Table(name = "feature_type")
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class FeatureType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,12 +22,12 @@ public class FeatureType {
     @Column(name = "feature_type_name")
     private String featureTypeName;
 
+    @OneToMany(mappedBy = "featureType", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private List<Feature> featureList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "featureType")
+    @OneToMany(mappedBy = "featureType", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore
-    private List<Feature> featureList;
-
-    @OneToMany(mappedBy = "featureType")
-    @JsonIgnore
-    private List<ComponentFeatureType> componentFeatureTypes;
+    private List<ComponentFeatureType> componentFeatureTypes = new ArrayList<>();
 }

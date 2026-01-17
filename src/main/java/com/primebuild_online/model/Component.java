@@ -1,8 +1,11 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,13 +19,16 @@ public class Component {
     private Long id;
 
     @Column(name = "component_name", nullable = false)
-    private String componentName;  // "CPU", "Motherboard", "Memory", "GPU", etc.
+    private String componentName;
 
-    @OneToMany(mappedBy = "component")
-    @JsonIgnore
-    private List<Item> itemList;
+    @Column(name = "is_build_component")
+    private boolean isBuildComponent=true;
 
-    @OneToMany(mappedBy = "component")
-    @JsonIgnore
-    private List<ComponentFeatureType> componentFeatureTypeList;
+    @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Item> itemList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component", "featureList"})
+    private List<ComponentFeatureType> componentFeatureTypeList = new ArrayList<>();
+
 }
