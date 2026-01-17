@@ -37,23 +37,23 @@ public class ComponentServiceImpl implements ComponentService {
     private Component setComponentValues(ComponentReqDTO componentReqDTO, Component component) {
         component.setComponentName(componentReqDTO.getComponentName());
         component.setBuildComponent(componentReqDTO.isBuildComponent());
-
+        component.setBuildPriority(componentReqDTO.getBuildPriority());
        return component;
     }
 
-    private void saveNewComponentFeatureTypes(List<FeatureType> featureTypeList, Component component) {
-
-        if (featureTypeList != null) {
-            for (FeatureType featureTypeRequest : featureTypeList) {
-                FeatureType featureType = featureTypeService.getFeatureTypeById(featureTypeRequest.getId());
-                ComponentFeatureType componentFeatureType = new ComponentFeatureType();
-                componentFeatureType.setComponent(component);
-                componentFeatureType.setFeatureType(featureType);
-                componentFeatureTypeService.saveComponentFeatureType(componentFeatureType);
-            }
-        }
-
-    }
+//    private void saveNewComponentFeatureTypes(List<FeatureType> featureTypeList, Component component) {
+//
+//        if (featureTypeList != null) {
+//            for (FeatureType featureTypeRequest : featureTypeList) {
+//                FeatureType featureType = featureTypeService.getFeatureTypeById(featureTypeRequest.getId());
+//                ComponentFeatureType componentFeatureType = new ComponentFeatureType();
+//                componentFeatureType.setComponent(component);
+//                componentFeatureType.setFeatureType(featureType);
+//                componentFeatureTypeService.saveComponentFeatureType(componentFeatureType);
+//            }
+//        }
+//
+//    }
 
     @Override
     public List<Component> getAllComponent() {
@@ -85,6 +85,6 @@ public class ComponentServiceImpl implements ComponentService {
 
     @Override
     public List<Component> getIsBuildComponentList() {
-        return componentRepository.findAllByBuildComponent(true);
+        return componentRepository.findBuildComponentsOrderedByPriority();
     }
 }

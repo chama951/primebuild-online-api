@@ -16,4 +16,5 @@ public class ComponentReqDTO {
     private Long id;
     private String componentName;
     private boolean buildComponent;
+    private Integer buildPriority;
 }

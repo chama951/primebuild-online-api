@@ -23,6 +23,9 @@ public class Component {
     @Column(name = "build_component")
     private boolean buildComponent;
 
+    @Column(name = "build_priority")
+    private Integer buildPriority;
+
     @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component"})
     private List<Item> itemList = new ArrayList<>();
