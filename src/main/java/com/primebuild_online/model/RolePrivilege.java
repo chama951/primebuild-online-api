@@ -1,6 +1,7 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.primebuild_online.model.enumerations.Privilege;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "role_privileges")
+@Table(name = "role_privilege")
 public class RolePrivilege {
 
     @Id
@@ -27,7 +28,6 @@ public class RolePrivilege {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "privilege")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @Column(name = "build_status")
     private Privilege privilege;
 }

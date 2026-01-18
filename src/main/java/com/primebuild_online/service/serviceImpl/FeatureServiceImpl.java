@@ -57,7 +57,7 @@ public class FeatureServiceImpl implements FeatureService {
     public Feature updateFeatureReq(FeatureReqDTO featureReqDTO, Long id) {
         Feature featureInDb = featureRepository.findById(id).orElseThrow(RuntimeException::new);
         featureInDb.setFeatureName(featureReqDTO.getFeatureName());
-
+        System.out.println("featureReqDTO.getFeatureName() "+featureReqDTO.getFeatureName());
         if(featureReqDTO.getFeatureTypeId()!=null){
             FeatureType featureType = featureTypeService.getFeatureTypeById(featureReqDTO.getFeatureTypeId());
             featureInDb.setFeatureType(featureType);

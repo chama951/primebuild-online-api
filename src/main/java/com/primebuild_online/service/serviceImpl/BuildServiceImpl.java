@@ -4,7 +4,7 @@ import com.primebuild_online.model.Build;
 import com.primebuild_online.model.BuildItem;
 import com.primebuild_online.model.DTO.BuildReqDTO;
 import com.primebuild_online.model.Item;
-import com.primebuild_online.model.BuildStatus;
+import com.primebuild_online.model.enumerations.BuildStatus;
 import com.primebuild_online.repository.BuildItemRepository;
 import com.primebuild_online.repository.BuildRepository;
 import com.primebuild_online.service.BuildItemService;
@@ -33,7 +33,7 @@ public class BuildServiceImpl implements BuildService {
     public Build saveBuildReq(BuildReqDTO buildReqDTO) {
         Build newBuild = new Build();
 
-        newBuild.setBuildStatus(buildReqDTO.getBuildStatus());
+        newBuild.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         newBuild.setCreatedDate(LocalDateTime.now());
 
         Build savedBuild = buildRepository.save(newBuild);
@@ -50,7 +50,7 @@ public class BuildServiceImpl implements BuildService {
     public Build updateBuildReq(BuildReqDTO buildReqDTO, Long buildId) {
         Build buildInDb = buildRepository.findById(buildId).orElseThrow(RuntimeException::new);
 
-        buildInDb.setBuildStatus(buildReqDTO.getBuildStatus());
+        buildInDb.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         buildInDb.setLastModified(LocalDateTime.now());
 
         List<BuildItem> buildItemListByBuild = buildItemService.findAllByBuildId(buildId);

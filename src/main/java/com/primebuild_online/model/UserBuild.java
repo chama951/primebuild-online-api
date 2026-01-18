@@ -1,32 +1,35 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
-@Table(name = "invoice_item")
-public class InvoiceItem {
+@Table(name = "user_build")
+public class UserBuild {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "invoice_quantity", nullable = false)
-    private Integer invoiceQuantity;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invoice_id")
+    @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Invoice invoice;
+    @JsonIgnore
+    private User user;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Item item;
-
 }

@@ -1,9 +1,9 @@
 package com.primebuild_online.model;
 
+import com.primebuild_online.model.enumerations.InvoiceStatus;
+import com.primebuild_online.model.enumerations.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,24 +28,21 @@ public class Invoice {
     @Column(name = "total_amount", nullable = false)
     private Double totalAmount;
 
-    @Column(name = "status", nullable = false)
-    private String status; // "DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED", "REFUNDED"
+    @Enumerated(EnumType.STRING)
+    @Column(name = "invoice_status")
+    private InvoiceStatus invoiceStatus;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private String paymentMethod; // "CREDIT_CARD", "PAYPAL", "BANK_TRANSFER", "CASH"
+    private PaymentMethod paymentMethod;
 
     @Column(name = "billing_address")
     private String billingAddress;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Customer customer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "build_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Build build;
+    @JoinColumn(name = "user_id")
+//    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private User user;
 
     @OneToMany(mappedBy = "invoice", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<InvoiceItem> invoiceItems = new ArrayList<>();

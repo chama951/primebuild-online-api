@@ -1,8 +1,9 @@
 package com.primebuild_online.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.primebuild_online.model.enumerations.BuildStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +27,10 @@ public class Build {
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
 
-    @Column(name = "build_status")
-    private String buildStatus;
-
-    @OneToMany(mappedBy = "build",   cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "build", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<BuildItem> buildItems = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "build_status")
+    private BuildStatus buildStatus;
 }

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,7 +43,13 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    @Column(name = "is_customer")
+    private boolean isCustomer;
+
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<UserRole> userRoles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user",   cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<UserBuild> userBuildList = new ArrayList<>();
 
 }
