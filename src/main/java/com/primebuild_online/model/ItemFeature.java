@@ -23,7 +23,7 @@ public class ItemFeature {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemFeatures", "manufacturer", "component"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemFeatureList", "manufacturer", "component"})
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
