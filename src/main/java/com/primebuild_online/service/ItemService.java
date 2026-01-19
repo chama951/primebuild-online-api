@@ -20,4 +20,6 @@ public interface ItemService {
     void saveItem(Item itemByBuildItem);
 
     List<Item> getInStockItemListByComponent(Long componentId);
+
+    List<Item> getItemsByIds(List<Long> ids);
 }
