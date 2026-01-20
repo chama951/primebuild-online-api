@@ -13,9 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BuildReqDTO {
-    private Double totalPrice;
-    private LocalDateTime createdDate;
-    private LocalDateTime lastModified;
     private String buildStatus;
     private List<Item> itemList = new ArrayList<>();
 }

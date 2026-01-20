@@ -29,7 +29,7 @@ public class Feature {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "featureList", "featureTypeName"})
     private FeatureType featureType;
 
-    @OneToMany(mappedBy = "feature", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "feature", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<ItemFeature> itemFeatures = new ArrayList<>();
 }

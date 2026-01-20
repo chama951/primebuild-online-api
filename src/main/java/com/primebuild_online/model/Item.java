@@ -32,7 +32,7 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemList"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "componentFeatureTypeList", "itemList"})
     private Component component;
 
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})

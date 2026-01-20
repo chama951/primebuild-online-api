@@ -28,8 +28,8 @@ public class UserBuild {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "build_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer"})
-    private Item item;
+    private Build build;
 }

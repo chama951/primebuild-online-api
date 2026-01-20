@@ -120,4 +120,9 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId);
     }
 
+    @Override
+    public List<Item> getItemsByIds(List<Long> ids) {
+        return itemRepository.findAllById(ids);
+    }
+
 }
