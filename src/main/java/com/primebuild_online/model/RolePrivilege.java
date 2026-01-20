@@ -28,6 +28,6 @@ public class RolePrivilege {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "build_status")
+    @Column(name = "privilege")
     private Privilege privilege;
 }
