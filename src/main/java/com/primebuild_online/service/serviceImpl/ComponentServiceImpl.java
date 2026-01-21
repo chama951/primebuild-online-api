@@ -38,6 +38,7 @@ public class ComponentServiceImpl implements ComponentService {
         component.setComponentName(componentReqDTO.getComponentName());
         component.setBuildComponent(componentReqDTO.isBuildComponent());
         component.setBuildPriority(componentReqDTO.getBuildPriority());
+        component.setPowerSource(componentReqDTO.isPowerSource());
        return component;
     }
 

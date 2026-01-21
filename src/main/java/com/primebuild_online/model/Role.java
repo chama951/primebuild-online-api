@@ -1,6 +1,6 @@
 package com.primebuild_online.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.primebuild_online.model.enumerations.Privileges;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -24,10 +24,7 @@ public class Role {
     @Column(name = "role_name", nullable = false)
     private String roleName;
 
-    @OneToMany(mappedBy = "role", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnore
-    private Set<UserRole> userRoles = new HashSet<>();
-
-    @OneToMany(mappedBy = "role", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<RolePrivilege> rolePrivileges = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "privilege")
+    private Set<Privileges> privileges = new HashSet<>();
 }

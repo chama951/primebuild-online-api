@@ -1,6 +1,6 @@
 package com.primebuild_online.model.enumerations;
 
-public enum Privilege {
+public enum Privileges {
     ADMIN,
     USER_MANAGEMENT,
     INVENTORY_MANAGEMENT,

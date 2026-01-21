@@ -1,22 +1,25 @@
 package com.primebuild_online.service.serviceImpl;
 
+import com.primebuild_online.model.Component;
 import com.primebuild_online.model.DTO.BuildReqDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.ItemFeature;
 import com.primebuild_online.service.CompatibilityService;
+import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.ItemService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CompatibilityServiceImpl implements CompatibilityService {
 
     private final ItemService itemService;
+    private final ComponentService componentService;
 
-    public CompatibilityServiceImpl(ItemService itemService) {
+    public CompatibilityServiceImpl(ItemService itemService, ComponentService componentService) {
         this.itemService = itemService;
+        this.componentService = componentService;
     }
 
     public List<Item> getCompatibleItemsByComponent(BuildReqDTO buildReqDTO, Long componentId) {
@@ -178,6 +181,74 @@ public class CompatibilityServiceImpl implements CompatibilityService {
         System.out.println("Total Compatible Items: " + compatibleItemList.size());
 
         return compatibleItemList;
+    }
+
+    @Override
+    public List<Item> getCompatiblePowerSources(BuildReqDTO buildReqDTO, Long componentId, Boolean powerSource) {
+        System.out.println("\n================ START POWER SOURCE COMPATIBILITY CHECK ================\n");
+
+        List<Long> buildItemIds = buildReqDTO.getItemList()
+                .stream()
+                .map(Item::getId)
+                .toList();
+
+        List<Item> buildItems = itemService.getItemsByIds(buildItemIds);
+
+        float totalPower = 0;
+
+        for (Item item : buildItems) {
+            totalPower += item.getPowerConsumption();
+            System.out.println("\n--- Build Item ---");
+            System.out.println(item.getId() + " | " +
+                    item.getComponent().getComponentName() + " | " +
+                    item.getItemName());
+
+            System.out.println("Power Consumption " + item.getPowerConsumption() + "W");
+        }
+
+        System.out.println("\n====================================");
+
+        System.out.println("Total Power Consumption: " + totalPower + "W");
+
+        Component componentInDb = componentService.getComponentById(componentId);
+
+        List<Item> compatiblePowerSources = new ArrayList<>();
+
+        float powerSourceOutput;
+
+        if (componentInDb.isPowerSource()) {
+
+            for (Item cadidate : componentInDb.getItemList()) {
+
+                powerSourceOutput = cadidate.getPowerConsumption();
+
+                System.out.println("\n====================================");
+
+                System.out.println("Checking Candidate:");
+
+                System.out.println(cadidate.getId() + " | " +
+                        cadidate.getComponent().getComponentName() + " | " +
+                        cadidate.getItemName());
+
+                System.out.println("Power Consumption: " + cadidate.getPowerConsumption() + "W");
+
+                if (powerSourceOutput >= totalPower) {
+
+                    System.out.println("FINAL RESULT: COMPATIBLE");
+
+                    compatiblePowerSources.add(cadidate);
+
+                } else {
+
+                    System.out.println("FINAL RESULT: NOT COMPATIBLE");
+                }
+            }
+        }
+
+        System.out.println("\n================ END POWER SOURCE COMPATIBILITY CHECK ================");
+        System.out.println("Total Compatible Power Sources: " + compatiblePowerSources.size());
+
+        return compatiblePowerSources;
     }
 
 
