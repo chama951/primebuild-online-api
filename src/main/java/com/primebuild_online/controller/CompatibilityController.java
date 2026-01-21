@@ -22,4 +22,13 @@ public class CompatibilityController {
         return compatibilityService.getCompatibleItemsByComponent(buildReqDTO, componentId);
     }
 
+    @PostMapping("/power_source")
+    public List<Item> getCompatiblePowerSource(
+            @RequestParam(value = "component", required = false) Long componentId,
+            @RequestParam(value = "powerSource", required = false) Boolean powerSource,
+            @RequestBody BuildReqDTO buildReqDTO){
+            return compatibilityService.getCompatiblePowerSources(buildReqDTO, componentId, powerSource);
+    }
+
+
 }

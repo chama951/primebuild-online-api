@@ -29,6 +29,9 @@ public class Item {
     @Column(name = "price")
     private Double price;
 
+    @Column(name = "power_consumption")
+    private float powerConsumption;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)

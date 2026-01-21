@@ -46,6 +46,7 @@ public class ItemServiceImpl implements ItemService {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
         item.setPrice(itemReqDTO.getPrice());
+        item.setPowerConsumption(itemReqDTO.getPowerConsumption());
 
         if (itemReqDTO.getComponentId() != null) {
             Component component = componentService.getComponentById(itemReqDTO.getComponentId());

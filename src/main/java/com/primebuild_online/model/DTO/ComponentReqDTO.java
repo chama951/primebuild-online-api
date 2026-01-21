@@ -17,4 +17,5 @@ public class ComponentReqDTO {
     private String componentName;
     private boolean buildComponent;
     private Integer buildPriority;
+    private boolean  powerSource;
 }

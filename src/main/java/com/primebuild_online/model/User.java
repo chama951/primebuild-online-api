@@ -43,13 +43,10 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    @Column(name = "is_customer")
-    private boolean isCustomer;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<UserRole> userRoles = new HashSet<>();
-
-    @OneToMany(mappedBy = "user",   cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<UserBuild> userBuildList = new ArrayList<>();
-
 }

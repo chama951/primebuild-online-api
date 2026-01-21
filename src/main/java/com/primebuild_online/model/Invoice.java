@@ -1,7 +1,7 @@
 package com.primebuild_online.model;
 
 import com.primebuild_online.model.enumerations.InvoiceStatus;
-import com.primebuild_online.model.enumerations.PaymentMethod;
+import com.primebuild_online.model.enumerations.PaymentMethods;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +34,7 @@ public class Invoice {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private PaymentMethod paymentMethod;
+    private PaymentMethods paymentMethods;
 
     @Column(name = "billing_address")
     private String billingAddress;
