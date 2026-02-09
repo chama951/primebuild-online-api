@@ -1,30 +1,31 @@
 package com.primebuild_online.model;
 
-import com.primebuild_online.model.enumerations.Privileges;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Table(name = "role")
 public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "role_name", nullable = false)
     private String roleName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "privilege")
-    private Set<Privileges> privileges = new HashSet<>();
+    @OneToMany(mappedBy = "role", cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "role"})
+    private List<RolePrivilege> rolePrivilegeList = new ArrayList<>();
 }

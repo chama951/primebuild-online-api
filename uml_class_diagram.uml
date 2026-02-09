@@ -1,224 +1,180 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Diagram>
   <ID>JAVA</ID>
-  <OriginalElement>com.primebuild_online.model.InvoiceItem</OriginalElement>
+  <OriginalElement>com.primebuild_online.model.enumerations.BuildStatus</OriginalElement>
   <nodes>
-    <node x="793.5" y="1441.0">com.primebuild_online.model.ComponentFeatureType</node>
-    <node x="324.66666666666674" y="1295.5952380952383">com.primebuild_online.model.FeatureType</node>
-    <node x="72.5" y="1189.5">com.primebuild_online.model.ItemFeature</node>
-    <node x="1211.0" y="409.5">com.primebuild_online.model.BuildItem</node>
-    <node x="1422.0" y="932.375">com.primebuild_online.model.ManufacturerItem</node>
-    <node x="1119.0" y="1406.5">com.primebuild_online.model.Component</node>
-    <node x="964.0" y="652.0">com.primebuild_online.model.Invoice</node>
-    <node x="630.2142857142858" y="830.5595238095239">com.primebuild_online.model.enumerations.PaymentMethod</node>
-    <node x="529.0" y="481.0">com.primebuild_online.model.UserRole</node>
-    <node x="1019.7857142857144" y="1143.5">com.primebuild_online.model.Item</node>
-    <node x="-189.0" y="401.0">com.primebuild_online.model.RolePrivilege</node>
-    <node x="693.2142857142858" y="639.75">com.primebuild_online.model.enumerations.InvoiceStatus</node>
-    <node x="926.7380952380952" y="386.5">com.primebuild_online.model.Build</node>
-    <node x="-368.76190476190476" y="546.5">com.primebuild_online.model.enumerations.Privilege</node>
-    <node x="347.0" y="581.0">com.primebuild_online.model.UserBuild</node>
-    <node x="-237.0" y="1029.5">com.primebuild_online.model.Role</node>
-    <node x="838.2142857142858" y="966.7499999999999">com.primebuild_online.model.Manufacturer</node>
-    <node x="681.2142857142856" y="409.5">com.primebuild_online.model.enumerations.BuildStatus</node>
-    <node x="1291.5" y="709.5">com.primebuild_online.model.InvoiceItem</node>
-    <node x="27.0" y="1429.5">com.primebuild_online.model.Feature</node>
-    <node x="54.5" y="737.5">com.primebuild_online.model.User</node>
+    <node x="-71.0" y="1017.0">com.primebuild_online.model.UserBuild</node>
+    <node x="1012.0" y="252.0">com.primebuild_online.model.enumerations.InvoiceStatus</node>
+    <node x="-82.5" y="1342.0">com.primebuild_online.model.enumerations.BuildStatus</node>
+    <node x="72.0" y="123.0">com.primebuild_online.model.PriceSource</node>
+    <node x="131.5" y="1017.0">com.primebuild_online.model.Role</node>
+    <node x="249.0" y="497.0">com.primebuild_online.model.Feature</node>
+    <node x="1012.0" y="554.0">com.primebuild_online.model.enumerations.PaymentMethods</node>
+    <node x="1012.0" y="403.0">com.primebuild_online.model.InvoiceItem</node>
+    <node x="294.5" y="648.0">com.primebuild_online.model.ItemFeature</node>
+    <node x="-1.25" y="694.5">com.primebuild_online.model.User</node>
+    <node x="414.5" y="1074.0">com.primebuild_online.model.Item</node>
+    <node x="515.0" y="625.0">com.primebuild_online.model.Component</node>
+    <node x="42.0" y="268.5">com.primebuild_online.model.ItemPrice</node>
+    <node x="-118.5" y="1145.0">com.primebuild_online.model.Build</node>
+    <node x="122.5" y="1145.0">com.primebuild_online.model.enumerations.Privileges</node>
+    <node x="348.25" y="335.5">com.primebuild_online.model.FeatureType</node>
+    <node x="719.5" y="1143.0">com.primebuild_online.model.Manufacturer</node>
+    <node x="600.5" y="497.0">com.primebuild_online.model.ComponentFeatureType</node>
+    <node x="858.0" y="-14.0">com.primebuild_online.model.Invoice</node>
+    <node x="437.0" y="1363.0">com.primebuild_online.model.ManufacturerItem</node>
+    <node x="456.5" y="891.5">com.primebuild_online.model.BuildItem</node>
   </nodes>
   <notes />
   <edges>
     <edge source="com.primebuild_online.model.BuildItem" target="com.primebuild_online.model.Item" relationship="TO_ONE">
-      <point x="88.5" y="5.0" />
-      <point x="1648.0" y="480.0" />
-      <point x="1648.0" y="1255.0" />
-      <point x="130.5" y="0.0" />
+      <point x="0.0" y="65.5" />
+      <point x="0.0" y="-123.0" />
     </edge>
     <edge source="com.primebuild_online.model.FeatureType" target="com.primebuild_online.model.Feature" relationship="TO_MANY">
-      <point x="-198.0" y="0.0" />
-      <point x="292.5" y="1361.0952380952383" />
-      <point x="292.5" y="1495.0" />
-      <point x="123.0" y="0.0" />
-    </edge>
-    <edge source="com.primebuild_online.model.InvoiceItem" target="com.primebuild_online.model.Invoice" relationship="TO_ONE">
-      <point x="-95.5" y="0.0" />
-      <point x="127.0" y="0.0" />
-    </edge>
-    <edge source="com.primebuild_online.model.UserRole" target="com.primebuild_online.model.Role" relationship="TO_ONE">
-      <point x="5.0" y="54.0" />
-      <point x="595.0" y="1106.5" />
-      <point x="127.0" y="11.5" />
-    </edge>
-    <edge source="com.primebuild_online.model.Invoice" target="com.primebuild_online.model.InvoiceItem" relationship="TO_MANY">
-      <point x="0.0" y="-123.0" />
-      <point x="1091.0" y="637.75" />
-      <point x="1387.0" y="637.75" />
+      <point x="-174.25" y="65.5" />
       <point x="0.0" y="-65.5" />
     </edge>
+    <edge source="com.primebuild_online.model.InvoiceItem" target="com.primebuild_online.model.Invoice" relationship="TO_ONE">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="com.primebuild_online.model.Invoice" target="com.primebuild_online.model.InvoiceItem" relationship="TO_MANY">
+      <point x="-17.0" y="123.0" />
+      <point x="975.0" y="463.5" />
+      <point x="-95.5" y="-5.0" />
+    </edge>
     <edge source="com.primebuild_online.model.Item" target="com.primebuild_online.model.BuildItem" relationship="TO_MANY">
-      <point x="130.5" y="10.0" />
-      <point x="1658.0" y="1265.0" />
-      <point x="1658.0" y="470.0" />
-      <point x="88.5" y="-5.0" />
-    </edge>
-    <edge source="com.primebuild_online.model.Role" target="com.primebuild_online.model.UserRole" relationship="TO_MANY">
-      <point x="29.0" y="-65.5" />
-      <point x="-81.0" y="540.0" />
-      <point x="-61.0" y="5.0" />
-    </edge>
-    <edge source="com.primebuild_online.model.RolePrivilege" target="com.primebuild_online.model.enumerations.Privilege" relationship="TO_ONE">
-      <point x="0.0" y="-54.0" />
-      <point x="-110.0" y="382.25" />
-      <point x="-254.76190476190476" y="382.25" />
-      <point x="0.0" y="88.5" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.FeatureType" target="com.primebuild_online.model.ComponentFeatureType" relationship="TO_MANY">
-      <point x="198.0" y="0.0" />
-      <point x="720.6666666666667" y="1495.0" />
-      <point x="-120.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.ComponentFeatureType" target="com.primebuild_online.model.FeatureType" relationship="TO_ONE">
       <point x="0.0" y="-54.0" />
-      <point x="913.5" y="1318.5" />
-      <point x="522.6666666666667" y="1318.5" />
-      <point x="0.0" y="-65.5" />
+      <point x="174.25" y="65.5" />
     </edge>
     <edge source="com.primebuild_online.model.Item" target="com.primebuild_online.model.ItemFeature" relationship="TO_MANY">
-      <point x="-5.0" y="-111.5" />
-      <point x="150.0" y="1143.5" />
-      <point x="0.0" y="-65.5" />
+      <point x="-128.5" y="-123.0" />
+      <point x="44.5" y="65.5" />
+    </edge>
+    <edge source="com.primebuild_online.model.ItemPrice" target="com.primebuild_online.model.Item" relationship="TO_ONE">
+      <point x="0.0" y="88.5" />
+      <point x="145.0" y="646.0" />
+      <point x="454.5" y="646.0" />
+      <point x="-90.5" y="-123.0" />
     </edge>
     <edge source="com.primebuild_online.model.ItemFeature" target="com.primebuild_online.model.Item" relationship="TO_ONE">
-      <point x="77.5" y="0.0" />
-      <point x="-130.5" y="0.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.Item" target="com.primebuild_online.model.Manufacturer" relationship="TO_ONE">
-      <point x="5.0" y="-111.5" />
-      <point x="1155.2857142857144" y="1116.25" />
-      <point x="1008.7142857142858" y="1116.25" />
-      <point x="5.0" y="54.0" />
+      <point x="130.5" y="0.0" />
+      <point x="-165.5" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.Build" target="com.primebuild_online.model.BuildItem" relationship="TO_MANY">
-      <point x="0.0" y="-88.5" />
-      <point x="1037.2380952380952" y="361.5" />
-      <point x="1299.5" y="361.5" />
-      <point x="0.0" y="-65.5" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.User" target="com.primebuild_online.model.UserBuild" relationship="TO_MANY">
-      <point x="5.0" y="-157.5" />
-      <point x="175.0" y="635.0" />
-      <point x="-63.0" y="0.0" />
+      <point x="-113.5" y="146.0" />
+      <point x="8.75" y="-54.0" />
     </edge>
     <edge source="com.primebuild_online.model.UserBuild" target="com.primebuild_online.model.User" relationship="TO_ONE">
-      <point x="-0.0" y="54.0" />
-      <point x="410.0" y="890.0" />
-      <point x="115.5" y="-5.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.Component" target="com.primebuild_online.model.ComponentFeatureType" relationship="TO_MANY">
-      <point x="0.0" y="88.5" />
-      <point x="913.5" y="1583.5" />
-      <point x="0.0" y="54.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.Component" target="com.primebuild_online.model.Item" relationship="TO_MANY">
-      <point x="0.0" y="-88.5" />
-      <point x="1324.5" y="1386.5" />
-      <point x="1150.2857142857144" y="1386.5" />
-      <point x="0.0" y="111.5" />
+      <point x="-47.0" y="100.0" />
+      <point x="128.5" y="-123.0" />
     </edge>
     <edge source="com.primebuild_online.model.ComponentFeatureType" target="com.primebuild_online.model.Component" relationship="TO_ONE">
-      <point x="120.0" y="0.0" />
-      <point x="-205.5" y="0.0" />
-    </edge>
-    <edge source="com.primebuild_online.model.BuildItem" target="com.primebuild_online.model.Build" relationship="TO_ONE">
-      <point x="-88.5" y="0.0" />
-      <point x="110.5" y="0.0" />
+      <point x="0.0" y="54.0" />
+      <point x="0.0" y="-100.0" />
     </edge>
     <edge source="com.primebuild_online.model.Item" target="com.primebuild_online.model.Component" relationship="TO_ONE">
-      <point x="130.5" y="20.0" />
-      <point x="1530.0" y="1275.0" />
-      <point x="205.5" y="0.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="com.primebuild_online.model.BuildItem" target="com.primebuild_online.model.Build" relationship="TO_ONE">
+      <point x="-88.5" y="31.5" />
+      <point x="57.0" y="988.5" />
+      <point x="65.0" y="-88.5" />
     </edge>
     <edge source="com.primebuild_online.model.Feature" target="com.primebuild_online.model.FeatureType" relationship="TO_ONE">
-      <point x="0.0" y="65.5" />
-      <point x="150.0" y="1585.5" />
-      <point x="522.6666666666667" y="1585.5" />
-      <point x="0.0" y="65.5" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.ManufacturerItem" target="com.primebuild_online.model.Item" relationship="TO_ONE">
-      <point x="-0.0" y="54.0" />
-      <point x="1530.0" y="1245.0" />
-      <point x="130.5" y="-10.0" />
+      <point x="0.0" y="-54.0" />
+      <point x="0.0" y="123.0" />
+    </edge>
+    <edge source="com.primebuild_online.model.ItemPrice" target="com.primebuild_online.model.PriceSource" relationship="TO_ONE">
+      <point x="0.0" y="-88.5" />
+      <point x="0.0" y="54.0" />
     </edge>
     <edge source="com.primebuild_online.model.Build" target="com.primebuild_online.model.enumerations.BuildStatus" relationship="TO_ONE">
-      <point x="-110.5" y="0.0" />
-      <point x="74.5" y="0.0" />
-    </edge>
-    <edge source="com.primebuild_online.model.Role" target="com.primebuild_online.model.RolePrivilege" relationship="TO_MANY">
-      <point x="127.0" y="-5.0" />
-      <point x="29.0" y="1090.0" />
-      <point x="29.0" y="455.0" />
-      <point x="79.0" y="0.0" />
+      <point x="0.0" y="88.5" />
+      <point x="0.0" y="-65.5" />
     </edge>
     <edge source="com.primebuild_online.model.Invoice" target="com.primebuild_online.model.User" relationship="TO_ONE">
-      <point x="-127.0" y="0.0" />
-      <point x="115.5" y="-120.0" />
+      <point x="-37.0" y="123.0" />
+      <point x="955.0" y="840.5" />
+      <point x="115.5" y="0.0" />
     </edge>
-    <edge source="com.primebuild_online.model.RolePrivilege" target="com.primebuild_online.model.Role" relationship="TO_ONE">
+    <edge source="com.primebuild_online.model.Role" target="com.primebuild_online.model.enumerations.Privileges" relationship="TO_MANY">
       <point x="0.0" y="54.0" />
-      <point x="0.0" y="-65.5" />
-    </edge>
-    <edge source="com.primebuild_online.model.Invoice" target="com.primebuild_online.model.enumerations.PaymentMethod" relationship="TO_ONE">
-      <point x="-127.0" y="69.75" />
-      <point x="907.6071428571429" y="844.75" />
-      <point x="907.6071428571429" y="884.5595238095239" />
-      <point x="104.0" y="0.0" />
+      <point x="0.0" y="-88.5" />
     </edge>
     <edge source="com.primebuild_online.model.UserBuild" target="com.primebuild_online.model.Build" relationship="TO_ONE">
-      <point x="63.0" y="0.0" />
-      <point x="1037.2380952380952" y="635.0" />
-      <point x="0.0" y="88.5" />
-    </edge>
-    <edge source="com.primebuild_online.model.UserRole" target="com.primebuild_online.model.User" relationship="TO_ONE">
-      <point x="-61.0" y="15.0" />
-      <point x="165.0" y="550.0" />
-      <point x="-5.0" y="-157.5" />
+      <point x="0.0" y="54.0" />
+      <point x="0.0" y="-88.5" />
     </edge>
     <edge source="com.primebuild_online.model.Manufacturer" target="com.primebuild_online.model.ManufacturerItem" relationship="TO_MANY">
-      <point x="0.0" y="-54.0" />
-      <point x="1003.7142857142858" y="932.375" />
-      <point x="0.0" y="-54.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.Invoice" target="com.primebuild_online.model.enumerations.InvoiceStatus" relationship="TO_ONE">
-      <point x="-127.0" y="-69.75" />
-      <point x="79.0" y="0.0" />
+      <point x="-7.0" y="123.0" />
+      <point x="985.0" y="317.5" />
+      <point x="-79.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.InvoiceItem" target="com.primebuild_online.model.Item" relationship="TO_ONE">
-      <point x="-0.0" y="65.5" />
-      <point x="1387.0" y="1235.0" />
-      <point x="130.5" y="-20.0" />
+      <point x="-95.5" y="5.0" />
+      <point x="928.0" y="473.5" />
+      <point x="928.0" y="1141.0" />
+      <point x="130.5" y="-56.0" />
     </edge>
     <edge source="com.primebuild_online.model.Feature" target="com.primebuild_online.model.ItemFeature" relationship="TO_MANY">
-      <point x="-123.0" y="0.0" />
-      <point x="15.0" y="1495.0" />
-      <point x="15.0" y="1255.0" />
-      <point x="-77.5" y="0.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.primebuild_online.model.ManufacturerItem" target="com.primebuild_online.model.Manufacturer" relationship="TO_ONE">
-      <point x="-108.0" y="0.0" />
-      <point x="1398.75" y="986.375" />
-      <point x="1398.75" y="1020.7499999999999" />
-      <point x="165.5" y="0.0" />
+      <point x="108.0" y="0.0" />
+      <point x="885.0" y="1417.0" />
+      <point x="0.0" y="54.0" />
+    </edge>
+    <edge source="com.primebuild_online.model.User" target="com.primebuild_online.model.Role" relationship="TO_ONE">
+      <point x="113.5" y="146.0" />
+      <point x="-8.75" y="-54.0" />
     </edge>
     <edge source="com.primebuild_online.model.ItemFeature" target="com.primebuild_online.model.Feature" relationship="TO_ONE">
-      <point x="0.0" y="65.5" />
       <point x="0.0" y="-65.5" />
+      <point x="0.0" y="65.5" />
     </edge>
-    <edge source="com.primebuild_online.model.User" target="com.primebuild_online.model.UserRole" relationship="TO_MANY">
-      <point x="115.5" y="5.0" />
-      <point x="585.0" y="900.0" />
-      <point x="-5.0" y="54.0" />
+    <edge source="com.primebuild_online.model.Invoice" target="com.primebuild_online.model.enumerations.PaymentMethods" relationship="TO_ONE">
+      <point x="-27.0" y="123.0" />
+      <point x="965.0" y="608.0" />
+      <point x="-104.0" y="0.0" />
     </edge>
   </edges>
-  <settings layout="Compact" zoom="0.5526315789473685" showDependencies="true" x="644.5" y="978.0" />
+  <settings layout="Compact" zoom="0.38555555555555554" showDependencies="true" x="991.0" y="876.0" />
   <SelectedNodes />
   <Categories>
     <Category>Fields</Category>
