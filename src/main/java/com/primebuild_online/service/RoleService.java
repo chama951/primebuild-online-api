@@ -4,6 +4,7 @@ import com.primebuild_online.model.DTO.RoleDTO;
 import com.primebuild_online.model.Role;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RoleService {
     Role saveRole(RoleDTO roleDTO);
@@ -15,4 +16,6 @@ public interface RoleService {
     void deleteRole(Long id);
 
     Role updateRole(RoleDTO roleDTO,Long id);
+
+    Optional<Role> getRoleByName(String roleName);
 }

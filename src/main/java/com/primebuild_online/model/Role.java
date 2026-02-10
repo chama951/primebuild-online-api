@@ -25,7 +25,7 @@ public class Role {
     @Column(name = "role_name", nullable = false)
     private String roleName;
 
-    @OneToMany(mappedBy = "role", cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "role"})
     private List<RolePrivilege> rolePrivilegeList = new ArrayList<>();
 }

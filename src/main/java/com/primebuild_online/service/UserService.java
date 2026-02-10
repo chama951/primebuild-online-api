@@ -23,4 +23,6 @@ public interface UserService {
     List<User> getAllCustomers();
 
     List<User> getAllStaff();
+
+    User saveOAuth2Customer(User user);
 }

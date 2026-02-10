@@ -1,8 +1,10 @@
 package com.primebuild_online.service.serviceImpl;
 
+import com.primebuild_online.model.DTO.RoleDTO;
 import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.model.Role;
 import com.primebuild_online.model.User;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.service.RoleService;
 import com.primebuild_online.service.UserService;
@@ -54,7 +56,7 @@ public class UserServiceImpl implements UserService {
         User userInDb = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
 
-        if(userRepository.existsByUsernameAndUserIdNot(userDTO.getUsername(), userInDb.getUserId())){
+        if (userRepository.existsByUsernameAndUserIdNot(userDTO.getUsername(), userInDb.getUserId())) {
             throw new RuntimeException("Username Already Exist");
         }
 
@@ -172,5 +174,28 @@ public class UserServiceImpl implements UserService {
             }
         }
         return staffList;
+    }
+
+    @Override
+    public User saveOAuth2Customer(User user) {
+
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setRoleName("Customer");
+        List<Privileges> privileges = new ArrayList<>();
+        privileges.add(Privileges.CUSTOMER);
+        roleDTO.setPrivilegesList(privileges);
+
+        Role roleInDb = roleService.getRoleByName("Customer")
+                .orElseGet(() -> roleService.saveRole(roleDTO));
+
+        user.setAccountNonLocked(true);
+        user.setAccountNonExpired(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(true);
+        user.setCredentialsExpiryDate(LocalDateTime.now().plusYears(1));
+        user.setAccountExpiryDate(LocalDateTime.now().plusYears(1));
+        user.setTwoFactorEnabled(false);
+        user.setRole(roleInDb);
+        return userRepository.save(user);
     }
 }
