@@ -2,9 +2,7 @@ package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.model.Role;
-import com.primebuild_online.model.RolePrivilege;
 import com.primebuild_online.model.User;
-import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.service.RoleService;
 import com.primebuild_online.service.UserService;
@@ -55,6 +53,10 @@ public class UserServiceImpl implements UserService {
     public User updateUser(UserDTO userDTO, Long id) {
         User userInDb = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        if(userRepository.existsByUsernameAndUserIdNot(userDTO.getUsername(), userInDb.getUserId())){
+            throw new RuntimeException("Username Already Exist");
+        }
 
         return userRepository.save(userSetValues(userDTO, userInDb));
     }
@@ -122,7 +124,6 @@ public class UserServiceImpl implements UserService {
         user.setTwoFactorEnabled(false);
         return user;
     }
-
 
     @Override
     public User getUserById(Long id) {
