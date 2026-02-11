@@ -1,7 +1,6 @@
 package com.primebuild_online.repository;
 
 import com.primebuild_online.model.User;
-import com.primebuild_online.model.enumerations.UserType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

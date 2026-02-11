@@ -1,6 +1,5 @@
 package com.primebuild_online.model.DTO;
 
-import com.primebuild_online.model.enumerations.UserType;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import lombok.AllArgsConstructor;
 import lombok.Data;

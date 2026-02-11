@@ -6,7 +6,6 @@ import com.primebuild_online.model.Role;
 import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.model.enumerations.SignUpMethods;
-import com.primebuild_online.model.enumerations.UserType;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.service.RoleService;
 import com.primebuild_online.service.UserService;
@@ -141,7 +140,10 @@ public class UserServiceImpl implements UserService {
         if (userDTO.getEmail() != null) {
             user.setSignUpMethod(userDTO.getSignUpMethod());
         }
-        user.setPassword(passwordEncoder().encode(userDTO.getPassword()));
+        if (userDTO.getPassword() != null) {
+            user.setPassword(passwordEncoder().encode(userDTO.getPassword()));
+        }
+
         user.setAccountNonLocked(true);
         user.setAccountNonExpired(true);
         user.setCredentialsNonExpired(true);

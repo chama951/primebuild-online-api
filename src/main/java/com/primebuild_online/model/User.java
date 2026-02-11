@@ -1,7 +1,6 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.primebuild_online.model.enumerations.UserType;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
