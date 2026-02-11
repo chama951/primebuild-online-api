@@ -27,7 +27,6 @@ public class UserDTO {
     private boolean isTwoFactorEnabled;
     private SignUpMethods signUpMethod;
     private Long roleId;
-    private UserType userType;
     private LocalDate createdDate;
     private LocalDate updatedDate;
 }

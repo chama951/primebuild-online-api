@@ -5,6 +5,7 @@ import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.model.Role;
 import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.Privileges;
+import com.primebuild_online.model.enumerations.SignUpMethods;
 import com.primebuild_online.model.enumerations.UserType;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.service.RoleService;
@@ -38,26 +39,35 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUser(UserDTO userDTO) {
 
-        if (!userRepository.existsByUsername(userDTO.getUsername())) {
-            int staffCount = userRepository.countUserByUserType(UserType.STAFF);
-
-            if (staffCount == 0) {
-                List<Privileges> privileges = new ArrayList<>();
-                privileges.add(Privileges.ADMIN);
-
-                Role roleInDb = roleService.getRoleByName("Admin")
-                        .orElseGet(() -> roleService.saveRole(createFirstRole(
-                                "Admin",
-                                privileges)));
-                userDTO.setRoleId(roleInDb.getId());
-                userDTO.setUserType(UserType.STAFF);
-            } else {
-                throw new RuntimeException("Admin Already Exist");
-            }
-
-        } else {
+        if (userRepository.existsByUsername(userDTO.getUsername())) {
             throw new RuntimeException("Username Already Exist");
         }
+
+        int staffCount = 0;
+
+        if (userDTO.getRoleId() != null) {
+            Role role = roleService.getRoleById(userDTO.getRoleId());
+            staffCount = userRepository.countUserByRole_RoleName(Privileges.ADMIN.toString().toLowerCase());
+        }
+
+        if (userDTO.getSignUpMethod() == null) {
+            userDTO.setSignUpMethod(SignUpMethods.DIRECT);
+        }
+
+        if (staffCount == 0) {
+            List<Privileges> privileges = new ArrayList<>();
+            privileges.add(Privileges.ADMIN);
+
+            Role roleInDb = roleService.getRoleByName(Privileges.ADMIN.toString().toLowerCase())
+                    .orElseGet(() -> roleService.saveRole(createFirstRole(
+                            Privileges.ADMIN.toString().toLowerCase(),
+                            privileges)));
+
+            userDTO.setRoleId(roleInDb.getId());
+        } else {
+            throw new RuntimeException("Admin Already Exist");
+        }
+
 
         return userRepository.save(userSetValues(userDTO));
     }
@@ -103,7 +113,6 @@ public class UserServiceImpl implements UserService {
         if (userDTO.getEmail() != null) {
             user.setSignUpMethod(userDTO.getSignUpMethod());
         }
-        user.setUserType(userDTO.getUserType());
         user.setAccountNonLocked(true);
         user.setAccountNonExpired(true);
         user.setCredentialsNonExpired(true);
@@ -132,7 +141,6 @@ public class UserServiceImpl implements UserService {
         if (userDTO.getEmail() != null) {
             user.setSignUpMethod(userDTO.getSignUpMethod());
         }
-        user.setUserType(userDTO.getUserType());
         user.setPassword(passwordEncoder().encode(userDTO.getPassword()));
         user.setAccountNonLocked(true);
         user.setAccountNonExpired(true);
@@ -174,7 +182,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = getAllUsers();
         List<User> customerList = new ArrayList<>();
         for (User user : userList) {
-            if (user.getUserType() == UserType.CUSTOMER) {
+            if (!user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
                 customerList.add(user);
             }
         }
@@ -186,7 +194,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = getAllUsers();
         List<User> staffList = new ArrayList<>();
         for (User user : userList) {
-            if (user.getUserType() == UserType.STAFF) {
+            if (user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
                 staffList.add(user);
             }
         }
@@ -202,15 +210,18 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Username Already Exist");
         }
 
+        if (userDTO.getSignUpMethod() == null) {
+            userDTO.setSignUpMethod(SignUpMethods.DIRECT);
+        }
+
         List<Privileges> privileges = new ArrayList<>();
         privileges.add(Privileges.CUSTOMER);
 
-        Role roleInDb = roleService.getRoleByName("Customer")
+        Role roleInDb = roleService.getRoleByName(Privileges.CUSTOMER.toString().toLowerCase())
                 .orElseGet(() -> roleService.saveRole(createFirstRole(
-                        "Customer",
+                        Privileges.CUSTOMER.toString().toLowerCase(),
                         privileges)));
 
-        userDTO.setUserType(UserType.CUSTOMER);
         userDTO.setRoleId(roleInDb.getId());
         return userRepository.save(userSetValues(userDTO));
     }

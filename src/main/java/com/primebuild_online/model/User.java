@@ -42,9 +42,6 @@ public class User {
     @JsonIgnore
     private String password;
 
-    @Column(name = "role_type")
-    private UserType userType;
-
     private boolean accountNonLocked = true;
     private boolean accountNonExpired = true;
     private boolean credentialsNonExpired = true;

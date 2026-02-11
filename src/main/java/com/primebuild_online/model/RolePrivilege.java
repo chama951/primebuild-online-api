@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -27,6 +28,8 @@ public class RolePrivilege {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "privilege"})
     private Role role;
 
+    @ToString.Exclude
+    @Enumerated(EnumType.STRING)
     @Column(name = "privilege")
     private Privileges privilege;
 }
