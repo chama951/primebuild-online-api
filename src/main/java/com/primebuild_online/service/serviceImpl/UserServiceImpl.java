@@ -203,6 +203,7 @@ public class UserServiceImpl implements UserService {
         return staffList;
     }
 
+    //    SRP Violated by roleService.saveRole(..)
     @Override
     public User signupCustomer(UserDTO userDTO) {
 

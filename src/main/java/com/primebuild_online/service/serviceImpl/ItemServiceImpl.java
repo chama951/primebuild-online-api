@@ -42,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(newItem);
     }
 
+    //    SRP Violated  manufacturerItemService.saveManufacturerItem(...)
     public Item itemSetValues(ItemReqDTO itemReqDTO, Item item) {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
@@ -69,6 +70,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
 
+    //    SRP Violated by itemFeatureService.saveItemFeature(...)
     private void saveNewItemFeatures(Item item, List<Feature> featureList) {
         if (featureList != null && !featureList.isEmpty()) {
             itemFeatureService.deleteAllByItemId(item.getId());

@@ -46,6 +46,7 @@ public class BuildServiceImpl implements BuildService {
         return buildRepository.save(newBuild);
     }
 
+    //    SRP Violated by  itemService.saveItem(...)
     @Override
     public Build updateBuildReq(BuildReqDTO buildReqDTO, Long buildId) {
         Build buildInDb = buildRepository.findById(buildId).orElseThrow(RuntimeException::new);
@@ -73,11 +74,14 @@ public class BuildServiceImpl implements BuildService {
         return buildRepository.save(buildInDb);
     }
 
+//    SRP Violated by buildItemService.saveBuildItem(..)
     private Build addNewBuildItems(List<Item> itemList, Build build) {
         double totalPrice = 0;
 
         for (Item itemRequest : itemList) {
             Item item = itemService.getItemById(itemRequest.getId());
+
+
 
             Integer itemStockQuantity = item.getQuantity();
             Integer itemQuantityToAdd = itemRequest.getQuantity();
