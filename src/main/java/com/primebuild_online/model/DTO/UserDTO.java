@@ -1,6 +1,6 @@
 package com.primebuild_online.model.DTO;
 
-import com.primebuild_online.model.Role;
+import com.primebuild_online.model.enumerations.UserType;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +17,6 @@ public class UserDTO {
     private String username;
     private String password;
     private String email;
-    private boolean customer;
     private boolean accountNonLocked;
     private boolean accountNonExpired;
     private boolean credentialsNonExpired;
@@ -28,6 +27,7 @@ public class UserDTO {
     private boolean isTwoFactorEnabled;
     private SignUpMethods signUpMethod;
     private Long roleId;
+    private UserType userType;
     private LocalDate createdDate;
     private LocalDate updatedDate;
 }

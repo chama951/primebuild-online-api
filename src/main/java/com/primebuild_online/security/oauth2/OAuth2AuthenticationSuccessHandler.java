@@ -1,6 +1,7 @@
 package com.primebuild_online.security.oauth2;
 
 import com.primebuild_online.jwt.JwtUtils;
+import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import com.primebuild_online.repository.UserRepository;
@@ -60,11 +61,10 @@ public class OAuth2AuthenticationSuccessHandler
     }
 
     private User createOAuth2User(String email, String name) {
-        User user = new User();
-        user.setCustomer(true);
-        user.setUsername(name);
-        user.setEmail(email);
-        user.setSignUpMethod(SignUpMethods.GMAIL);
-        return userService.saveOAuth2Customer(user);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(name);
+        userDTO.setEmail(email);
+        userDTO.setSignUpMethod(SignUpMethods.OAUTH2);
+        return userService.signupCustomer(userDTO);
     }
 }

@@ -1,6 +1,7 @@
 package com.primebuild_online.repository;
 
 import com.primebuild_online.model.User;
+import com.primebuild_online.model.enumerations.UserType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Boolean existsByUsername(String username);
     Optional<User> findByEmail(String email);
     Boolean existsByUsernameAndUserIdNot(String username, Long userId);
+
+    int countUserByUserType(UserType userType);
 }

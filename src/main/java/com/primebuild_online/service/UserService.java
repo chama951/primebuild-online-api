@@ -24,5 +24,5 @@ public interface UserService {
 
     List<User> getAllStaff();
 
-    User saveOAuth2Customer(User user);
+    User signupCustomer(UserDTO userDTO);
 }

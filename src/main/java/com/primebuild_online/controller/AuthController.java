@@ -1,9 +1,12 @@
 package com.primebuild_online.controller;
 
 import com.primebuild_online.jwt.JwtUtils;
-import com.primebuild_online.jwt.LoginRequest;
-import com.primebuild_online.jwt.LoginResponse;
+import com.primebuild_online.jwt.LoginRequestDTO;
+import com.primebuild_online.jwt.LoginResponseDTO;
+import com.primebuild_online.model.DTO.UserDTO;
+import com.primebuild_online.service.UserService;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,12 +34,29 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/api/signup")
+    public ResponseEntity<?> register(@RequestBody UserDTO userDTO,
+                                      @RequestParam(value = "is_staff", required = false) boolean isStaff) {
+        if (isStaff) {
+            userService.saveUser(userDTO);
+        } else {
+            userService.signupCustomer(userDTO);
+        }
+        LoginRequestDTO loginRequestDTO = new LoginRequestDTO();
+        loginRequestDTO.setUsername(userDTO.getUsername());
+        loginRequestDTO.setPassword(userDTO.getPassword());
+        return authenticateUser(loginRequestDTO);
+    }
+
     @PostMapping("/api/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequestDTO loginRequestDTO) {
         Authentication authentication;
         try {
             authentication = authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                    .authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
         } catch (AuthenticationException exception) {
             Map<String, Object> map = new HashMap<>();
             map.put("message", "Bad credentials");
@@ -54,7 +74,7 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles, jwtToken);
+        LoginResponseDTO response = new LoginResponseDTO(userDetails.getUsername(), roles, jwtToken);
 
         return ResponseEntity.ok(response);
     }

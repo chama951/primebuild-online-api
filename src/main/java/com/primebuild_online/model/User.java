@@ -1,7 +1,7 @@
 package com.primebuild_online.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.primebuild_online.model.enumerations.UserType;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -42,7 +42,9 @@ public class User {
     @JsonIgnore
     private String password;
 
-    private boolean customer = true;
+    @Column(name = "role_type")
+    private UserType userType;
+
     private boolean accountNonLocked = true;
     private boolean accountNonExpired = true;
     private boolean credentialsNonExpired = true;

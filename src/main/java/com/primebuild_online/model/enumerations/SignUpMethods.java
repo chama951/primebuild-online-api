@@ -3,5 +3,5 @@ package com.primebuild_online.model.enumerations;
 public enum SignUpMethods {
     DIRECT,
     GMAIL,
-    GITHUB
+    OAUTH2, GITHUB
 }

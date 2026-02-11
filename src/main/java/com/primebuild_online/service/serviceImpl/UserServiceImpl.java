@@ -5,6 +5,7 @@ import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.model.Role;
 import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.Privileges;
+import com.primebuild_online.model.enumerations.UserType;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.service.RoleService;
 import com.primebuild_online.service.UserService;
@@ -38,7 +39,22 @@ public class UserServiceImpl implements UserService {
     public User saveUser(UserDTO userDTO) {
 
         if (!userRepository.existsByUsername(userDTO.getUsername())) {
-            userSetValues(userDTO);
+            int staffCount = userRepository.countUserByUserType(UserType.STAFF);
+
+            if (staffCount == 0) {
+                List<Privileges> privileges = new ArrayList<>();
+                privileges.add(Privileges.ADMIN);
+
+                Role roleInDb = roleService.getRoleByName("Admin")
+                        .orElseGet(() -> roleService.saveRole(createFirstRole(
+                                "Admin",
+                                privileges)));
+                userDTO.setRoleId(roleInDb.getId());
+                userDTO.setUserType(UserType.STAFF);
+            } else {
+                throw new RuntimeException("Admin Already Exist");
+            }
+
         } else {
             throw new RuntimeException("Username Already Exist");
         }
@@ -59,6 +75,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByUsernameAndUserIdNot(userDTO.getUsername(), userInDb.getUserId())) {
             throw new RuntimeException("Username Already Exist");
         }
+
 
         return userRepository.save(userSetValues(userDTO, userInDb));
     }
@@ -86,7 +103,7 @@ public class UserServiceImpl implements UserService {
         if (userDTO.getEmail() != null) {
             user.setSignUpMethod(userDTO.getSignUpMethod());
         }
-        user.setCustomer(userDTO.isCustomer());
+        user.setUserType(userDTO.getUserType());
         user.setAccountNonLocked(true);
         user.setAccountNonExpired(true);
         user.setCredentialsNonExpired(true);
@@ -115,7 +132,7 @@ public class UserServiceImpl implements UserService {
         if (userDTO.getEmail() != null) {
             user.setSignUpMethod(userDTO.getSignUpMethod());
         }
-        user.setCustomer(userDTO.isCustomer());
+        user.setUserType(userDTO.getUserType());
         user.setPassword(passwordEncoder().encode(userDTO.getPassword()));
         user.setAccountNonLocked(true);
         user.setAccountNonExpired(true);
@@ -157,7 +174,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = getAllUsers();
         List<User> customerList = new ArrayList<>();
         for (User user : userList) {
-            if (user.isCustomer()) {
+            if (user.getUserType() == UserType.CUSTOMER) {
                 customerList.add(user);
             }
         }
@@ -169,7 +186,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = getAllUsers();
         List<User> staffList = new ArrayList<>();
         for (User user : userList) {
-            if (!user.isCustomer()) {
+            if (user.getUserType() == UserType.STAFF) {
                 staffList.add(user);
             }
         }
@@ -177,25 +194,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveOAuth2Customer(User user) {
+    public User signupCustomer(UserDTO userDTO) {
 
-        RoleDTO roleDTO = new RoleDTO();
-        roleDTO.setRoleName("Customer");
+        if (!userRepository.existsByUsername(userDTO.getUsername())) {
+            userSetValues(userDTO);
+        } else {
+            throw new RuntimeException("Username Already Exist");
+        }
+
         List<Privileges> privileges = new ArrayList<>();
         privileges.add(Privileges.CUSTOMER);
-        roleDTO.setPrivilegesList(privileges);
 
         Role roleInDb = roleService.getRoleByName("Customer")
-                .orElseGet(() -> roleService.saveRole(roleDTO));
+                .orElseGet(() -> roleService.saveRole(createFirstRole(
+                        "Customer",
+                        privileges)));
 
-        user.setAccountNonLocked(true);
-        user.setAccountNonExpired(true);
-        user.setCredentialsNonExpired(true);
-        user.setEnabled(true);
-        user.setCredentialsExpiryDate(LocalDateTime.now().plusYears(1));
-        user.setAccountExpiryDate(LocalDateTime.now().plusYears(1));
-        user.setTwoFactorEnabled(false);
-        user.setRole(roleInDb);
-        return userRepository.save(user);
+        userDTO.setUserType(UserType.CUSTOMER);
+        userDTO.setRoleId(roleInDb.getId());
+        return userRepository.save(userSetValues(userDTO));
     }
+
+    private RoleDTO createFirstRole(String roleName, List<Privileges> privileges) {
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setRoleName(roleName);
+        roleDTO.setPrivilegesList(privileges);
+        return roleDTO;
+    }
+
 }
