@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ItemServiceImpl implements ItemService {
+public class ItemServiceImpl implements ItemService  {
     private final ItemRepository itemRepository;
     private final ManufacturerService manufacturerService;
     private final FeatureService featureService;

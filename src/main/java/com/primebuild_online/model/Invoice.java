@@ -1,10 +1,10 @@
 package com.primebuild_online.model;
 
 import com.primebuild_online.model.enumerations.InvoiceStatus;
-import com.primebuild_online.model.enumerations.PaymentMethods;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,18 +23,14 @@ public class Invoice {
     private LocalDateTime invoiceDate;
 
     @Column(name = "discount_amount")
-    private Double discountAmount;
+    private BigDecimal discountAmount;
 
     @Column(name = "total_amount", nullable = false)
-    private Double totalAmount;
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "invoice_status")
     private InvoiceStatus invoiceStatus;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method")
-    private PaymentMethods paymentMethods;
 
     @Column(name = "billing_address")
     private String billingAddress;
@@ -47,4 +43,21 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<InvoiceItem> invoiceItems = new ArrayList<>();
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "update_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
+

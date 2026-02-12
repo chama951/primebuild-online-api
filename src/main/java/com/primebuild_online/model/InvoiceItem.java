@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
+
 
 @Entity
 @AllArgsConstructor
@@ -21,12 +23,17 @@ public class InvoiceItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+//    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Invoice invoice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+//    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Item item;
 
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
+
+    @Column(name = "subtotal")
+    private BigDecimal subtotal;
 }

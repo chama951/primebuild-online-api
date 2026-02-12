@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public class ItemReqDTO {
     private String itemName;
     private Integer quantity;
-    private Double price;
+    private BigDecimal price;
     private Long componentId;
     private Long manufacturerId;
     private float powerConsumption;
