@@ -184,7 +184,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = getAllUsers();
         List<User> customerList = new ArrayList<>();
         for (User user : userList) {
-            if (!user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
+            if (user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
                 customerList.add(user);
             }
         }
@@ -196,7 +196,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = getAllUsers();
         List<User> staffList = new ArrayList<>();
         for (User user : userList) {
-            if (user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
+            if (!user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
                 staffList.add(user);
             }
         }
