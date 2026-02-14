@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ItemServiceImpl implements ItemService  {
+public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ManufacturerService manufacturerService;
     private final FeatureService featureService;
@@ -48,6 +48,7 @@ public class ItemServiceImpl implements ItemService  {
         item.setQuantity(itemReqDTO.getQuantity());
         item.setPrice(itemReqDTO.getPrice());
         item.setPowerConsumption(itemReqDTO.getPowerConsumption());
+        item.setDiscountPercentage(itemReqDTO.getDiscountPercentage());
 
         if (itemReqDTO.getComponentId() != null) {
             Component component = componentService.getComponentById(itemReqDTO.getComponentId());
@@ -103,7 +104,7 @@ public class ItemServiceImpl implements ItemService  {
         if (item.isPresent()) {
             return item.get();
         } else {
-            throw new RuntimeException();
+            throw new RuntimeException("Item not found");
         }
     }
 
@@ -127,5 +128,22 @@ public class ItemServiceImpl implements ItemService  {
     public List<Item> getItemsByIds(List<Long> ids) {
         return itemRepository.findAllById(ids);
     }
+
+    @Override
+    public void reduceItemQuantity(Item item, Integer itemQuantity) {
+        System.out.println("reduceItemQuantity : "+itemQuantity);
+        System.out.println("item : "+item.getQuantity());
+        item.setQuantity(item.getQuantity() - itemQuantity);
+        itemRepository.save(item);
+    }
+
+    @Override
+    public void resetStock(Item item, Integer quantityToAdd) {
+
+        item.setQuantity(item.getQuantity() + quantityToAdd);
+        System.out.println("resetStock ----------:"+item.getQuantity());
+        itemRepository.save(item);
+    }
+
 
 }

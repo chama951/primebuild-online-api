@@ -31,7 +31,7 @@ public class Item {
     private BigDecimal price;
 
     @Column(name = "discount_percentage")
-    private BigDecimal discount_percentage;
+    private BigDecimal discountPercentage;
 
     @Column(name = "power_consumption")
     private float powerConsumption;
@@ -49,6 +49,10 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<ItemFeature> itemFeatureList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<InvoiceItem> invoiceItemList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")

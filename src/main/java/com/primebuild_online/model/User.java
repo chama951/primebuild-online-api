@@ -1,6 +1,7 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +12,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -43,6 +46,10 @@ public class User {
 
     @Column(name = "address")
     private String address;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
+    private List<Invoice> invoiceList = new ArrayList<>();
 
     private boolean accountNonLocked = true;
     private boolean accountNonExpired = true;

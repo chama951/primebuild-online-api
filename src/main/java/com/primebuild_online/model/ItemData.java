@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "scraped_product_data")
-public class ItemPriceData {
+public class ItemData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

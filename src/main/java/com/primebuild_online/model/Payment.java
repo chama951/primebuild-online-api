@@ -1,9 +1,12 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.primebuild_online.model.enumerations.PaymentMethods;
 import com.primebuild_online.model.enumerations.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,12 +22,15 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoice"})
     private Invoice invoice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
     private User user;
 
     @Column(name = "amount")
@@ -45,9 +51,4 @@ public class Payment {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

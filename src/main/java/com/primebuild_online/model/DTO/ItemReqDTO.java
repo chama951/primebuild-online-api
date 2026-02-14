@@ -16,6 +16,7 @@ public class ItemReqDTO {
     private String itemName;
     private Integer quantity;
     private BigDecimal price;
+    private BigDecimal discountPercentage;
     private Long componentId;
     private Long manufacturerId;
     private float powerConsumption;

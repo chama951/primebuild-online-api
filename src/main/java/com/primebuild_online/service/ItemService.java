@@ -22,4 +22,8 @@ public interface ItemService {
     List<Item> getInStockItemListByComponent(Long componentId);
 
     List<Item> getItemsByIds(List<Long> ids);
+
+    void reduceItemQuantity(Item item, Integer itemQuantity);
+
+    void resetStock(Item item, Integer quantityToAdd);
 }

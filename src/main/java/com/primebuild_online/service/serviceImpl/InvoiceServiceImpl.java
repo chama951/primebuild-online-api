@@ -1,4 +1,166 @@
 package com.primebuild_online.service.serviceImpl;
 
-public class InvoiceServiceImpl {
+import com.primebuild_online.model.*;
+import com.primebuild_online.model.DTO.InvoiceDTO;
+import com.primebuild_online.model.enumerations.InvoiceStatus;
+import com.primebuild_online.model.enumerations.Privileges;
+import com.primebuild_online.repository.InvoiceRepository;
+import com.primebuild_online.security.SecurityUtils;
+import com.primebuild_online.service.*;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Service
+public class InvoiceServiceImpl implements InvoiceService {
+    private final InvoiceItemService invoiceItemService;
+
+    private final InvoiceRepository invoiceRepository;
+
+    private final UserService userService;
+
+    private final PaymentService paymentService;
+    private final ItemService itemService;
+
+    public InvoiceServiceImpl(InvoiceItemService invoiceItemService,
+                              InvoiceRepository invoiceRepository,
+                              UserService userService,
+                              @Lazy PaymentService paymentService, ItemService itemService) {
+        this.invoiceItemService = invoiceItemService;
+        this.invoiceRepository = invoiceRepository;
+        this.userService = userService;
+        this.paymentService = paymentService;
+        this.itemService = itemService;
+    }
+
+    private User loggedInUser() {
+        return userService.getUserById(
+                Objects.requireNonNull(SecurityUtils.getCurrentUser()).getId()
+        );
+    }
+
+    @Override
+    public Invoice saveInvoice(InvoiceDTO invoiceDTO) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Colombo"));
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDate datePart = currentDateTime.toLocalDate();
+
+        Invoice invoice = new Invoice();
+        invoice.setCreatedAt(LocalDateTime.now());
+        invoice.setUser(loggedInUser());
+        invoice.setInvoiceDate(datePart);
+        if (invoiceDTO.getInvoiceStatus() != null) {
+            invoice.setInvoiceStatus(InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus()));
+        }
+
+        invoice = invoiceRepository.save(invoice);
+
+        invoice = invoiceRepository.save(
+                createInvoiceItems(invoiceDTO.getItemList(), invoice));
+
+        if (invoice.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
+            paymentService.savePayment(invoice);
+        }
+
+        return invoice;
+    }
+
+    private Invoice createInvoiceItems(List<Item> itemList, Invoice invoice) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        InvoiceItem invoiceItem = new InvoiceItem();
+        for (Item item : itemList) {
+            invoiceItem = invoiceItemService.saveInvoiceItem(item, invoice);
+            totalAmount = totalAmount.add(invoiceItem.getSubtotal());
+            discountAmount = discountAmount.add(invoiceItem.getDiscountSubTotal());
+        }
+        invoice.setDiscountAmount(discountAmount);
+        invoice.setTotalAmount(totalAmount);
+        return invoice;
+    }
+
+    @Override
+    public List<Invoice> getByUser(Long userId) {
+        return invoiceRepository.findAllByUser_UserId(userId);
+    }
+
+    @Override
+    public List<Invoice> getByDate(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        LocalDate dateFormated = LocalDate.parse(date);
+
+        return invoiceRepository.findAllByInvoiceDate(dateFormated);
+    }
+
+    @Override
+    public List<Invoice> getByInvoiceStatus(String invoiceStatus) {
+        return invoiceRepository.findAllByInvoiceStatus(InvoiceStatus.valueOf(invoiceStatus));
+    }
+
+    @Override
+    public List<Invoice> getAllInvoices() {
+        return invoiceRepository.findAll();
+    }
+
+    @Override
+    public Invoice updateInvoice(InvoiceDTO invoiceDTO, Long id) {
+        Invoice invoiceInDb = getInvoiceById(id);
+        invoiceInDb.setUpdatedAt(LocalDateTime.now());
+        invoiceInDb.setUser(loggedInUser());
+        invoiceInDb.setInvoiceStatus(InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus()));
+
+        invoiceItemService.resetItemQuantity(invoiceInDb.getInvoiceItems());
+
+        invoiceInDb.getInvoiceItems().clear();
+
+        invoiceItemService.deleteInvoiceItemsByInvoiceId(id);
+
+        invoiceInDb= invoiceRepository.save(invoiceInDb);
+
+        invoiceInDb = invoiceRepository.save(
+                createInvoiceItems(invoiceDTO.getItemList(), invoiceInDb));
+
+        if (invoiceInDb.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
+            Invoice finalInvoice = invoiceInDb;
+            Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
+                    .orElseGet(() -> paymentService.savePayment(finalInvoice));
+            paymentService.updatePayment(paymentInDb, finalInvoice);
+        }
+        return invoiceInDb;
+    }
+
+    @Override
+    public Invoice getInvoiceById(Long id) {
+        Optional<Invoice> invoice = invoiceRepository.findById(id);
+        if (invoice.isPresent()) {
+            return invoice.get();
+        } else {
+            throw new RuntimeException("Invoice not found");
+        }
+    }
+
+    @Override
+    public void deleteInvoice(Long id) {
+        invoiceRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Invoice> getByUserLoggedIn() {
+        return invoiceRepository.findAllByUser(loggedInUser());
+    }
+
+    @Override
+    public void updateInvoiceByPaymentStatus(Invoice invoice) {
+        if (invoice.getInvoiceStatus() != null) {
+            invoiceItemService.resetItemQuantity(invoice.getInvoiceItems());
+        }
+        invoice.setInvoiceStatus(null);
+        invoiceRepository.save(invoice);
+    }
 }

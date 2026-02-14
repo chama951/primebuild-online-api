@@ -63,6 +63,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
 //                                .requestMatchers("/api/user/**").permitAll() //Debug
                                 .requestMatchers("/api/manufacturer/**").hasAnyAuthority("ADMIN","BUILD_MANAGEMENT")
+                                .requestMatchers("/api/invoice/**").hasAnyAuthority("ADMIN","INVOICE_MANAGEMENT")
 
                                 .anyRequest().authenticated()
                 )

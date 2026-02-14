@@ -1,8 +1,6 @@
 package com.primebuild_online.model.enumerations;
 
 public enum InvoiceStatus {
-    PENDING_PAYMENT,
     PAID,
-    CANCELLED,
-    REFUNDED
+    NOT_PAID
 }
