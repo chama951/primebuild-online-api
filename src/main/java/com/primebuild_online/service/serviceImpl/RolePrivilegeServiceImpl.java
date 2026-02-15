@@ -1,10 +1,14 @@
 package com.primebuild_online.service.serviceImpl;
 
+import com.primebuild_online.model.DTO.RoleDTO;
+import com.primebuild_online.model.Role;
 import com.primebuild_online.model.RolePrivilege;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.RolePrivilegeRepository;
 import com.primebuild_online.service.RolePrivilegeService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +50,19 @@ public class RolePrivilegeServiceImpl implements RolePrivilegeService {
     @Override
     public List<RolePrivilege> findAllByRoleId(Long roleId) {
         List<RolePrivilege> rolePrivilegeList = rolePrivilegeRepository.findAllByRoleId(roleId);
+        return rolePrivilegeList;
+    }
+
+    @Override
+    public List<RolePrivilege> prepareRolePrivilegeList(RoleDTO roleDTO, Role role) {
+        List<RolePrivilege> rolePrivilegeList = new ArrayList<>();
+        for (Privileges privilege : roleDTO.getPrivilegesList()) {
+            RolePrivilege rolePrivilege = new RolePrivilege();
+            rolePrivilege.setRole(role);
+            rolePrivilege.setPrivilege(privilege);
+            rolePrivilegeList.add(rolePrivilege);
+//            rolePrivilegeRepository.save(rolePrivilege);
+        }
         return rolePrivilegeList;
     }
 

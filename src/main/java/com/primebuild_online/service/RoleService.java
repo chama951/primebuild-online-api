@@ -18,4 +18,8 @@ public interface RoleService {
     Role updateRole(RoleDTO roleDTO,Long id);
 
     Optional<Role> getRoleByName(String roleName);
+
+    Role createFirstStaffAdmin();
+
+    Role createCustomerRole();
 }

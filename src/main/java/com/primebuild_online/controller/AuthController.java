@@ -1,8 +1,8 @@
 package com.primebuild_online.controller;
 
-import com.primebuild_online.jwt.JwtUtils;
-import com.primebuild_online.jwt.LoginRequestDTO;
-import com.primebuild_online.jwt.LoginResponseDTO;
+import com.primebuild_online.security.jwt.JwtUtils;
+import com.primebuild_online.security.jwt.LoginRequestDTO;
+import com.primebuild_online.security.jwt.LoginResponseDTO;
 import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.service.UserService;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,10 +39,14 @@ public class AuthController {
 
     @PostMapping("/api/signup")
     public ResponseEntity<?> register(@RequestBody UserDTO userDTO,
-                                      @RequestParam(value = "is_staff", required = false) boolean isStaff) {
-        if (isStaff) {
-            userService.saveUser(userDTO);
-        } else {
+                                      @RequestParam(value = "type", required = false) String type) {
+        if (type != null) {
+            if (type.equals("staff")) {
+                userService.saveUser(userDTO);
+            }
+            if (type.equals("customer")) {
+                userService.saveUser(userDTO);
+            }
             userService.signupCustomer(userDTO);
         }
         LoginRequestDTO loginRequestDTO = new LoginRequestDTO();

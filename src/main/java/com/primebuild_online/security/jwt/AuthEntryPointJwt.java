@@ -1,4 +1,4 @@
-package com.primebuild_online.jwt;
+package com.primebuild_online.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

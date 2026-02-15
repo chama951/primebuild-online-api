@@ -1,4 +1,4 @@
-package com.primebuild_online.jwt;
+package com.primebuild_online.security.jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

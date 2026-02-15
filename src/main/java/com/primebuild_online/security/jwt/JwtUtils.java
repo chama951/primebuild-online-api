@@ -1,4 +1,4 @@
-package com.primebuild_online.jwt;
+package com.primebuild_online.security.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

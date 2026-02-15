@@ -21,17 +21,20 @@ public class RoleController {
 
     @PostMapping
     public ResponseEntity<Role> saveRole(@RequestBody RoleDTO roleDTO) {
-        return new ResponseEntity<>(roleService.saveRole(roleDTO), HttpStatus.CREATED);
+        Role role = roleService.saveRole(roleDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(role);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Role> updateRole(@PathVariable("id") Long id,@RequestBody RoleDTO roleDTO) {
-        return new ResponseEntity<Role>(roleService.updateRole(roleDTO,id), HttpStatus.OK);
+    public ResponseEntity<Role> updateRole(@PathVariable("id") Long id, @RequestBody RoleDTO roleDTO) {
+        Role role = roleService.updateRole(roleDTO, id);
+        return ResponseEntity.status(HttpStatus.OK).body(role);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<Role> getRoleById(@PathVariable("id") Long id) {
-        return new ResponseEntity<Role>(roleService.getRoleById(id), HttpStatus.OK);
+        Role role = roleService.getRoleById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(role);
     }
 
     @GetMapping
@@ -40,7 +43,7 @@ public class RoleController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteRole(@PathVariable("id") Long id){
+    public ResponseEntity<Map<String, String>> deleteRole(@PathVariable("id") Long id) {
         roleService.deleteRole(id);
 
         Map<String, String> response = new HashMap<>();

@@ -1,9 +1,7 @@
 package com.primebuild_online.security.oauth2;
 
-import com.primebuild_online.jwt.JwtUtils;
-import com.primebuild_online.model.DTO.UserDTO;
+import com.primebuild_online.security.jwt.JwtUtils;
 import com.primebuild_online.model.User;
-import com.primebuild_online.model.enumerations.SignUpMethods;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.security.services.UserDetailsImpl;
 import com.primebuild_online.service.UserService;
@@ -43,7 +41,7 @@ public class OAuth2AuthenticationSuccessHandler
 
         // Find or create user
         User user = userRepository.findByEmail(email)
-                .orElseGet(() -> createOAuth2User(email, name));
+                .orElseGet(() -> userService.createOAuth2User(email, name));
 
         // Convert to UserDetailsImpl
         UserDetailsImpl userDetails = UserDetailsImpl.build(user);
@@ -58,13 +56,5 @@ public class OAuth2AuthenticationSuccessHandler
                       "token": "%s"
                     }
                 """.formatted(token));
-    }
-
-    private User createOAuth2User(String email, String name) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(name);
-        userDTO.setEmail(email);
-        userDTO.setSignUpMethod(SignUpMethods.OAUTH2);
-        return userService.signupCustomer(userDTO);
     }
 }

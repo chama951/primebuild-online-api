@@ -21,36 +21,41 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> saveUserReq(@RequestBody UserDTO userDTO) {
-        return new ResponseEntity<>(userService.saveUser(userDTO), HttpStatus.CREATED);
+        User user = userService.saveUser(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @GetMapping
     public List<User> getAllUsers(@RequestParam(value = "username", required = false) String username,
                                   @RequestParam(value = "email", required = false) String email,
-                                  @RequestParam(value = "is_customer", required = false) boolean isCustomer) {
+                                  @RequestParam(value = "type", required = false) String type) {
         if (username != null) {
             return userService.getByUsername(username);
         }
         if (email != null) {
             return userService.getByEmail(email);
         }
-        if (isCustomer) {
-            return userService.getAllCustomers();
-        }
-        if (!isCustomer) {
-            return userService.getAllStaff();
+        if (type != null) {
+            if (type.equals("customer")) {
+                return userService.getAllCustomers();
+            }
+            if (type.equals("staff")) {
+                return userService.getAllStaff();
+            }
         }
         return userService.getAllUsers();
     }
 
     @PutMapping("{id}")
     private ResponseEntity<User> updateUserReq(@PathVariable("id") Long id, @RequestBody UserDTO userDTO) {
-        return new ResponseEntity<User>(userService.updateUser(userDTO, id), HttpStatus.OK);
+        User user = userService.updateUser(userDTO, id);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
-        return new ResponseEntity<User>(userService.getUserById(id), HttpStatus.OK);
+        User user = userService.getUserById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
 

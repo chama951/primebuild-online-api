@@ -1,7 +1,7 @@
 package com.primebuild_online.security;
 
-import com.primebuild_online.jwt.AuthEntryPointJwt;
-import com.primebuild_online.jwt.AuthTokenFilter;
+import com.primebuild_online.security.jwt.AuthEntryPointJwt;
+import com.primebuild_online.security.jwt.AuthTokenFilter;
 import com.primebuild_online.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

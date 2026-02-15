@@ -1,4 +1,4 @@
-package com.primebuild_online.jwt;
+package com.primebuild_online.security.jwt;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

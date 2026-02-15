@@ -48,10 +48,6 @@ public class UserDetailsImpl implements UserDetails {
                         ))
                         .toList();
 
-        for (SimpleGrantedAuthority SimpleGrantedAuthority : authorities) {
-            System.out.println("Privileges: " + SimpleGrantedAuthority);
-        }
-
         return new UserDetailsImpl(
                 authorities,
                 user.getEmail(),

@@ -1,6 +1,6 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.DTO.RoleDTO;
+import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.model.Role;
 import com.primebuild_online.model.User;
@@ -9,12 +9,10 @@ import com.primebuild_online.model.enumerations.SignUpMethods;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.service.RoleService;
 import com.primebuild_online.service.UserService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.primebuild_online.utils.validator.UserValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,27 +23,37 @@ public class UserServiceImpl implements UserService {
 
     private final RoleService roleService;
 
+    private final UserValidator userValidator;
+
     public UserServiceImpl(UserRepository userRepository,
-                           RoleService roleService) {
+                           RoleService roleService, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.roleService = roleService;
-    }
-
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        this.userValidator = userValidator;
     }
 
     @Override
     public User saveUser(UserDTO userDTO) {
 
         if (userRepository.existsByUsername(userDTO.getUsername())) {
-            throw new RuntimeException("Username Already Exist");
+            throw new PrimeBuildException(
+                    "Username already exists",
+                    HttpStatus.CONFLICT
+            );
         }
 
-        int staffCount = 0;
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new PrimeBuildException(
+                    "Email already exists",
+                    HttpStatus.CONFLICT
+            );
+        }
+
+        int staffCount = userRepository.countUserByRole_RoleName(
+                Privileges.ADMIN.toString().toLowerCase()
+        );
 
         if (userDTO.getRoleId() != null) {
-            Role role = roleService.getRoleById(userDTO.getRoleId());
             staffCount = userRepository.countUserByRole_RoleName(Privileges.ADMIN.toString().toLowerCase());
         }
 
@@ -54,21 +62,16 @@ public class UserServiceImpl implements UserService {
         }
 
         if (staffCount == 0) {
-            List<Privileges> privileges = new ArrayList<>();
-            privileges.add(Privileges.ADMIN);
-
-            Role roleInDb = roleService.getRoleByName(Privileges.ADMIN.toString().toLowerCase())
-                    .orElseGet(() -> roleService.saveRole(createFirstRole(
-                            Privileges.ADMIN.toString().toLowerCase(),
-                            privileges)));
-
-            userDTO.setRoleId(roleInDb.getId());
+            Role firstStaffAdmin = roleService.createFirstStaffAdmin();
+            userDTO.setRoleId(firstStaffAdmin.getId());
         } else {
-            throw new RuntimeException("Admin Already Exist");
+            throw new PrimeBuildException(
+                    "Admin already exists",
+                    HttpStatus.CONFLICT
+            );
         }
 
-
-        return userRepository.save(userSetValues(userDTO));
+        return userRepository.save(userSetValues(userDTO, null));
     }
 
     @Override
@@ -79,13 +82,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUser(UserDTO userDTO, Long id) {
         User userInDb = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User Not Found"));
+                .orElseThrow(() -> new PrimeBuildException(
+                        "User not found",
+                        HttpStatus.CONFLICT
+                ));
 
-        if (userRepository.existsByUsernameAndUserIdNot(userDTO.getUsername(), userInDb.getUserId())) {
-            throw new RuntimeException("Username Already Exist");
+        if (userRepository.existsByUsernameAndUserIdNot(userDTO.getUsername(), id)) {
+            throw new PrimeBuildException(
+                    "Username already exists",
+                    HttpStatus.CONFLICT
+            );
         }
-
-
         return userRepository.save(userSetValues(userDTO, userInDb));
     }
 
@@ -116,48 +123,19 @@ public class UserServiceImpl implements UserService {
         user.setAccountNonExpired(true);
         user.setCredentialsNonExpired(true);
         user.setEnabled(true);
-        user.setCredentialsExpiryDate(LocalDateTime.now().plusYears(1));
-        user.setAccountExpiryDate(LocalDateTime.now().plusYears(1));
         user.setTwoFactorEnabled(false);
-        return user;
-    }
 
-    private User userSetValues(UserDTO userDTO) {
+        userValidator.validate(user);
 
-        User user = new User();
-
-        if (userDTO.getRoleId() != null) {
-            Role role = roleService.getRoleById(userDTO.getRoleId());
-            user.setRole(role);
-        }
-
-        if (userDTO.getUsername() != null) {
-            user.setUsername(userDTO.getUsername());
-        }
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail());
-        }
-        if (userDTO.getEmail() != null) {
-            user.setSignUpMethod(userDTO.getSignUpMethod());
-        }
-        if (userDTO.getPassword() != null) {
-            user.setPassword(passwordEncoder().encode(userDTO.getPassword()));
-        }
-
-        user.setAccountNonLocked(true);
-        user.setAccountNonExpired(true);
-        user.setCredentialsNonExpired(true);
-        user.setEnabled(true);
-        user.setCredentialsExpiryDate(LocalDateTime.now().plusYears(1));
-        user.setAccountExpiryDate(LocalDateTime.now().plusYears(1));
-        user.setTwoFactorEnabled(false);
         return user;
     }
 
     @Override
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() ->
-                new RuntimeException("User Not Found"));
+                new PrimeBuildException(
+                        "User not Found",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -181,59 +159,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllCustomers() {
-        List<User> userList = getAllUsers();
-        List<User> customerList = new ArrayList<>();
-        for (User user : userList) {
-            if (user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
-                customerList.add(user);
-            }
-        }
-        return customerList;
+        return userRepository.findAllByRole_RoleName(Privileges.CUSTOMER.toString().toLowerCase());
     }
 
     @Override
     public List<User> getAllStaff() {
-        List<User> userList = getAllUsers();
-        List<User> staffList = new ArrayList<>();
-        for (User user : userList) {
-            if (!user.getRole().getRolePrivilegeList().contains(Privileges.CUSTOMER)) {
-                staffList.add(user);
-            }
-        }
-        return staffList;
+        return userRepository.findAllByRole_RoleNameNot(Privileges.CUSTOMER.toString().toLowerCase());
     }
 
-    //    SRP Violated by roleService.saveRole(..)
     @Override
     public User signupCustomer(UserDTO userDTO) {
 
-        if (!userRepository.existsByUsername(userDTO.getUsername())) {
-            userSetValues(userDTO);
-        } else {
-            throw new RuntimeException("Username Already Exist");
+        if (userRepository.existsByUsername(userDTO.getUsername())) {
+            throw new PrimeBuildException(
+                    "Username already exists",
+                    HttpStatus.CONFLICT
+            );
         }
+
 
         if (userDTO.getSignUpMethod() == null) {
             userDTO.setSignUpMethod(SignUpMethods.DIRECT);
         }
 
-        List<Privileges> privileges = new ArrayList<>();
-        privileges.add(Privileges.CUSTOMER);
-
-        Role roleInDb = roleService.getRoleByName(Privileges.CUSTOMER.toString().toLowerCase())
-                .orElseGet(() -> roleService.saveRole(createFirstRole(
-                        Privileges.CUSTOMER.toString().toLowerCase(),
-                        privileges)));
-
-        userDTO.setRoleId(roleInDb.getId());
-        return userRepository.save(userSetValues(userDTO));
+        Role customerRole = roleService.createCustomerRole();
+        userDTO.setRoleId(customerRole.getId());
+        userSetValues(userDTO, null);
+        return userRepository.save(userSetValues(userDTO, null));
     }
 
-    private RoleDTO createFirstRole(String roleName, List<Privileges> privileges) {
-        RoleDTO roleDTO = new RoleDTO();
-        roleDTO.setRoleName(roleName);
-        roleDTO.setPrivilegesList(privileges);
-        return roleDTO;
+    @Override
+    public User createOAuth2User(String email, String name) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(name);
+        userDTO.setEmail(email);
+        userDTO.setSignUpMethod(SignUpMethods.OAUTH2);
+        return signupCustomer(userDTO);
     }
 
 }

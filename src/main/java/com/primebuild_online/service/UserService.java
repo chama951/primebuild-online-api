@@ -25,4 +25,6 @@ public interface UserService {
     List<User> getAllStaff();
 
     User signupCustomer(UserDTO userDTO);
+
+    User createOAuth2User(String email, String name);
 }

@@ -4,4 +4,7 @@ import com.primebuild_online.model.Manufacturer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ManufacturerRepository extends JpaRepository<Manufacturer, Long> {
+    boolean existsByManufacturerNameIgnoreCase(String manufacturerName);
+
+    boolean existsByManufacturerNameIgnoreCaseAndIdNot(String manufacturerName, Long id);
 }

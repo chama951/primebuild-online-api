@@ -21,7 +21,8 @@ public class ManufacturerController {
 
     @PostMapping
     public ResponseEntity<Manufacturer> saveComponentReq(@RequestBody ManufacturerDTO manufacturerDTO) {
-        return new ResponseEntity<>(manufacturerService.saveManufacturerDTO(manufacturerDTO), HttpStatus.CREATED);
+        Manufacturer manufacturer = manufacturerService.saveManufacturerDTO(manufacturerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(manufacturer);
     }
 
     @GetMapping
@@ -31,16 +32,18 @@ public class ManufacturerController {
 
     @PutMapping("{id}")
     private ResponseEntity<Manufacturer> updateManufacturerReq(@PathVariable("id") Long id, @RequestBody ManufacturerDTO manufacturerDTO) {
-        return new ResponseEntity<Manufacturer>(manufacturerService.updateManufacturerReq(manufacturerDTO,id),HttpStatus.OK);
+        Manufacturer manufacturer = manufacturerService.updateManufacturerReq(manufacturerDTO, id);
+        return ResponseEntity.status(HttpStatus.OK).body(manufacturer);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Manufacturer> getManufacturerById(@PathVariable("id") Long id){
-        return new ResponseEntity<Manufacturer>(manufacturerService.getManufacturerById(id),HttpStatus.OK);
+    public ResponseEntity<Manufacturer> getManufacturerById(@PathVariable("id") Long id) {
+        Manufacturer manufacturer = manufacturerService.getManufacturerById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(manufacturer);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Map<String, String>> deleteManufacturer(@PathVariable("id") Long id){
+    public ResponseEntity<Map<String, String>> deleteManufacturer(@PathVariable("id") Long id) {
         manufacturerService.deleteManufacturer(id);
 
         Map<String, String> response = new HashMap<>();
