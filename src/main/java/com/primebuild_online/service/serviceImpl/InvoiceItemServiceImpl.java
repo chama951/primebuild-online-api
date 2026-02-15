@@ -42,7 +42,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
         invoiceItem.setSubtotal(calculateSubTotal(itemInDb, item.getQuantity()));
 
         if (invoice.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
-            System.out.println("-------------------------------------");
             Integer quantityToReduce = invoiceItem.getInvoiceQuantity();
             itemService.reduceItemQuantity(itemInDb,quantityToReduce);
         }

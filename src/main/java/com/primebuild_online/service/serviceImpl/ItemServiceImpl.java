@@ -130,18 +130,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void reduceItemQuantity(Item item, Integer itemQuantity) {
-        System.out.println("reduceItemQuantity : "+itemQuantity);
-        System.out.println("item : "+item.getQuantity());
-        item.setQuantity(item.getQuantity() - itemQuantity);
-        itemRepository.save(item);
+    public void reduceItemQuantity(Item itemInDb, Integer quantityToReduce) {
+        Integer reduceQuantity = itemInDb.getQuantity() - quantityToReduce;
+        itemInDb.setQuantity(reduceQuantity);
+        itemRepository.save(itemInDb);
     }
 
     @Override
     public void resetStock(Item item, Integer quantityToAdd) {
-
         item.setQuantity(item.getQuantity() + quantityToAdd);
-        System.out.println("resetStock ----------:"+item.getQuantity());
         itemRepository.save(item);
     }
 

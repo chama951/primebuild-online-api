@@ -111,22 +111,28 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public Invoice updateInvoice(InvoiceDTO invoiceDTO, Long id) {
         Invoice invoiceInDb = getInvoiceById(id);
+
+        InvoiceStatus oldStatus = invoiceInDb.getInvoiceStatus();
+        InvoiceStatus newStatus = InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus());
+
         invoiceInDb.setUpdatedAt(LocalDateTime.now());
         invoiceInDb.setUser(loggedInUser());
         invoiceInDb.setInvoiceStatus(InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus()));
 
-        invoiceItemService.resetItemQuantity(invoiceInDb.getInvoiceItems());
+        if (oldStatus.equals(InvoiceStatus.PAID)) {
+            invoiceItemService.resetItemQuantity(invoiceInDb.getInvoiceItems());
+        }
 
         invoiceInDb.getInvoiceItems().clear();
 
         invoiceItemService.deleteInvoiceItemsByInvoiceId(id);
 
-        invoiceInDb= invoiceRepository.save(invoiceInDb);
+        invoiceInDb = invoiceRepository.save(invoiceInDb);
 
         invoiceInDb = invoiceRepository.save(
                 createInvoiceItems(invoiceDTO.getItemList(), invoiceInDb));
 
-        if (invoiceInDb.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
+        if (newStatus.equals(InvoiceStatus.PAID)) {
             Invoice finalInvoice = invoiceInDb;
             Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
                     .orElseGet(() -> paymentService.savePayment(finalInvoice));
@@ -155,12 +161,4 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoiceRepository.findAllByUser(loggedInUser());
     }
 
-    @Override
-    public void updateInvoiceByPaymentStatus(Invoice invoice) {
-        if (invoice.getInvoiceStatus() != null) {
-            invoiceItemService.resetItemQuantity(invoice.getInvoiceItems());
-        }
-        invoice.setInvoiceStatus(null);
-        invoiceRepository.save(invoice);
-    }
 }
