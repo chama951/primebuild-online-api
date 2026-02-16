@@ -10,7 +10,9 @@ import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.service.RoleService;
 import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.validator.UserValidator;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -25,11 +27,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserValidator userValidator;
 
+    private final PasswordEncoder passwordEncoder;
+
     public UserServiceImpl(UserRepository userRepository,
-                           RoleService roleService, UserValidator userValidator) {
+                           RoleService roleService,
+                           UserValidator userValidator,
+                           @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.userValidator = userValidator;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -110,6 +117,14 @@ public class UserServiceImpl implements UserService {
             user.setRole(role);
         }
 
+        if (userDTO.getEmail() != null) {
+            user.setSignUpMethod(userDTO.getSignUpMethod());
+        }
+
+        if (userDTO.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        }
+
         if (userDTO.getUsername() != null) {
             user.setUsername(userDTO.getUsername());
         }
@@ -177,6 +192,12 @@ public class UserServiceImpl implements UserService {
             );
         }
 
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new PrimeBuildException(
+                    "Email already exists",
+                    HttpStatus.CONFLICT
+            );
+        }
 
         if (userDTO.getSignUpMethod() == null) {
             userDTO.setSignUpMethod(SignUpMethods.DIRECT);
@@ -184,7 +205,7 @@ public class UserServiceImpl implements UserService {
 
         Role customerRole = roleService.createCustomerRole();
         userDTO.setRoleId(customerRole.getId());
-        userSetValues(userDTO, null);
+
         return userRepository.save(userSetValues(userDTO, null));
     }
 

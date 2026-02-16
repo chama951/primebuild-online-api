@@ -24,10 +24,4 @@ public class Manufacturer {
     @Column(name = "manufacturer_name")
     private String manufacturerName;
 
-    @OneToMany(
-            mappedBy = "manufacturer",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private List<ManufacturerItem> manufacturerItemList = new ArrayList<>();
 }

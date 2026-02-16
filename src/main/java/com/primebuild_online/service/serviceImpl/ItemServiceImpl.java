@@ -6,7 +6,6 @@ import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.service.*;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.ItemValidator;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -16,26 +15,19 @@ import java.util.Optional;
 @Service
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final ManufacturerService manufacturerService;
-    private final FeatureService featureService;
-    private final ItemFeatureService itemFeatureService;
-    private final ComponentService componentService;
-    private final ManufacturerItemService manufacturerItemService;
     private final ItemValidator itemValidator;
+    private final ComponentService componentService;
+    private final ManufacturerService manufacturerService;
 
-    public ItemServiceImpl(ComponentService componentService,
-                           @Lazy FeatureService featureService,
-                           @Lazy ItemFeatureService itemFeatureService,
-                           ItemRepository itemRepository,
-                           ManufacturerItemService manufacturerItemService,
-                           ManufacturerService manufacturerService, ItemValidator itemValidator) {
-        this.componentService = componentService;
-        this.featureService = featureService;
-        this.itemFeatureService = itemFeatureService;
+    public ItemServiceImpl(ItemRepository itemRepository,
+                           ItemValidator itemValidator,
+                           ComponentService componentService,
+                           ManufacturerService manufacturerService) {
+
         this.itemRepository = itemRepository;
-        this.manufacturerItemService = manufacturerItemService;
-        this.manufacturerService = manufacturerService;
         this.itemValidator = itemValidator;
+        this.componentService = componentService;
+        this.manufacturerService = manufacturerService;
     }
 
     @Override
@@ -59,6 +51,11 @@ public class ItemServiceImpl implements ItemService {
             item.setComponent(component);
         }
 
+        if (itemReqDTO.getManufacturerId() != null) {
+            Manufacturer manufacturer = manufacturerService.getManufacturerById(itemReqDTO.getManufacturerId());
+            item.setManufacturer(manufacturer);
+        }
+
         if (item.getId() == null &&
                 item.getComponent() != null &&
                 itemRepository.existsByItemNameIgnoreCaseAndComponentId(
@@ -71,21 +68,6 @@ public class ItemServiceImpl implements ItemService {
             );
         }
 
-
-
-        if (itemReqDTO.getManufacturerId() != null) {
-            Manufacturer manufacturer = manufacturerService.getManufacturerById(itemReqDTO.getManufacturerId());
-            item.setManufacturer(manufacturer);
-
-            ManufacturerItem manufacturerItem =
-                    manufacturerItemService.prepareManufacturerItem(manufacturer, item);
-
-            manufacturer.getManufacturerItemList().clear();
-
-            manufacturer.getManufacturerItemList().add(manufacturerItem);
-
-            item.setManufacturer(manufacturer);
-        }
         itemValidator.validate(item);
         return item;
     }
@@ -120,8 +102,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(Long id) {
-        itemFeatureService.deleteAllByItemId(id);
-        itemRepository.deleteById(id);
+        Item item = getItemById(id);
+        itemRepository.delete(item);
     }
 
     @Override

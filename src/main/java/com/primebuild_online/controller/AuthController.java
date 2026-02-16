@@ -45,9 +45,8 @@ public class AuthController {
                 userService.saveUser(userDTO);
             }
             if (type.equals("customer")) {
-                userService.saveUser(userDTO);
+                userService.signupCustomer(userDTO);
             }
-            userService.signupCustomer(userDTO);
         }
         LoginRequestDTO loginRequestDTO = new LoginRequestDTO();
         loginRequestDTO.setUsername(userDTO.getUsername());
