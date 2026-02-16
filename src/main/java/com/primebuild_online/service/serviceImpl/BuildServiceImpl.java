@@ -11,6 +11,7 @@ import com.primebuild_online.service.BuildItemService;
 import com.primebuild_online.service.BuildService;
 import com.primebuild_online.service.ItemService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.BuildValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +25,18 @@ public class BuildServiceImpl implements BuildService {
     private final ItemService itemService;
     private final BuildItemService buildItemService;
     private final BuildRepository buildRepository;
+    private final BuildValidator buildValidator;
 
-    public BuildServiceImpl(ItemService itemService, BuildItemService buildItemService, BuildRepository buildRepository, BuildItemRepository buildItemRepository) {
+    public BuildServiceImpl(ItemService itemService, BuildItemService buildItemService, BuildRepository buildRepository, BuildItemRepository buildItemRepository, BuildValidator buildValidator) {
         this.buildRepository = buildRepository;
         this.itemService = itemService;
         this.buildItemService = buildItemService;
+        this.buildValidator = buildValidator;
     }
 
     @Override
     public Build saveBuildReq(BuildReqDTO buildReqDTO) {
+
         Build newBuild = new Build();
 
         newBuild.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
@@ -40,44 +44,43 @@ public class BuildServiceImpl implements BuildService {
 
         Build savedBuild = buildRepository.save(newBuild);
 
-        // Adding New Items
         if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
             newBuild = addNewBuildItems(buildReqDTO.getItemList(), savedBuild);
         }
-
+        buildValidator.validate(newBuild);
         return buildRepository.save(newBuild);
     }
 
     //   FIXED SRP Violated by  itemService.saveItem(...)
     @Override
     public Build updateBuildReq(BuildReqDTO buildReqDTO, Long buildId) {
-        Build buildInDb = buildRepository.findById(buildId).orElseThrow(() -> new PrimeBuildException(
-                "Build not found",
-                HttpStatus.NOT_FOUND));
+
+        Build buildInDb = buildRepository.findById(buildId)
+                .orElseThrow(() -> new PrimeBuildException(
+                        "Build not found",
+                        HttpStatus.NOT_FOUND));
 
         buildInDb.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         buildInDb.setLastModified(LocalDateTime.now());
 
-        List<BuildItem> buildItemListByBuild = buildItemService.findAllByBuildId(buildId);
-//                updating Item quantity by adding into the stock
-        for (BuildItem buildItem1 : buildItemListByBuild) {
-            Item itemByBuildItem = itemService.getItemById(buildItem1.getItem().getId());
-            Integer buildItemQuantity = buildItem1.getBuildQuantity();
+        if (buildReqDTO.getBuildStatus().equals(BuildStatus.COMPLETED.toString())) {
 
-            itemService.resetStockQuantity(itemByBuildItem, buildItemQuantity);
-//            Integer itemExistingQuantity = itemByBuildItem.getQuantity();
-//            itemByBuildItem.setQuantity(buildItemQuantity + itemExistingQuantity);
-//            itemService.saveItem(itemByBuildItem);
-//                    updating totalPrice after removing item by item
-//            totalPrice -= itemByBuildItem.getPrice() * buildItemQuantity;
+            List<BuildItem> buildItemListByBuild = buildItemService.findAllByBuildId(buildId);
+
+            for (BuildItem buildItem1 : buildItemListByBuild) {
+                Item itemByBuildItem = itemService.getItemById(buildItem1.getItem().getId());
+                Integer buildItemQuantity = buildItem1.getBuildQuantity();
+
+                itemService.resetStockQuantity(itemByBuildItem, buildItemQuantity);
+            }
         }
 
-//        buildItemService.deleteAllByBuildId(buildId);
         buildInDb.getBuildItemList().clear();
 
         if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
             addNewBuildItems(buildReqDTO.getItemList(), buildInDb);
         }
+        buildValidator.validate(buildInDb);
         return buildRepository.save(buildInDb);
     }
 
@@ -88,12 +91,7 @@ public class BuildServiceImpl implements BuildService {
         for (Item itemRequest : itemList) {
             Item item = itemService.getItemById(itemRequest.getId());
 
-
-//            Integer itemStockQuantity = item.getQuantity();
             Integer itemQuantityToBuild = itemRequest.getQuantity();
-
-
-//            int itemNewQuantity = itemStockQuantity - itemQuantityToBuild;
 
             BigDecimal itemPrice = item.getPrice();
 
@@ -103,13 +101,11 @@ public class BuildServiceImpl implements BuildService {
             totalPrice = totalPrice.add(subtotal);
 
             if (build.getBuildStatus().equals(BuildStatus.COMPLETED)) {
-//                item.setQuantity(itemNewQuantity);
+
                 itemService.reduceItemQuantity(item, itemQuantityToBuild);
             }
 
-//            itemService.saveItem(item);
-
-           BuildItem buildItem = buildItemService.createBuildItem(itemQuantityToBuild, item, build);
+            BuildItem buildItem = buildItemService.createBuildItem(itemQuantityToBuild, item, build);
 
             build.getBuildItemList().add(buildItem);
         }
@@ -126,7 +122,6 @@ public class BuildServiceImpl implements BuildService {
 
     @Override
     public void deleteBuild(Long id) {
-        buildRepository.findById(id).orElseThrow(RuntimeException::new);
         buildRepository.deleteById(id);
     }
 
@@ -136,7 +131,9 @@ public class BuildServiceImpl implements BuildService {
         if (build.isPresent()) {
             return build.get();
         } else {
-            throw new RuntimeException();
+            throw new PrimeBuildException(
+                    "Build not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 

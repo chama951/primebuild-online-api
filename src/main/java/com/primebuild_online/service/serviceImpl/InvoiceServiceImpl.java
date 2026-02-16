@@ -7,7 +7,10 @@ import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.InvoiceRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.InvoiceValidator;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,17 +28,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final UserService userService;
 
     private final PaymentService paymentService;
-    private final ItemService itemService;
+
+    private final InvoiceValidator invoiceValidator;
 
     public InvoiceServiceImpl(InvoiceItemService invoiceItemService,
                               InvoiceRepository invoiceRepository,
                               UserService userService,
-                              @Lazy PaymentService paymentService, ItemService itemService) {
+                              @Lazy PaymentService paymentService, InvoiceValidator invoiceValidator) {
         this.invoiceItemService = invoiceItemService;
         this.invoiceRepository = invoiceRepository;
         this.userService = userService;
         this.paymentService = paymentService;
-        this.itemService = itemService;
+        this.invoiceValidator = invoiceValidator;
     }
 
     private User loggedInUser() {
@@ -46,6 +50,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Invoice saveInvoice(InvoiceDTO invoiceDTO) {
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Colombo"));
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -55,6 +60,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setCreatedAt(LocalDateTime.now());
         invoice.setUser(loggedInUser());
         invoice.setInvoiceDate(datePart);
+
         if (invoiceDTO.getInvoiceStatus() != null) {
             invoice.setInvoiceStatus(InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus()));
         }
@@ -68,6 +74,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             paymentService.savePayment(invoice);
         }
 
+        invoiceValidator.validate(invoice);
         return invoice;
     }
 
@@ -79,6 +86,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoiceItem = invoiceItemService.saveInvoiceItem(item, invoice);
             totalAmount = totalAmount.add(invoiceItem.getSubtotal());
             discountAmount = discountAmount.add(invoiceItem.getDiscountSubTotal());
+            invoice.getInvoiceItems().add(invoiceItem);
         }
         invoice.setDiscountAmount(discountAmount);
         invoice.setTotalAmount(totalAmount);
@@ -110,6 +118,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Invoice updateInvoice(InvoiceDTO invoiceDTO, Long id) {
+
         Invoice invoiceInDb = getInvoiceById(id);
 
         InvoiceStatus oldStatus = invoiceInDb.getInvoiceStatus();
@@ -136,6 +145,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     .orElseGet(() -> paymentService.savePayment(finalInvoice));
             paymentService.updatePayment(paymentInDb, finalInvoice);
         }
+        invoiceValidator.validate(invoiceInDb);
         return invoiceInDb;
     }
 
@@ -145,7 +155,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         if (invoice.isPresent()) {
             return invoice.get();
         } else {
-            throw new RuntimeException("Invoice not found");
+            throw new PrimeBuildException(
+                    "Invoice not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 

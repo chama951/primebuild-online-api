@@ -11,6 +11,9 @@ import com.primebuild_online.service.InvoiceService;
 import com.primebuild_online.service.ItemService;
 import com.primebuild_online.service.PaymentService;
 import com.primebuild_online.service.UserService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.PaymentValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -26,12 +29,14 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final UserService userService;
     private final PaymentRepository paymentRepository;
-    private final InvoiceService invoiceService;
+    private final PaymentValidator paymentValidator;
 
-    public PaymentServiceImpl(UserService userService, PaymentRepository paymentRepository, ItemService itemService, InvoiceService invoiceService) {
+    public PaymentServiceImpl(UserService userService,
+                              PaymentRepository paymentRepository,
+                              PaymentValidator paymentValidator) {
         this.userService = userService;
         this.paymentRepository = paymentRepository;
-        this.invoiceService = invoiceService;
+        this.paymentValidator = paymentValidator;
     }
 
     private User loggedInUser() {
@@ -42,6 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment savePayment(Invoice invoice) {
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Colombo"));
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -56,6 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setPaymentStatus(PaymentStatus.PAID);
         payment.setPaidAt(LocalDateTime.now());
 
+        paymentValidator.validate(payment);
         return paymentRepository.save(payment);
     }
 
@@ -72,6 +79,8 @@ public class PaymentServiceImpl implements PaymentService {
         paymentInDb.setAmount(invoice.getTotalAmount());
         paymentInDb.setPaymentStatus(PaymentStatus.PAID);
         paymentInDb.setPaidAt(LocalDateTime.now());
+
+        paymentValidator.validate(paymentInDb);
         paymentRepository.save(paymentInDb);
     }
 
@@ -88,7 +97,9 @@ public class PaymentServiceImpl implements PaymentService {
         if (payment.isPresent()) {
             return payment.get();
         } else {
-            throw new RuntimeException("Payment not found");
+            throw new PrimeBuildException(
+                    "Payment not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 
