@@ -20,14 +20,14 @@ public class ManufacturerItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "item_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemFeatures", "manufacturer", "component"})
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manufacturer_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "manufacturer_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
 //    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
     private Manufacturer manufacturer;

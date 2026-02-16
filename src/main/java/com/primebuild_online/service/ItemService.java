@@ -10,14 +10,11 @@ public interface ItemService {
 
     List<Item> getAllItem();
 
-
     Item updateItemReq(ItemReqDTO itemReqDTO, Long id);
 
     Item getItemById(Long id);
 
     void deleteItem(Long id);
-
-    void saveItem(Item itemByBuildItem);
 
     List<Item> getInStockItemListByComponent(Long componentId);
 

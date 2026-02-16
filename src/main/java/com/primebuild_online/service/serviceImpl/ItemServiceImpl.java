@@ -4,7 +4,10 @@ import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.service.*;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.ItemValidator;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,19 +21,21 @@ public class ItemServiceImpl implements ItemService {
     private final ItemFeatureService itemFeatureService;
     private final ComponentService componentService;
     private final ManufacturerItemService manufacturerItemService;
+    private final ItemValidator itemValidator;
 
     public ItemServiceImpl(ComponentService componentService,
                            @Lazy FeatureService featureService,
                            @Lazy ItemFeatureService itemFeatureService,
                            ItemRepository itemRepository,
                            ManufacturerItemService manufacturerItemService,
-                           ManufacturerService manufacturerService) {
+                           ManufacturerService manufacturerService, ItemValidator itemValidator) {
         this.componentService = componentService;
         this.featureService = featureService;
         this.itemFeatureService = itemFeatureService;
         this.itemRepository = itemRepository;
         this.manufacturerItemService = manufacturerItemService;
         this.manufacturerService = manufacturerService;
+        this.itemValidator = itemValidator;
     }
 
     @Override
@@ -42,7 +47,6 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(newItem);
     }
 
-    //  FIXED  SRP Violated  manufacturerItemService.saveManufacturerItem(...)
     public Item itemSetValues(ItemReqDTO itemReqDTO, Item item) {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
@@ -55,7 +59,19 @@ public class ItemServiceImpl implements ItemService {
             item.setComponent(component);
         }
 
-//        Item savedItem = itemRepository.save(item);
+        if (item.getId() == null &&
+                item.getComponent() != null &&
+                itemRepository.existsByItemNameIgnoreCaseAndComponentId(
+                        item.getItemName(),
+                        item.getComponent().getId())) {
+
+            throw new PrimeBuildException(
+                    "Item already exists for this component",
+                    HttpStatus.CONFLICT
+            );
+        }
+
+
 
         if (itemReqDTO.getManufacturerId() != null) {
             Manufacturer manufacturer = manufacturerService.getManufacturerById(itemReqDTO.getManufacturerId());
@@ -70,24 +86,9 @@ public class ItemServiceImpl implements ItemService {
 
             item.setManufacturer(manufacturer);
         }
-
+        itemValidator.validate(item);
         return item;
     }
-
-
-    //    SRP Violated by itemFeatureService.saveItemFeature(...)
-//    private void saveNewItemFeatures(Item item, List<Feature> featureList) {
-//        if (featureList != null && !featureList.isEmpty()) {
-//            itemFeatureService.deleteAllByItemId(item.getId());
-//            for (Feature featureRequest : featureList) {
-//                Feature feature = featureService.getFeatureById(featureRequest.getId());
-//                ItemFeature itemFeature = new ItemFeature();
-//                itemFeature.setItem(item);
-//                itemFeature.setFeature(feature);
-//                itemFeatureService.saveItemFeature(itemFeature);
-//            }
-//        }
-//    }
 
     @Override
     public List<Item> getAllItem() {
@@ -96,7 +97,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item updateItemReq(ItemReqDTO itemReqDTO, Long id) {
-        Item itemInDb = itemRepository.findById(id).orElseThrow(RuntimeException::new);
+        Item itemInDb = itemRepository.findById(id).orElseThrow(
+                () -> new PrimeBuildException(
+                        "Item not found",
+                        HttpStatus.NOT_FOUND));
         itemInDb = itemSetValues(itemReqDTO, itemInDb);
 
         return itemRepository.save(itemInDb);
@@ -108,7 +112,9 @@ public class ItemServiceImpl implements ItemService {
         if (item.isPresent()) {
             return item.get();
         } else {
-            throw new RuntimeException("Item not found");
+            throw new PrimeBuildException(
+                    "Item not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 
@@ -116,11 +122,6 @@ public class ItemServiceImpl implements ItemService {
     public void deleteItem(Long id) {
         itemFeatureService.deleteAllByItemId(id);
         itemRepository.deleteById(id);
-    }
-
-    @Override
-    public void saveItem(Item itemByBuildItem) {
-        itemRepository.save(itemByBuildItem);
     }
 
     @Override

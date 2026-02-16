@@ -8,4 +8,6 @@ import java.util.List;
 public interface FeatureRepository extends JpaRepository<Feature, Long> {
 
     List<Feature> findAllByFeatureTypeId(Long featureTypeId);
+
+    boolean existsByFeatureNameIgnoreCaseAndFeatureTypeId(String featureName, Long id);
 }

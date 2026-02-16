@@ -48,11 +48,14 @@ public class Item {
     @JsonIgnore
     private List<BuildItem> buildItems = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<ItemFeature> itemFeatureList = new ArrayList<>();
 
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<InvoiceItem> invoiceItemList = new ArrayList<>();
 

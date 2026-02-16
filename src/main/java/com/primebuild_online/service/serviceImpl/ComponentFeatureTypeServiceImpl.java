@@ -8,6 +8,9 @@ import com.primebuild_online.repository.ComponentFeatureTypeRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.FeatureTypeService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.ComponentFeatureTypeValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,20 +21,15 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
     private final ComponentFeatureTypeRepository componentFeatureTypeRepository;
     private final ComponentService componentService;
     private final FeatureTypeService featureTypeService;
+    private final ComponentFeatureTypeValidator componentFeatureTypeValidator;
 
     public ComponentFeatureTypeServiceImpl(ComponentFeatureTypeRepository componentFeatureTypeRepository,
                                            ComponentService componentService,
-                                           FeatureTypeService featureTypeService) {
+                                           FeatureTypeService featureTypeService, ComponentFeatureTypeValidator componentFeatureTypeValidator) {
         this.componentFeatureTypeRepository = componentFeatureTypeRepository;
         this.componentService = componentService;
         this.featureTypeService = featureTypeService;
-    }
-
-    @Override
-    public ComponentFeatureType saveComponentFeatureType(ComponentFeatureType componentFeatureType) {
-        componentFeatureType.setComponent(componentFeatureType.getComponent());
-        componentFeatureType.setFeatureType(componentFeatureType.getFeatureType());
-        return componentFeatureTypeRepository.save(componentFeatureType);
+        this.componentFeatureTypeValidator = componentFeatureTypeValidator;
     }
 
     @Override
@@ -45,6 +43,7 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
             FeatureType featureType = featureTypeService.getFeatureTypeById(componentFeatureTypeReqDTO.getFeatureTypeId());
             newComponentFeatureType.setFeatureType(featureType);
         }
+        componentFeatureTypeValidator.validate(newComponentFeatureType);
         componentFeatureTypeRepository.save(newComponentFeatureType);
         return newComponentFeatureType;
 
@@ -57,7 +56,11 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
 
     @Override
     public ComponentFeatureType updateComponentFeatureTypeReq(ComponentFeatureTypeReqDTO componentFeatureTypeReqDTO, Long id) {
-        ComponentFeatureType componentFeatureTypeInDb = componentFeatureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
+        ComponentFeatureType componentFeatureTypeInDb = componentFeatureTypeRepository.findById(id).orElseThrow(
+                () -> new PrimeBuildException(
+                        "Component Feature Type not found",
+                        HttpStatus.NOT_FOUND));
+
         if (componentFeatureTypeReqDTO.getComponentId() != null) {
             Component component = componentService.getComponentById(componentFeatureTypeReqDTO.getComponentId());
             componentFeatureTypeInDb.setComponent(component);
@@ -67,6 +70,7 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
             componentFeatureTypeInDb.setFeatureType(featureType);
             componentFeatureTypeRepository.save(componentFeatureTypeInDb);
         }
+        componentFeatureTypeValidator.validate(componentFeatureTypeInDb);
         return componentFeatureTypeInDb;
     }
 
@@ -76,24 +80,19 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
         if (componentFeature.isPresent()) {
             return componentFeature.get();
         } else {
-            throw new RuntimeException();
+            throw new PrimeBuildException(
+                    "Component Feature Type not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
     public void deleteComponentFeatureType(Long id) {
-        componentFeatureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         componentFeatureTypeRepository.deleteById(id);
     }
 
     @Override
-    public void deleteAllComponentFeatureTypeByComponentId(Long id) {
-        componentFeatureTypeRepository.deleteAllComponentFeatureTypeByComponentId(id);
-    }
-
-    @Override
     public List<ComponentFeatureType> getComponentFeatureTypesByComponentId(Long componentId) {
-        System.out.println("componentId " + componentId);
         return componentFeatureTypeRepository.getComponentFeatureTypesByComponentId(componentId);
     }
 }

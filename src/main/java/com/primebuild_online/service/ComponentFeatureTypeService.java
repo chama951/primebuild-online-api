@@ -16,9 +16,6 @@ public interface ComponentFeatureTypeService {
 
     void deleteComponentFeatureType(Long id);
 
-    void deleteAllComponentFeatureTypeByComponentId(Long id);
-
     List<ComponentFeatureType> getComponentFeatureTypesByComponentId(Long componentId);
 
-    ComponentFeatureType saveComponentFeatureType(ComponentFeatureType componentFeatureType);
 }

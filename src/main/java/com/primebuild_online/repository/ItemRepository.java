@@ -10,4 +10,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByQuantityGreaterThanAndComponentId(int i, Long componentId);
 
     List<Item> findAllById(Iterable<Long> ids);
+
+    boolean existsByItemNameIgnoreCaseAndComponentId(String itemName, Long id);
 }
