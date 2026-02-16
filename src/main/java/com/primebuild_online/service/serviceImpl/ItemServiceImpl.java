@@ -42,10 +42,13 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(newItem);
     }
 
+    //    SRP Violated  manufacturerItemService.saveManufacturerItem(...)
     public Item itemSetValues(ItemReqDTO itemReqDTO, Item item) {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
         item.setPrice(itemReqDTO.getPrice());
+        item.setPowerConsumption(itemReqDTO.getPowerConsumption());
+        item.setDiscountPercentage(itemReqDTO.getDiscountPercentage());
 
         if (itemReqDTO.getComponentId() != null) {
             Component component = componentService.getComponentById(itemReqDTO.getComponentId());
@@ -64,12 +67,11 @@ public class ItemServiceImpl implements ItemService {
 
             manufacturerItemService.saveManufacturerItem(manufacturerItem);
         }
-        saveNewItemFeatures(savedItem, itemReqDTO.getFeatureList());
-
         return savedItem;
     }
 
 
+    //    SRP Violated by itemFeatureService.saveItemFeature(...)
     private void saveNewItemFeatures(Item item, List<Feature> featureList) {
         if (featureList != null && !featureList.isEmpty()) {
             itemFeatureService.deleteAllByItemId(item.getId());
@@ -102,7 +104,7 @@ public class ItemServiceImpl implements ItemService {
         if (item.isPresent()) {
             return item.get();
         } else {
-            throw new RuntimeException();
+            throw new RuntimeException("Item not found");
         }
     }
 
@@ -121,5 +123,24 @@ public class ItemServiceImpl implements ItemService {
     public List<Item> getInStockItemListByComponent(Long componentId) {
         return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId);
     }
+
+    @Override
+    public List<Item> getItemsByIds(List<Long> ids) {
+        return itemRepository.findAllById(ids);
+    }
+
+    @Override
+    public void reduceItemQuantity(Item itemInDb, Integer quantityToReduce) {
+        Integer reduceQuantity = itemInDb.getQuantity() - quantityToReduce;
+        itemInDb.setQuantity(reduceQuantity);
+        itemRepository.save(itemInDb);
+    }
+
+    @Override
+    public void resetStock(Item item, Integer quantityToAdd) {
+        item.setQuantity(item.getQuantity() + quantityToAdd);
+        itemRepository.save(item);
+    }
+
 
 }

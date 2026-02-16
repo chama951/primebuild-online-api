@@ -1,6 +1,7 @@
 package com.primebuild_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,11 +10,11 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
-@Table(name = "user_role")
-public class UserRole {
+@Table(name = "user_build")
+public class UserBuild {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +26,10 @@ public class UserRole {
     @JsonIgnore
     private User user;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "build_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Role role;
+    @JsonIgnoreProperties({"hibernateLazyInitializer"})
+    private Build build;
 }

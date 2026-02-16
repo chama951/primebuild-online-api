@@ -1,9 +1,12 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import java.math.BigDecimal;
 
 
 @Entity
@@ -16,20 +19,30 @@ public class InvoiceItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
-
-    @Column(name = "unit_price", nullable = false)
-    private Double unitPrice;
+    @Column(name = "invoice_quantity", nullable = false)
+    private Integer invoiceQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoiceItems"})
     private Invoice invoice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoiceItemList"})
     private Item item;
 
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
+
+    @Column(name = "discount_per_unit")
+    private BigDecimal discountPerUnite;
+
+    @Column(name = "discount_sub_total")
+    private BigDecimal discountSubTotal;
+
+    @Column(name = "subtotal")
+    private BigDecimal subtotal;
 }

@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +28,18 @@ public class Item {
     private Integer quantity;
 
     @Column(name = "price")
-    private Double price;
+    private BigDecimal price;
+
+    @Column(name = "discount_percentage")
+    private BigDecimal discountPercentage;
+
+    @Column(name = "power_consumption")
+    private float powerConsumption;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemList"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "componentFeatureTypeList", "itemList"})
     private Component component;
 
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -42,6 +49,10 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<ItemFeature> itemFeatureList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<InvoiceItem> invoiceItemList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")

@@ -15,6 +15,7 @@ import java.util.List;
 public class ComponentReqDTO {
     private Long id;
     private String componentName;
-    private List<FeatureType> componentFeatureTypeList =  new ArrayList<>();
-    private boolean isBuildItem;
+    private boolean buildComponent;
+    private Integer buildPriority;
+    private boolean  powerSource;
 }

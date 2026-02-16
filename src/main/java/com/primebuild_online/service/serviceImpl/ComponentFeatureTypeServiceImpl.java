@@ -61,18 +61,12 @@ public class ComponentFeatureTypeServiceImpl implements ComponentFeatureTypeServ
         if (componentFeatureTypeReqDTO.getComponentId() != null) {
             Component component = componentService.getComponentById(componentFeatureTypeReqDTO.getComponentId());
             componentFeatureTypeInDb.setComponent(component);
-            componentFeatureTypeRepository.save(componentFeatureTypeInDb);
-        } else {
-            componentFeatureTypeRepository.delete(componentFeatureTypeInDb);
         }
         if (componentFeatureTypeReqDTO.getFeatureTypeId() != null) {
             FeatureType featureType = featureTypeService.getFeatureTypeById(componentFeatureTypeReqDTO.getFeatureTypeId());
             componentFeatureTypeInDb.setFeatureType(featureType);
             componentFeatureTypeRepository.save(componentFeatureTypeInDb);
-        } else {
-            componentFeatureTypeRepository.delete(componentFeatureTypeInDb);
         }
-
         return componentFeatureTypeInDb;
     }
 

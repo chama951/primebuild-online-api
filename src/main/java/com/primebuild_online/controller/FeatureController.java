@@ -25,8 +25,9 @@ public class FeatureController {
     }
 
     @GetMapping
-    public List<Feature> getFeatureListByFeatureType(@RequestParam(value = "feature_type", required = false) Long featureTypeId) {
+    public List<Feature> getFeatureList(@RequestParam(value = "feature_type", required = false) Long featureTypeId) {
         if (featureTypeId != null) {
+//            byFeatureType
             return (featureService.getFeatureListByFeatureType(featureTypeId));
         } else {
             return featureService.getAllFeature();

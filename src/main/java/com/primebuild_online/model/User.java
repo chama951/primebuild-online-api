@@ -1,47 +1,114 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.primebuild_online.model.enumerations.SignUpMethods;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-@Table(name = "user")
+@NoArgsConstructor
+@Table(name = "user",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+        })
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @Column(name = "username", unique = true, nullable = false)
+    @NotBlank
+    @Size(max = 20)
+    @Column(name = "username")
     private String username;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @NotBlank
+    @Size(max = 50)
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Size(max = 120)
+    @Column(name = "password")
+    @JsonIgnore
     private String password;
 
-    @Column(name = "first_name")
-    private String firstName;
+    @Column(name = "address")
+    private String address;
 
-    @Column(name = "last_name")
-    private String lastName;
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
+    private List<Invoice> invoiceList = new ArrayList<>();
 
-    @Column(name = "is_active")
-    private Boolean isActive;
+    private boolean accountNonLocked = true;
+    private boolean accountNonExpired = true;
+    private boolean credentialsNonExpired = true;
+    private boolean enabled = true;
 
-    @Column(name = "created_date")
-    private LocalDateTime createdDate;
+    private LocalDateTime credentialsExpiryDate;
+    private LocalDateTime accountExpiryDate;
 
-    @Column(name = "last_login")
-    private LocalDateTime lastLogin;
+    private boolean twoFactorSecret;
+    private boolean isTwoFactorEnabled = false;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<UserRole> userRoles = new HashSet<>();
+    @ToString.Exclude
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, name = "signup_method")
+    private SignUpMethods signUpMethod;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "role_id")
+//    @JsonBackReference
+    @ToString.Exclude
+    private Role role;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDate createdDate;
+
+    @UpdateTimestamp
+    private LocalDate updatedDate;
+
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+
+    public User(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
+
+    public User(String username, String password, String email, SignUpMethods signUpMethod, Role role) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.signUpMethod = signUpMethod;
+        this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        return userId != null && userId.equals(((User) o).getUserId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

@@ -25,8 +25,12 @@ public class ComponentController {
     }
 
     @GetMapping
-    public List<Component> getAllComponent() {
-        return componentService.getAllComponent();
+    public List<Component> getAllComponent(@RequestParam(value = "isBuild", required = false) Boolean isBuildComponent) {
+        if (isBuildComponent != null) {
+            return componentService.getIsBuildComponentList();
+        } else {
+            return componentService.getAllComponent();
+        }
     }
 
     @PutMapping("{id}")

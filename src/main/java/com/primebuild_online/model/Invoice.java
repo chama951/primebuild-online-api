@@ -1,10 +1,12 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.primebuild_online.model.enumerations.InvoiceStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,35 +21,37 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "invoice_date", nullable = false)
-    private LocalDateTime invoiceDate;
+    @Column(name = "invoice_date")
+    private LocalDate invoiceDate;
 
     @Column(name = "discount_amount")
-    private Double discountAmount;
+    private BigDecimal discountAmount;
 
-    @Column(name = "total_amount", nullable = false)
-    private Double totalAmount;
+    @Column(name = "total_amount")
+    private BigDecimal totalAmount;
 
-    @Column(name = "status", nullable = false)
-    private String status; // "DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED", "REFUNDED"
-
-    @Column(name = "payment_method")
-    private String paymentMethod; // "CREDIT_CARD", "PAYPAL", "BANK_TRANSFER", "CASH"
+    @Enumerated(EnumType.STRING)
+    @Column(name = "invoice_status")
+    private InvoiceStatus invoiceStatus;
 
     @Column(name = "billing_address")
     private String billingAddress;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Customer customer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "build_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Build build;
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoiceList"})
+//    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private User user;
 
     @OneToMany(mappedBy = "invoice", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoice"})
     private List<InvoiceItem> invoiceItems = new ArrayList<>();
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "update_at")
+    private LocalDateTime updatedAt;
+
 }
+
