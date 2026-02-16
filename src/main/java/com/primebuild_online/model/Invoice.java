@@ -43,7 +43,9 @@ public class Invoice {
 //    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
 
-    @OneToMany(mappedBy = "invoice", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "invoice",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoice"})
     private List<InvoiceItem> invoiceItems = new ArrayList<>();
 

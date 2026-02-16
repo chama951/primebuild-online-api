@@ -1,6 +1,8 @@
 package com.primebuild_online.service.serviceImpl;
 
+import com.primebuild_online.model.Build;
 import com.primebuild_online.model.BuildItem;
+import com.primebuild_online.model.Item;
 import com.primebuild_online.repository.BuildItemRepository;
 import com.primebuild_online.service.BuildItemService;
 import org.springframework.stereotype.Service;
@@ -50,8 +52,17 @@ public class BuildItemServiceImpl implements BuildItemService {
 
     @Override
     public List<BuildItem> findAllByBuildId(Long buildId) {
-       List<BuildItem> buildItemList = buildItemRepository.findAllByBuildId(buildId);
-       return buildItemList;
+        List<BuildItem> buildItemList = buildItemRepository.findAllByBuildId(buildId);
+        return buildItemList;
+    }
+
+    @Override
+    public BuildItem createBuildItem(Integer itemQuantityToBuild, Item item, Build build) {
+        BuildItem buildItem = new BuildItem();
+        buildItem.setBuildQuantity(itemQuantityToBuild);
+        buildItem.setItem(item);
+        buildItem.setBuild(build);
+        return buildItem;
     }
 
 

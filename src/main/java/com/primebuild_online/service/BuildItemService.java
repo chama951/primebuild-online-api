@@ -1,9 +1,10 @@
 package com.primebuild_online.service;
 
+import com.primebuild_online.model.Build;
 import com.primebuild_online.model.BuildItem;
+import com.primebuild_online.model.Item;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface BuildItemService{
     void saveBuildItem(BuildItem buildItem);
@@ -17,4 +18,6 @@ public interface BuildItemService{
     void deleteById(Long id);
 
     List<BuildItem> findAllByBuildId(Long buildId);
+
+    BuildItem createBuildItem(Integer itemQuantityToBuild, Item item, Build build);
 }

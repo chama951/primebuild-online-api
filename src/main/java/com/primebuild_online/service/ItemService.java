@@ -25,5 +25,5 @@ public interface ItemService {
 
     void reduceItemQuantity(Item item, Integer itemQuantity);
 
-    void resetStock(Item item, Integer quantityToAdd);
+    void resetStockQuantity(Item item, Integer quantityToAdd);
 }

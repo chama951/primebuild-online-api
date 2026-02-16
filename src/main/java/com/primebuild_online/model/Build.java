@@ -28,8 +28,11 @@ public class Build {
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
 
-    @OneToMany(mappedBy = "build", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<BuildItem> buildItems = new ArrayList<>();
+    @OneToMany(
+            mappedBy = "build",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<BuildItem> buildItemList = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "build_status")

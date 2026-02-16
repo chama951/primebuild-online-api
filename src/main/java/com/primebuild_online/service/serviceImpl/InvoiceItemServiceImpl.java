@@ -68,7 +68,7 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
         for(InvoiceItem invoiceItem : invoiceItemList){
             Item item = invoiceItem.getItem();
             Integer quantityToAdd = invoiceItem.getInvoiceQuantity();
-            itemService.resetStock(item, quantityToAdd);
+            itemService.resetStockQuantity(item, quantityToAdd);
         }
     }
 

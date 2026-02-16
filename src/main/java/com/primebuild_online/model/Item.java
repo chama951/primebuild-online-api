@@ -42,7 +42,9 @@ public class Item {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "componentFeatureTypeList", "itemList"})
     private Component component;
 
-    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "item",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     @JsonIgnore
     private List<BuildItem> buildItems = new ArrayList<>();
 

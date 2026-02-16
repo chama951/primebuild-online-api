@@ -74,7 +74,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private Invoice createInvoiceItems(List<Item> itemList, Invoice invoice) {
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal discountAmount = BigDecimal.ZERO;
-        InvoiceItem invoiceItem = new InvoiceItem();
+        InvoiceItem invoiceItem;
         for (Item item : itemList) {
             invoiceItem = invoiceItemService.saveInvoiceItem(item, invoice);
             totalAmount = totalAmount.add(invoiceItem.getSubtotal());
@@ -124,8 +124,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         invoiceInDb.getInvoiceItems().clear();
-
-        invoiceItemService.deleteInvoiceItemsByInvoiceId(id);
 
         invoiceInDb = invoiceRepository.save(invoiceInDb);
 

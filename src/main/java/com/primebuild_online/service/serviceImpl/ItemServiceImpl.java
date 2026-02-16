@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(newItem);
     }
 
-    //    SRP Violated  manufacturerItemService.saveManufacturerItem(...)
+    //  FIXED  SRP Violated  manufacturerItemService.saveManufacturerItem(...)
     public Item itemSetValues(ItemReqDTO itemReqDTO, Item item) {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
@@ -55,35 +55,39 @@ public class ItemServiceImpl implements ItemService {
             item.setComponent(component);
         }
 
-        Item savedItem = itemRepository.save(item);
+//        Item savedItem = itemRepository.save(item);
 
         if (itemReqDTO.getManufacturerId() != null) {
             Manufacturer manufacturer = manufacturerService.getManufacturerById(itemReqDTO.getManufacturerId());
             item.setManufacturer(manufacturer);
 
-            ManufacturerItem manufacturerItem = new ManufacturerItem();
-            manufacturerItem.setItem(savedItem);
-            manufacturerItem.setManufacturer(manufacturer);
+            ManufacturerItem manufacturerItem =
+                    manufacturerItemService.prepareManufacturerItem(manufacturer, item);
 
-            manufacturerItemService.saveManufacturerItem(manufacturerItem);
+            manufacturer.getManufacturerItemList().clear();
+
+            manufacturer.getManufacturerItemList().add(manufacturerItem);
+
+            item.setManufacturer(manufacturer);
         }
-        return savedItem;
+
+        return item;
     }
 
 
     //    SRP Violated by itemFeatureService.saveItemFeature(...)
-    private void saveNewItemFeatures(Item item, List<Feature> featureList) {
-        if (featureList != null && !featureList.isEmpty()) {
-            itemFeatureService.deleteAllByItemId(item.getId());
-            for (Feature featureRequest : featureList) {
-                Feature feature = featureService.getFeatureById(featureRequest.getId());
-                ItemFeature itemFeature = new ItemFeature();
-                itemFeature.setItem(item);
-                itemFeature.setFeature(feature);
-                itemFeatureService.saveItemFeature(itemFeature);
-            }
-        }
-    }
+//    private void saveNewItemFeatures(Item item, List<Feature> featureList) {
+//        if (featureList != null && !featureList.isEmpty()) {
+//            itemFeatureService.deleteAllByItemId(item.getId());
+//            for (Feature featureRequest : featureList) {
+//                Feature feature = featureService.getFeatureById(featureRequest.getId());
+//                ItemFeature itemFeature = new ItemFeature();
+//                itemFeature.setItem(item);
+//                itemFeature.setFeature(feature);
+//                itemFeatureService.saveItemFeature(itemFeature);
+//            }
+//        }
+//    }
 
     @Override
     public List<Item> getAllItem() {
@@ -137,7 +141,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void resetStock(Item item, Integer quantityToAdd) {
+    public void resetStockQuantity(Item item, Integer quantityToAdd) {
         item.setQuantity(item.getQuantity() + quantityToAdd);
         itemRepository.save(item);
     }

@@ -10,12 +10,13 @@ import com.primebuild_online.repository.BuildRepository;
 import com.primebuild_online.service.BuildItemService;
 import com.primebuild_online.service.BuildService;
 import com.primebuild_online.service.ItemService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -47,10 +48,12 @@ public class BuildServiceImpl implements BuildService {
         return buildRepository.save(newBuild);
     }
 
-    //    SRP Violated by  itemService.saveItem(...)
+    //   FIXED SRP Violated by  itemService.saveItem(...)
     @Override
     public Build updateBuildReq(BuildReqDTO buildReqDTO, Long buildId) {
-        Build buildInDb = buildRepository.findById(buildId).orElseThrow(RuntimeException::new);
+        Build buildInDb = buildRepository.findById(buildId).orElseThrow(() -> new PrimeBuildException(
+                "Build not found",
+                HttpStatus.NOT_FOUND));
 
         buildInDb.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         buildInDb.setLastModified(LocalDateTime.now());
@@ -60,14 +63,17 @@ public class BuildServiceImpl implements BuildService {
         for (BuildItem buildItem1 : buildItemListByBuild) {
             Item itemByBuildItem = itemService.getItemById(buildItem1.getItem().getId());
             Integer buildItemQuantity = buildItem1.getBuildQuantity();
-            Integer itemExistingQuantity = itemByBuildItem.getQuantity();
-            itemByBuildItem.setQuantity(buildItemQuantity + itemExistingQuantity);
-            itemService.saveItem(itemByBuildItem);
+
+            itemService.resetStockQuantity(itemByBuildItem, buildItemQuantity);
+//            Integer itemExistingQuantity = itemByBuildItem.getQuantity();
+//            itemByBuildItem.setQuantity(buildItemQuantity + itemExistingQuantity);
+//            itemService.saveItem(itemByBuildItem);
 //                    updating totalPrice after removing item by item
 //            totalPrice -= itemByBuildItem.getPrice() * buildItemQuantity;
         }
 
-        buildItemService.deleteAllByBuildId(buildId);
+//        buildItemService.deleteAllByBuildId(buildId);
+        buildInDb.getBuildItemList().clear();
 
         if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
             addNewBuildItems(buildReqDTO.getItemList(), buildInDb);
@@ -75,7 +81,7 @@ public class BuildServiceImpl implements BuildService {
         return buildRepository.save(buildInDb);
     }
 
-//    SRP Violated by buildItemService.saveBuildItem(..)
+    //   FIXED SRP Violated by buildItemService.saveBuildItem(..)
     private Build addNewBuildItems(List<Item> itemList, Build build) {
         BigDecimal totalPrice = BigDecimal.valueOf(0);
 
@@ -83,30 +89,29 @@ public class BuildServiceImpl implements BuildService {
             Item item = itemService.getItemById(itemRequest.getId());
 
 
+//            Integer itemStockQuantity = item.getQuantity();
+            Integer itemQuantityToBuild = itemRequest.getQuantity();
 
-            Integer itemStockQuantity = item.getQuantity();
-            Integer itemQuantityToAdd = itemRequest.getQuantity();
 
-            int itemNewQuantity = itemStockQuantity - itemQuantityToAdd;
+//            int itemNewQuantity = itemStockQuantity - itemQuantityToBuild;
 
             BigDecimal itemPrice = item.getPrice();
 
             BigDecimal subtotal = itemPrice
-                    .multiply(BigDecimal.valueOf(itemQuantityToAdd));
+                    .multiply(BigDecimal.valueOf(itemQuantityToBuild));
 
             totalPrice = totalPrice.add(subtotal);
 
-            if (Objects.equals(build.getBuildStatus(), String.valueOf(BuildStatus.COMPLETED))) {
-                item.setQuantity(itemNewQuantity);
+            if (build.getBuildStatus().equals(BuildStatus.COMPLETED)) {
+//                item.setQuantity(itemNewQuantity);
+                itemService.reduceItemQuantity(item, itemQuantityToBuild);
             }
 
-            itemService.saveItem(item);
+//            itemService.saveItem(item);
 
-            BuildItem buildItem = new BuildItem();
-            buildItem.setBuildQuantity(itemQuantityToAdd);
-            buildItem.setItem(item);
-            buildItem.setBuild(build);
-            buildItemService.saveBuildItem(buildItem);
+           BuildItem buildItem = buildItemService.createBuildItem(itemQuantityToBuild, item, build);
+
+            build.getBuildItemList().add(buildItem);
         }
 
 
