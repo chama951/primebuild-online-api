@@ -8,6 +8,7 @@ import com.primebuild_online.repository.ItemFeatureRepository;
 import com.primebuild_online.service.FeatureService;
 import com.primebuild_online.service.ItemFeatureService;
 import com.primebuild_online.service.ItemService;
+import com.primebuild_online.utils.validator.ItemFeatureValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,14 +19,17 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     private final ItemFeatureRepository itemFeatureRepository;
     private final FeatureService featureService;
     private final ItemService itemService;
+    private final ItemFeatureValidator itemFeatureValidator;
 
     public ItemFeatureServiceImpl(
             ItemService itemService,
             ItemFeatureRepository itemFeatureRepository,
-            FeatureService featureService) {
+            FeatureService featureService,
+            ItemFeatureValidator itemFeatureValidator) {
         this.itemService = itemService;
         this.itemFeatureRepository = itemFeatureRepository;
         this.featureService = featureService;
+        this.itemFeatureValidator = itemFeatureValidator;
     }
 
     @Override
@@ -42,6 +46,7 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
             newItemFeature.setFeature(feature);
         }
         newItemFeature.setSlotCount(itemFeatureDTO.getSlotCount());
+        itemFeatureValidator.validate(newItemFeature);
         return itemFeatureRepository.save(newItemFeature);
     }
 
@@ -71,6 +76,8 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
         }
 
         itemFeatureInDb.setSlotCount(itemFeatureDTO.getSlotCount());
+
+        itemFeatureValidator.validate(itemFeatureInDb);
         itemFeatureRepository.save(itemFeatureInDb);
 
         return itemFeatureInDb;
