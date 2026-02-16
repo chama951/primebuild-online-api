@@ -5,6 +5,7 @@ import com.primebuild_online.security.jwt.LoginRequestDTO;
 import com.primebuild_online.security.jwt.LoginResponseDTO;
 import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.service.UserService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,10 +62,9 @@ public class AuthController {
             authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getUsername(), loginRequestDTO.getPassword()));
         } catch (AuthenticationException exception) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("message", "Bad credentials");
-            map.put("status", false);
-            return new ResponseEntity<Object>(map, HttpStatus.NOT_FOUND);
+            throw new PrimeBuildException(
+                    "Bad credentials",
+                    HttpStatus.NOT_FOUND);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

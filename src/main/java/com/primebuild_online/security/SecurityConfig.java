@@ -53,12 +53,14 @@ public class SecurityConfig {
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**") // Only /api/** uses this chain
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/api/login").permitAll()
                                 .requestMatchers("/api/signup").permitAll()
 //                        .requestMatchers("/api/role/**").hasAuthority("ADMIN")
                                 .requestMatchers("/api/role/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
+                                .requestMatchers("/api/item/**").hasAnyAuthority("ADMIN","INVENTORY_MANAGEMENT")
 //                                .requestMatchers("/api/role/**").permitAll() //Debug
                                 .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
 //                                .requestMatchers("/api/user/**").permitAll() //Debug
