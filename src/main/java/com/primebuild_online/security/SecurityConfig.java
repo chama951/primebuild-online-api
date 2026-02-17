@@ -61,6 +61,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/role/**").hasAuthority("ADMIN")
                                 .requestMatchers("/api/role/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
                                 .requestMatchers("/api/item/**").hasAnyAuthority("ADMIN","INVENTORY_MANAGEMENT")
+                                .requestMatchers("/api/vendor_item_data/**").hasAnyAuthority("ADMIN")
 //                                .requestMatchers("/api/role/**").permitAll() //Debug
                                 .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
 //                                .requestMatchers("/api/user/**").permitAll() //Debug
