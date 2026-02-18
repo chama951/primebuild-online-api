@@ -49,12 +49,17 @@ public class OAuth2AuthenticationSuccessHandler
         // Generate JWT
         String token = jwtUtils.generateTokenFromUsername(userDetails);
 
+        String redirectUrl =
+                "http://localhost:3000/oauth2/redirect?token=" + token;
+
         // Return JWT
         response.setContentType("application/json");
         response.getWriter().write("""
                     {
-                      "token": "%s"
+                      "jwtToken": "%s"
                     }
                 """.formatted(token));
+
+        response.sendRedirect(redirectUrl);
     }
 }

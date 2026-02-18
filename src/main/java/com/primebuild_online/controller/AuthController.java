@@ -1,14 +1,16 @@
 package com.primebuild_online.controller;
 
+import com.primebuild_online.model.User;
 import com.primebuild_online.security.jwt.JwtUtils;
 import com.primebuild_online.security.jwt.LoginRequestDTO;
 import com.primebuild_online.security.jwt.LoginResponseDTO;
 import com.primebuild_online.model.DTO.UserDTO;
+import com.primebuild_online.security.services.UserDetailsImpl;
 import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +20,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,9 +36,9 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/api/signup")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO,
-                                      @RequestParam(value = "type", required = false) String type) {
+    @PostMapping("/api/auth/signup")
+    public ResponseEntity<?> signUp(@RequestBody UserDTO userDTO,
+                                    @RequestParam(value = "type", required = false) String type) {
         if (type != null) {
             if (type.equals("staff")) {
                 userService.saveUser(userDTO);
@@ -55,7 +53,7 @@ public class AuthController {
         return authenticateUser(loginRequestDTO);
     }
 
-    @PostMapping("/api/login")
+    @PostMapping("/api/auth/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequestDTO loginRequestDTO) {
         Authentication authentication;
         try {
@@ -80,6 +78,13 @@ public class AuthController {
         LoginResponseDTO response = new LoginResponseDTO(userDetails.getUsername(), roles, jwtToken);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/auth/self")
+    public ResponseEntity<?> getSelf(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = userService.getUserById(userDetails.getId());
+        return ResponseEntity.ok(user);
     }
 
 }

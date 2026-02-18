@@ -34,6 +34,9 @@ public class SecurityConfig {
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
@@ -56,17 +59,20 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/api/login").permitAll()
-                                .requestMatchers("/api/signup").permitAll()
+                                .requestMatchers("/api/auth/login").permitAll()
+                                .requestMatchers("/api/auth/signup").permitAll()
 //                        .requestMatchers("/api/role/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/role/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
-                                .requestMatchers("/api/item/**").hasAnyAuthority("ADMIN","INVENTORY_MANAGEMENT")
+                                .requestMatchers("/api/role/**").hasAnyAuthority("ADMIN", "USER_MANAGEMENT")
+//                                .requestMatchers("/api/item/**").hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+                                .requestMatchers("/api/item/**").hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT", "CUSTOMER")
                                 .requestMatchers("/api/vendor_item_data/**").hasAnyAuthority("ADMIN")
 //                                .requestMatchers("/api/role/**").permitAll() //Debug
-                                .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
+                                .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "USER_MANAGEMENT")
 //                                .requestMatchers("/api/user/**").permitAll() //Debug
-                                .requestMatchers("/api/manufacturer/**").hasAnyAuthority("ADMIN","BUILD_MANAGEMENT")
-                                .requestMatchers("/api/invoice/**").hasAnyAuthority("ADMIN","INVOICE_MANAGEMENT")
+                                .requestMatchers("/api/manufacturer/**").hasAnyAuthority("ADMIN", "BUILD_MANAGEMENT")
+                                .requestMatchers("/api/component/**").hasAnyAuthority("ADMIN", "BUILD_MANAGEMENT")
+                                .requestMatchers("/api/build/**").hasAnyAuthority("ADMIN", "CUSTOMER")
+                                .requestMatchers("/api/invoice/**").hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
 
                                 .anyRequest().authenticated()
                 )
@@ -75,39 +81,28 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .httpBasic(Customizer.withDefaults())
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(unauthorizedHandler)
+                )
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//        http
-//                .csrf(csrf -> csrf.disable())
-//
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/",
-//                                "/login",
-//                                "/error",
-//                                "/oauth2/**"
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//
-//                // OAuth2 login
-//                .oauth2Login(oauth2 ->
-//                        oauth2.successHandler(oAuth2AuthenticationSuccessHandler)
-//                )
-//
-//                // JWT filter
-//                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
-//
-//                .sessionManagement(session ->
-//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                );
-//
-//        return http.build();
-//    }
+    @Bean
+    public SecurityFilterChain oauth2Security(HttpSecurity http)
+            throws Exception {
+
+        http
+                .securityMatcher("/oauth2/**", "/login/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth ->
+                        auth.anyRequest().permitAll())
+                .oauth2Login(oauth ->
+                        oauth.successHandler(oAuth2AuthenticationSuccessHandler));
+
+        return http.build();
+    }
+
 }
