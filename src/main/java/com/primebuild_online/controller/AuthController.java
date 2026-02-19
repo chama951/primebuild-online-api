@@ -1,11 +1,14 @@
 package com.primebuild_online.controller;
 
+import com.primebuild_online.model.DTO.ResetPasswordDTO;
 import com.primebuild_online.model.User;
+import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.security.jwt.JwtUtils;
 import com.primebuild_online.security.jwt.LoginRequestDTO;
 import com.primebuild_online.security.jwt.LoginResponseDTO;
 import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.security.services.UserDetailsImpl;
+import com.primebuild_online.service.ResetPasswordService;
 import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,11 +25,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 public class AuthController {
+
+    @Autowired
+    private ResetPasswordService resetPasswordService;
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -87,4 +99,27 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
+    @PostMapping("/api/auth/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
+        Map<String, String> response = new HashMap<>();
+        if (userRepository.existsByEmail(resetPasswordDTO.getEmail())) {
+            resetPasswordService.createAndSendPin(resetPasswordDTO.getEmail());
+            response.put("message", "PIN sent to your email!");
+        } else {
+            response.put("message", "Email not found!");
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/api/auth/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
+        Map<String, String> response = new HashMap<>();
+        boolean success = resetPasswordService.resetPassword(resetPasswordDTO);
+        if (success) {
+            response.put("message", "Password reset successful!");
+        } else {
+            response.put("message", "Password reset successful!");
+        }
+        return ResponseEntity.ok(response);
+    }
 }

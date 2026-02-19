@@ -25,6 +25,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         securedEnabled = true,
         jsr250Enabled = true)
 public class SecurityConfig {
+
+
     @Autowired
     private AuthTokenFilter authTokenFilter;
 
@@ -59,8 +61,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/api/auth/mail").permitAll()
                                 .requestMatchers("/api/auth/login").permitAll()
                                 .requestMatchers("/api/auth/signup").permitAll()
+                                .requestMatchers("/api/auth/forgot-password").permitAll()
+                                .requestMatchers("/api/auth/reset-password").permitAll()
 //                        .requestMatchers("/api/role/**").hasAuthority("ADMIN")
                                 .requestMatchers("/api/role/**").hasAnyAuthority("ADMIN", "USER_MANAGEMENT")
 //                                .requestMatchers("/api/item/**").hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")

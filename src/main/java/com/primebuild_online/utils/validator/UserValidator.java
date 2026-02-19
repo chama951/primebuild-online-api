@@ -25,13 +25,13 @@ public class UserValidator {
             );
         }
 
-        if (!user.getSignUpMethod().equals(SignUpMethods.OAUTH2) && user.getPassword() != null &&
-                user.getPassword().length() < 6) {
-            throw new PrimeBuildException(
-                    "Password must be at least 6 characters",
-                    HttpStatus.BAD_REQUEST
-            );
-        }
+//        if (!user.getSignUpMethod().equals(SignUpMethods.OAUTH2) && user.getPassword() != null &&
+//                user.getPassword().length() < 6) {
+//            throw new PrimeBuildException(
+//                    "Password must be at least 6 characters",
+//                    HttpStatus.BAD_REQUEST
+//            );
+//        }
 
         if (user.getRole() == null) {
             throw new PrimeBuildException(

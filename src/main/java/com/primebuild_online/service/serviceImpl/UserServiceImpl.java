@@ -212,7 +212,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createOAuth2User(String email, String name) {
         UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(name);
+        userDTO.setUsername(name.replaceAll("\\s+", ""));
         userDTO.setEmail(email);
         userDTO.setSignUpMethod(SignUpMethods.OAUTH2);
         return signupCustomer(userDTO);
