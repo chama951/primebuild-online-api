@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BuildReqDTO {
+    private String buildName;
     private String buildStatus;
     private List<Item> itemList = new ArrayList<>();
 }

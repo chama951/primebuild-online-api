@@ -17,4 +17,5 @@ public interface BuildService {
 
     Build getBuildById(Long id);
 
+    List<Build> getAllBuildsByCurrentUser();
 }

@@ -276,7 +276,7 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                 if (powerSourceOutput >= totalPower) {
 
                     System.out.println("FINAL RESULT: COMPATIBLE");
-
+                    cadidate.setQuantity(1);
                     compatiblePowerSources.add(cadidate);
 
                 } else {

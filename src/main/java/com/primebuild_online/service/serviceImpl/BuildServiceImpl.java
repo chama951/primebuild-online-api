@@ -4,12 +4,15 @@ import com.primebuild_online.model.Build;
 import com.primebuild_online.model.BuildItem;
 import com.primebuild_online.model.DTO.BuildReqDTO;
 import com.primebuild_online.model.Item;
+import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.BuildStatus;
 import com.primebuild_online.repository.BuildItemRepository;
 import com.primebuild_online.repository.BuildRepository;
+import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.BuildItemService;
 import com.primebuild_online.service.BuildService;
 import com.primebuild_online.service.ItemService;
+import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.BuildValidator;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -26,12 +30,25 @@ public class BuildServiceImpl implements BuildService {
     private final BuildItemService buildItemService;
     private final BuildRepository buildRepository;
     private final BuildValidator buildValidator;
+    private final UserService userService;
 
-    public BuildServiceImpl(ItemService itemService, BuildItemService buildItemService, BuildRepository buildRepository, BuildItemRepository buildItemRepository, BuildValidator buildValidator) {
+    public BuildServiceImpl(ItemService itemService,
+                            BuildItemService buildItemService,
+                            BuildRepository buildRepository,
+                            BuildItemRepository buildItemRepository,
+                            BuildValidator buildValidator,
+                            UserService userService) {
         this.buildRepository = buildRepository;
         this.itemService = itemService;
         this.buildItemService = buildItemService;
         this.buildValidator = buildValidator;
+        this.userService = userService;
+    }
+
+    private User loggedInUser() {
+        return userService.getUserById(
+                Objects.requireNonNull(SecurityUtils.getCurrentUser()).getId()
+        );
     }
 
     @Override
@@ -39,6 +56,9 @@ public class BuildServiceImpl implements BuildService {
 
         Build newBuild = new Build();
 
+        newBuild.setCreatedAt(LocalDateTime.now());
+        newBuild.setUser(loggedInUser());
+        newBuild.setBuildName(buildReqDTO.getBuildName());
         newBuild.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         newBuild.setCreatedDate(LocalDateTime.now());
 
@@ -60,6 +80,9 @@ public class BuildServiceImpl implements BuildService {
                         "Build not found",
                         HttpStatus.NOT_FOUND));
 
+        buildInDb.setUpdatedAt(LocalDateTime.now());
+        buildInDb.setUser(loggedInUser());
+        buildInDb.setBuildName(buildReqDTO.getBuildName());
         buildInDb.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         buildInDb.setLastModified(LocalDateTime.now());
 
@@ -100,10 +123,10 @@ public class BuildServiceImpl implements BuildService {
 
             totalPrice = totalPrice.add(subtotal);
 
-            if (build.getBuildStatus().equals(BuildStatus.COMPLETED)) {
-
-                itemService.reduceItemQuantity(item, itemQuantityToBuild);
-            }
+//            if (build.getBuildStatus().equals(BuildStatus.COMPLETED)) {
+//
+//                itemService.reduceItemQuantity(item, itemQuantityToBuild);
+//            }
 
             BuildItem buildItem = buildItemService.createBuildItem(itemQuantityToBuild, item, build);
 
@@ -135,6 +158,11 @@ public class BuildServiceImpl implements BuildService {
                     "Build not found",
                     HttpStatus.NOT_FOUND);
         }
+    }
+
+    @Override
+    public List<Build> getAllBuildsByCurrentUser() {
+        return buildRepository.findAllByUser(loggedInUser());
     }
 
 }

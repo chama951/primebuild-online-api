@@ -20,27 +20,32 @@ public class BuildController {
     private BuildService buildService;
 
     @PostMapping
-    public ResponseEntity<Build> saveBuildReq(@RequestBody BuildReqDTO buildReqDTO){
+    public ResponseEntity<Build> saveBuildReq(@RequestBody BuildReqDTO buildReqDTO) {
         return new ResponseEntity<>(buildService.saveBuildReq(buildReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<Build> getAllBuild(){
+    public List<Build> getAllBuild(
+            @RequestParam(value = "current_user", required = false) Boolean currentUser
+    ) {
+        if (currentUser) {
+            return buildService.getAllBuildsByCurrentUser();
+        }
         return buildService.getAllBuild();
     }
 
     @PutMapping("{id}")
     public ResponseEntity<Build> updateBuildReq(@PathVariable("id") Long id, @RequestBody BuildReqDTO buildReqDTO) {
-        return new ResponseEntity<>(buildService.updateBuildReq(buildReqDTO,id),HttpStatus.OK);
+        return new ResponseEntity<>(buildService.updateBuildReq(buildReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Build> getBuildById(@PathVariable("id") Long id){
-        return new ResponseEntity<Build>(buildService.getBuildById(id),HttpStatus.OK);
+    public ResponseEntity<Build> getBuildById(@PathVariable("id") Long id) {
+        return new ResponseEntity<Build>(buildService.getBuildById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-        public ResponseEntity<Map<String, String>> deleteBuild(@PathVariable("id")Long id){
+    public ResponseEntity<Map<String, String>> deleteBuild(@PathVariable("id") Long id) {
         buildService.deleteBuild(id);
 
         Map<String, String> response = new HashMap<>();
