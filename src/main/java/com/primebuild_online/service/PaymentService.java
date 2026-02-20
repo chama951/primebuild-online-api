@@ -28,5 +28,5 @@ public interface PaymentService {
 
     List<Payment> getByUsername(String username);
 
-    void updateCancelledPayment(Payment payment, Invoice invoiceInDb);
+    void updatePendingPayment(Payment payment, Invoice invoiceInDb);
 }

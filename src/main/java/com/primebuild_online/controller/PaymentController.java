@@ -42,13 +42,9 @@ public class PaymentController {
         if (paymentStatus != null) {
             return paymentService.getByPaymentStatus(paymentStatus);
         }
-        if (paymentStatus != null) {
-            return paymentService.getByPaymentStatus(paymentStatus);
-        }
         if (username != null) {
             return paymentService.getByUsername(username);
         }
-
         return paymentService.getAllPayments();
     }
 

@@ -142,7 +142,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
                 .orElseGet(() -> paymentService.savePayment(finalInvoice));
 
-        paymentService.updateCancelledPayment(paymentInDb, finalInvoice);
+        paymentService.updatePendingPayment(paymentInDb, finalInvoice);
 
         if (newStatus.equals(InvoiceStatus.PAID)) {
             paymentService.updatePaidPayment(paymentInDb, finalInvoice);
@@ -172,6 +172,13 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<Invoice> getByUserLoggedIn() {
         return invoiceRepository.findAllByUser(loggedInUser());
+    }
+
+    @Override
+    public void updateNotPaidInvoice(Invoice invoice) {
+        invoice.setInvoiceStatus(InvoiceStatus.NOT_PAID);
+        invoiceItemService.resetItemQuantity(invoice.getInvoiceItems());
+        invoiceRepository.save(invoice);
     }
 
 }

@@ -30,13 +30,15 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserService userService;
     private final PaymentRepository paymentRepository;
     private final PaymentValidator paymentValidator;
+    private final InvoiceService invoiceService;
 
     public PaymentServiceImpl(UserService userService,
                               PaymentRepository paymentRepository,
-                              PaymentValidator paymentValidator) {
+                              PaymentValidator paymentValidator, InvoiceService invoiceService) {
         this.userService = userService;
         this.paymentRepository = paymentRepository;
         this.paymentValidator = paymentValidator;
+        this.invoiceService = invoiceService;
     }
 
     private User loggedInUser() {
@@ -87,6 +89,10 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment updatePaymentReq(PaymentDTO paymentDTO, Long id) {
         Payment paymentInDb = getPaymentById(id);
         paymentInDb.setPaymentStatus(paymentDTO.getPaymentStatus());
+        if (paymentDTO.getPaymentStatus().equals(PaymentStatus.REFUNDED) ||
+                paymentDTO.getPaymentStatus().equals(PaymentStatus.CANCELLED)) {
+            invoiceService.updateNotPaidInvoice(paymentInDb.getInvoice());
+        }
         return paymentRepository.save(paymentInDb);
     }
 
@@ -130,11 +136,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void updateCancelledPayment(Payment paymentInDb, Invoice invoiceInDb) {
+    public void updatePendingPayment(Payment paymentInDb, Invoice invoiceInDb) {
         paymentInDb.setInvoice(invoiceInDb);
         paymentInDb.setUser(loggedInUser());
         paymentInDb.setAmount(invoiceInDb.getTotalAmount());
-        paymentInDb.setPaymentStatus(PaymentStatus.CANCELLED);
+        paymentInDb.setPaymentStatus(PaymentStatus.PENDING);
         paymentInDb.setPaidAt(LocalDateTime.now());
 
         paymentValidator.validate(paymentInDb);
