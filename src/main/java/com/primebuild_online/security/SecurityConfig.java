@@ -78,6 +78,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/component/**").hasAnyAuthority("ADMIN", "BUILD_MANAGEMENT")
                                 .requestMatchers("/api/build/**").hasAnyAuthority("ADMIN", "CUSTOMER")
                                 .requestMatchers("/api/invoice/**").hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
+                                .requestMatchers("/api/payment/**").hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
 
                                 .anyRequest().authenticated()
                 )

@@ -7,6 +7,8 @@ import com.primebuild_online.model.enumerations.InvoiceStatus;
 import com.primebuild_online.repository.InvoiceItemRepository;
 import com.primebuild_online.service.InvoiceItemService;
 import com.primebuild_online.service.ItemService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,21 +31,23 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
         Item itemInDb = itemService.getItemById(item.getId());
 
         if (itemInDb.getQuantity() < item.getQuantity()) {
-            throw new RuntimeException("Insufficient Stock");
+            throw new PrimeBuildException(
+                    "Insufficient Stock",
+                    HttpStatus.BAD_REQUEST);
         }
 
         InvoiceItem invoiceItem = new InvoiceItem();
         invoiceItem.setItem(itemInDb);
         invoiceItem.setInvoice(invoice);
         invoiceItem.setInvoiceQuantity(item.getQuantity());
-        invoiceItem.setUnitPrice(calculateUnitePrice(itemInDb));
+        invoiceItem.setUnitPrice(itemInDb.getPrice());
         invoiceItem.setDiscountSubTotal(calculateDiscountSubTotal(itemInDb, item.getQuantity()));
         invoiceItem.setDiscountPerUnite(calculateDiscountPerUnite(itemInDb));
         invoiceItem.setSubtotal(calculateSubTotal(itemInDb, item.getQuantity()));
 
         if (invoice.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
             Integer quantityToReduce = invoiceItem.getInvoiceQuantity();
-            itemService.reduceItemQuantity(itemInDb,quantityToReduce);
+            itemService.reduceItemQuantity(itemInDb, quantityToReduce);
         }
         return invoiceItemRepository.save(invoiceItem);
     }
@@ -65,7 +69,7 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 
     @Override
     public void resetItemQuantity(List<InvoiceItem> invoiceItemList) {
-        for(InvoiceItem invoiceItem : invoiceItemList){
+        for (InvoiceItem invoiceItem : invoiceItemList) {
             Item item = invoiceItem.getItem();
             Integer quantityToAdd = invoiceItem.getInvoiceQuantity();
             itemService.resetStockQuantity(item, quantityToAdd);

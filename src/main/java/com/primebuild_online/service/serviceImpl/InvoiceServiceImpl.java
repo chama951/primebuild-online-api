@@ -3,7 +3,6 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.InvoiceDTO;
 import com.primebuild_online.model.enumerations.InvoiceStatus;
-import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.InvoiceRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
@@ -139,12 +138,16 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceInDb = invoiceRepository.save(
                 createInvoiceItems(invoiceDTO.getItemList(), invoiceInDb));
 
+        Invoice finalInvoice = invoiceInDb;
+        Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
+                .orElseGet(() -> paymentService.savePayment(finalInvoice));
+
+        paymentService.updateCancelledPayment(paymentInDb, finalInvoice);
+
         if (newStatus.equals(InvoiceStatus.PAID)) {
-            Invoice finalInvoice = invoiceInDb;
-            Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
-                    .orElseGet(() -> paymentService.savePayment(finalInvoice));
-            paymentService.updatePayment(paymentInDb, finalInvoice);
+            paymentService.updatePaidPayment(paymentInDb, finalInvoice);
         }
+
         invoiceValidator.validate(invoiceInDb);
         return invoiceInDb;
     }

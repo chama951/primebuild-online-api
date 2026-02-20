@@ -9,6 +9,7 @@ import com.primebuild_online.utils.validator.ItemValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +46,10 @@ public class ItemServiceImpl implements ItemService {
         item.setPrice(itemReqDTO.getPrice());
         item.setPowerConsumption(itemReqDTO.getPowerConsumption());
         item.setDiscountPercentage(itemReqDTO.getDiscountPercentage());
+
+        if(itemReqDTO.getDiscountPercentage()==null){
+            item.setDiscountPercentage(BigDecimal.valueOf(0));
+        }
 
         if (itemReqDTO.getComponentId() != null) {
             Component component = componentService.getComponentById(itemReqDTO.getComponentId());

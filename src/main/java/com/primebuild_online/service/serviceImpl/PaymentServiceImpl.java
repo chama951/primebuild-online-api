@@ -73,13 +73,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void updatePayment(Payment paymentInDb, Invoice invoice) {
+    public void updatePaidPayment(Payment paymentInDb, Invoice invoice) {
         paymentInDb.setInvoice(invoice);
         paymentInDb.setUser(loggedInUser());
         paymentInDb.setAmount(invoice.getTotalAmount());
         paymentInDb.setPaymentStatus(PaymentStatus.PAID);
         paymentInDb.setPaidAt(LocalDateTime.now());
-
         paymentValidator.validate(paymentInDb);
         paymentRepository.save(paymentInDb);
     }
@@ -110,10 +109,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<Payment> getByDate(String date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         LocalDate dateFormated = LocalDate.parse(date);
 
-        return paymentRepository.findAllByCreatedAt(dateFormated);
+        return paymentRepository.findAllByPaymentDate(dateFormated);
     }
 
     @Override
@@ -125,4 +123,22 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
+
+    @Override
+    public List<Payment> getByUsername(String username) {
+        return paymentRepository.findAllByUser_Username(username);
+    }
+
+    @Override
+    public void updateCancelledPayment(Payment paymentInDb, Invoice invoiceInDb) {
+        paymentInDb.setInvoice(invoiceInDb);
+        paymentInDb.setUser(loggedInUser());
+        paymentInDb.setAmount(invoiceInDb.getTotalAmount());
+        paymentInDb.setPaymentStatus(PaymentStatus.CANCELLED);
+        paymentInDb.setPaidAt(LocalDateTime.now());
+
+        paymentValidator.validate(paymentInDb);
+        paymentRepository.save(paymentInDb);
+    }
+
 }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.primebuild_online.model.enumerations.InvoiceStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,6 +44,12 @@ public class Invoice {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoiceList"})
 //    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "payment"})
+    private Payment payment;
 
     @OneToMany(mappedBy = "invoice",
             cascade = CascadeType.ALL,
