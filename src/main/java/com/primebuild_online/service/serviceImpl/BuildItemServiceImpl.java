@@ -5,6 +5,7 @@ import com.primebuild_online.model.BuildItem;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.repository.BuildItemRepository;
 import com.primebuild_online.service.BuildItemService;
+import com.primebuild_online.service.ItemService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,16 +14,25 @@ import java.util.Optional;
 @Service
 public class BuildItemServiceImpl implements BuildItemService {
     private final BuildItemRepository buildItemRepository;
+    private final ItemService itemService;
 
-    public BuildItemServiceImpl(BuildItemRepository buildItemRepository) {
+    public BuildItemServiceImpl(BuildItemRepository buildItemRepository, ItemService itemService) {
         this.buildItemRepository = buildItemRepository;
+        this.itemService = itemService;
     }
 
     @Override
-    public void saveBuildItem(BuildItem buildItem) {
-        buildItemRepository.save(buildItem);
-    }
+    public BuildItem saveBuildItem(Item itemToAdd, Build build) {
+        Item itemInDb = itemService.getItemById(itemToAdd.getId());
 
+        itemService.checkItemsStockQuantity(itemInDb, itemToAdd);
+
+        BuildItem buildItem = new BuildItem();
+        buildItem.setBuildQuantity(itemToAdd.getQuantity());
+        buildItem.setItem(itemInDb);
+        buildItem.setBuild(build);
+        return buildItem;
+    }
 
     @Override
     public void updateBuildItem(BuildItem buildItem, Long id) {
@@ -57,12 +67,12 @@ public class BuildItemServiceImpl implements BuildItemService {
     }
 
     @Override
-    public BuildItem createBuildItem(Integer itemQuantityToBuild, Item item, Build build) {
-        BuildItem buildItem = new BuildItem();
-        buildItem.setBuildQuantity(itemQuantityToBuild);
-        buildItem.setItem(item);
-        buildItem.setBuild(build);
-        return buildItem;
+    public void resetItemQuantity(List<BuildItem> buildItemList) {
+        for (BuildItem buildItem : buildItemList) {
+            Item itemByBuildItem = itemService.getItemById(buildItem.getItem().getId());
+            Integer buildItemQuantity = buildItem.getBuildQuantity();
+            itemService.resetItemStockQuantity(itemByBuildItem, buildItemQuantity);
+        }
     }
 
 

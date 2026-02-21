@@ -7,7 +7,8 @@ import com.primebuild_online.model.Item;
 import java.util.List;
 
 public interface BuildItemService{
-    void saveBuildItem(BuildItem buildItem);
+
+    BuildItem saveBuildItem(Item itemToAdd, Build build);
 
     void updateBuildItem(BuildItem buildItem, Long id);
 
@@ -19,5 +20,5 @@ public interface BuildItemService{
 
     List<BuildItem> findAllByBuildId(Long buildId);
 
-    BuildItem createBuildItem(Integer itemQuantityToBuild, Item item, Build build);
+    void resetItemQuantity(List<BuildItem> buildItemList);
 }

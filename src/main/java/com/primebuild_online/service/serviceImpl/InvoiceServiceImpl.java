@@ -9,6 +9,7 @@ import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.InvoiceValidator;
+import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,15 +23,10 @@ import java.util.*;
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceItemService invoiceItemService;
-
     private final InvoiceRepository invoiceRepository;
-
     private final UserService userService;
-
     private final PaymentService paymentService;
-
     private final InvoiceValidator invoiceValidator;
-
     private final NotificationService notificationService;
 
     public InvoiceServiceImpl(InvoiceItemService invoiceItemService,
@@ -52,6 +48,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public Invoice saveInvoice(InvoiceDTO invoiceDTO) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -67,6 +64,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         if (invoiceDTO.getInvoiceStatus() != null) {
             invoice.setInvoiceStatus(InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus()));
         }
+
+        invoice = invoiceRepository.save(invoice);
 
         invoice = invoiceRepository.save(
                 createInvoiceItems(invoiceDTO.getItemList(), invoice));
@@ -86,24 +85,24 @@ public class InvoiceServiceImpl implements InvoiceService {
         return invoice;
     }
 
-    private Invoice createInvoiceItems(List<Item> itemList, Invoice invoice) {
+    @Override
+    public List<Invoice> getByUser(Long userId) {
+        return invoiceRepository.findAllByUser_UserId(userId);
+    }
+
+    public Invoice createInvoiceItems(List<Item> itemList, Invoice invoiceInDb) {
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal discountAmount = BigDecimal.ZERO;
         InvoiceItem invoiceItem;
         for (Item item : itemList) {
-            invoiceItem = invoiceItemService.saveInvoiceItem(item, invoice);
+            invoiceItem = invoiceItemService.saveInvoiceItem(item, invoiceInDb);
             totalAmount = totalAmount.add(invoiceItem.getSubtotal());
             discountAmount = discountAmount.add(invoiceItem.getDiscountSubTotal());
-            invoice.getInvoiceItems().add(invoiceItem);
+            invoiceInDb.getInvoiceItems().add(invoiceItem);
         }
-        invoice.setDiscountAmount(discountAmount);
-        invoice.setTotalAmount(totalAmount);
-        return invoice;
-    }
-
-    @Override
-    public List<Invoice> getByUser(Long userId) {
-        return invoiceRepository.findAllByUser_UserId(userId);
+        invoiceInDb.setDiscountAmount(discountAmount);
+        invoiceInDb.setTotalAmount(totalAmount);
+        return invoiceInDb;
     }
 
     @Override

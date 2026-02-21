@@ -15,6 +15,7 @@ import com.primebuild_online.service.ItemService;
 import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.BuildValidator;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -26,23 +27,22 @@ import java.util.Optional;
 
 @Service
 public class BuildServiceImpl implements BuildService {
-    private final ItemService itemService;
     private final BuildItemService buildItemService;
     private final BuildRepository buildRepository;
     private final BuildValidator buildValidator;
     private final UserService userService;
+    private final ItemService itemService;
 
-    public BuildServiceImpl(ItemService itemService,
-                            BuildItemService buildItemService,
+    public BuildServiceImpl(BuildItemService buildItemService,
                             BuildRepository buildRepository,
                             BuildItemRepository buildItemRepository,
                             BuildValidator buildValidator,
-                            UserService userService) {
+                            UserService userService, ItemService itemService) {
         this.buildRepository = buildRepository;
-        this.itemService = itemService;
         this.buildItemService = buildItemService;
         this.buildValidator = buildValidator;
         this.userService = userService;
+        this.itemService = itemService;
     }
 
     private User loggedInUser() {
@@ -52,6 +52,7 @@ public class BuildServiceImpl implements BuildService {
     }
 
     @Override
+    @Transactional
     public Build saveBuildReq(BuildReqDTO buildReqDTO) {
 
         Build newBuild = new Build();
@@ -63,10 +64,10 @@ public class BuildServiceImpl implements BuildService {
         newBuild.setCreatedDate(LocalDateTime.now());
 
         Build savedBuild = buildRepository.save(newBuild);
-
         if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
-            newBuild = addNewBuildItems(buildReqDTO.getItemList(), savedBuild);
+            newBuild = createBuildItems(buildReqDTO.getItemList(), savedBuild);
         }
+
         buildValidator.validate(newBuild);
         return buildRepository.save(newBuild);
     }
@@ -87,52 +88,31 @@ public class BuildServiceImpl implements BuildService {
         buildInDb.setLastModified(LocalDateTime.now());
 
         if (buildReqDTO.getBuildStatus().equals(BuildStatus.COMPLETED.toString())) {
-
-            List<BuildItem> buildItemListByBuild = buildItemService.findAllByBuildId(buildId);
-
-            for (BuildItem buildItem1 : buildItemListByBuild) {
-                Item itemByBuildItem = itemService.getItemById(buildItem1.getItem().getId());
-                Integer buildItemQuantity = buildItem1.getBuildQuantity();
-
-                itemService.resetStockQuantity(itemByBuildItem, buildItemQuantity);
-            }
+            buildItemService.resetItemQuantity(buildInDb.getBuildItemList());
         }
 
         buildInDb.getBuildItemList().clear();
 
         if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
-            addNewBuildItems(buildReqDTO.getItemList(), buildInDb);
+            buildInDb = createBuildItems(buildReqDTO.getItemList(), buildInDb);
         }
         buildValidator.validate(buildInDb);
         return buildRepository.save(buildInDb);
     }
 
-    //   FIXED SRP Violated by buildItemService.saveBuildItem(..)
-    private Build addNewBuildItems(List<Item> itemList, Build build) {
+    @Override
+    public Build createBuildItems(List<Item> itemList, Build build) {
         BigDecimal totalPrice = BigDecimal.valueOf(0);
 
         for (Item itemRequest : itemList) {
             Item item = itemService.getItemById(itemRequest.getId());
-
-            Integer itemQuantityToBuild = itemRequest.getQuantity();
-
             BigDecimal itemPrice = item.getPrice();
-
             BigDecimal subtotal = itemPrice
-                    .multiply(BigDecimal.valueOf(itemQuantityToBuild));
-
+                    .multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
             totalPrice = totalPrice.add(subtotal);
-
-//            if (build.getBuildStatus().equals(BuildStatus.COMPLETED)) {
-//
-//                itemService.reduceItemQuantity(item, itemQuantityToBuild);
-//            }
-
-            BuildItem buildItem = buildItemService.createBuildItem(itemQuantityToBuild, item, build);
-
+            BuildItem buildItem = buildItemService.saveBuildItem(itemRequest, build);
             build.getBuildItemList().add(buildItem);
         }
-
 
         build.setTotalPrice(totalPrice);
         return build;

@@ -133,10 +133,71 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void resetStockQuantity(Item item, Integer quantityToAdd) {
+    public void resetItemStockQuantity(Item item, Integer quantityToAdd) {
         item.setQuantity(item.getQuantity() + quantityToAdd);
         itemRepository.save(item);
     }
 
+    @Override
+    public void checkItemsListStockQuantity(List<Item> itemList) {
+        for (Item itemRequest : itemList) {
+            Item itemInDb;
+            itemInDb = getItemById(itemRequest.getId());
+            Integer requestedQnatity = itemRequest.getQuantity();
+            if (itemInDb.getQuantity() < requestedQnatity) {
+                throw new PrimeBuildException(
+                        itemInDb.getItemName() + " Insufficient Stock",
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
+    }
 
+    @Override
+    public void checkItemsStockQuantity(Item itemInDb, Item itemToAdd) {
+        if (itemInDb.getQuantity() < itemToAdd.getQuantity()) {
+            throw new PrimeBuildException(
+                    itemInDb.getItemName() + " Insufficient Stock",
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Override
+    public BigDecimal calculateDiscountSubTotal(Item itemInDb, int quantity) {
+        BigDecimal itemPrice = itemInDb.getPrice();
+        BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
+
+        BigDecimal discountAmount = itemPrice
+                .multiply(discountPercentage)
+                .divide(BigDecimal.valueOf(100));
+
+        BigDecimal discountSubTotal = discountAmount
+                .multiply(BigDecimal.valueOf(quantity));
+
+        return discountSubTotal;
+    }
+
+    @Override
+    public BigDecimal calculateSubTotal(Item itemInDb, int quantity) {
+        BigDecimal itemPrice = itemInDb.getPrice();
+        BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
+
+        BigDecimal discountAmount = itemPrice
+                .multiply(discountPercentage)
+                .divide(BigDecimal.valueOf(100));
+
+        BigDecimal subTotal = itemPrice.subtract(discountAmount)
+                .multiply(BigDecimal.valueOf(quantity));
+        return subTotal;
+    }
+
+    @Override
+    public BigDecimal calculateDiscountPerUnite(Item itemInDb) {
+        BigDecimal itemPrice = itemInDb.getPrice();
+        BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
+
+        BigDecimal discountAmount = itemPrice
+                .multiply(discountPercentage)
+                .divide(BigDecimal.valueOf(100));
+        return discountAmount;
+    }
 }
