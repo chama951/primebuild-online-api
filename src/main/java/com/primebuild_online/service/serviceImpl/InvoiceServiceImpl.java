@@ -68,8 +68,6 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoice.setInvoiceStatus(InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus()));
         }
 
-        invoice = invoiceRepository.save(invoice);
-
         invoice = invoiceRepository.save(
                 createInvoiceItems(invoiceDTO.getItemList(), invoice));
 

@@ -32,7 +32,7 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 
         if (itemInDb.getQuantity() < item.getQuantity()) {
             throw new PrimeBuildException(
-                    "Insufficient Stock",
+                    itemInDb.getItemName()+" Insufficient Stock",
                     HttpStatus.BAD_REQUEST);
         }
 
