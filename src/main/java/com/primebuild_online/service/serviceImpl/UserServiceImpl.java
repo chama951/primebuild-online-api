@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -216,6 +217,14 @@ public class UserServiceImpl implements UserService {
         userDTO.setEmail(email);
         userDTO.setSignUpMethod(SignUpMethods.OAUTH2);
         return signupCustomer(userDTO);
+    }
+
+    @Override
+    public boolean checkLoggedInIsStaff(User user) {
+        if (!Objects.equals(user.getRole().getRoleName(), "customer")) {
+            return true;
+        }
+        return false;
     }
 
 }

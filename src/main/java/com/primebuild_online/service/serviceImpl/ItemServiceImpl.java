@@ -19,16 +19,19 @@ public class ItemServiceImpl implements ItemService {
     private final ItemValidator itemValidator;
     private final ComponentService componentService;
     private final ManufacturerService manufacturerService;
+    private final InventoryService inventoryService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
                            ComponentService componentService,
-                           ManufacturerService manufacturerService) {
+                           ManufacturerService manufacturerService,
+                           InventoryService inventoryService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
         this.componentService = componentService;
         this.manufacturerService = manufacturerService;
+        this.inventoryService = inventoryService;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
         item.setPowerConsumption(itemReqDTO.getPowerConsumption());
         item.setDiscountPercentage(itemReqDTO.getDiscountPercentage());
 
-        if(itemReqDTO.getDiscountPercentage()==null){
+        if (itemReqDTO.getDiscountPercentage() == null) {
             item.setDiscountPercentage(BigDecimal.valueOf(0));
         }
 
@@ -125,7 +128,8 @@ public class ItemServiceImpl implements ItemService {
     public void reduceItemQuantity(Item itemInDb, Integer quantityToReduce) {
         Integer reduceQuantity = itemInDb.getQuantity() - quantityToReduce;
         itemInDb.setQuantity(reduceQuantity);
-        itemRepository.save(itemInDb);
+        itemInDb = itemRepository.save(itemInDb);
+        inventoryService.checkLowStock(itemInDb);
     }
 
     @Override

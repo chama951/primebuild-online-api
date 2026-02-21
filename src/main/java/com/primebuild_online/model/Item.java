@@ -64,4 +64,13 @@ public class Item {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "manufacturerItemList"})
     private Manufacturer manufacturer;
+
+    @Column(name = "low_stock_tThreshold")
+    private Integer lowStockThreshold = 5;
+
+    @Column(name = "view_count")
+    private Long viewCount = 0L;
+
+    @Column(name = "in_cart_count")
+    private Long inCartCount = 0L;
 }

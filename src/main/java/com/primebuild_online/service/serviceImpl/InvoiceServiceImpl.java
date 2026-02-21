@@ -3,6 +3,7 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.InvoiceDTO;
 import com.primebuild_online.model.enumerations.InvoiceStatus;
+import com.primebuild_online.model.enumerations.NotificationType;
 import com.primebuild_online.repository.InvoiceRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
@@ -30,15 +31,18 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceValidator invoiceValidator;
 
+    private final NotificationService notificationService;
+
     public InvoiceServiceImpl(InvoiceItemService invoiceItemService,
                               InvoiceRepository invoiceRepository,
                               UserService userService,
-                              @Lazy PaymentService paymentService, InvoiceValidator invoiceValidator) {
+                              @Lazy PaymentService paymentService, InvoiceValidator invoiceValidator, NotificationService notificationService) {
         this.invoiceItemService = invoiceItemService;
         this.invoiceRepository = invoiceRepository;
         this.userService = userService;
         this.paymentService = paymentService;
         this.invoiceValidator = invoiceValidator;
+        this.notificationService = notificationService;
     }
 
     private User loggedInUser() {
@@ -74,6 +78,13 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         invoiceValidator.validate(invoice);
+
+        notificationService.createNotification(
+                "Invoice Created",
+                "Your invoice #" + invoice.getId() + " has been created successfully.",
+                NotificationType.INVOICE_CREATED
+        );
+
         return invoice;
     }
 
