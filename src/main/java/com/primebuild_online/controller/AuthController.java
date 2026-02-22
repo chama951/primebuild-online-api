@@ -25,6 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,9 +89,24 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        LoginResponseDTO response = new LoginResponseDTO(userDetails.getUsername(), roles, jwtToken);
+        String redirectPath = roles.contains("CUSTOMER") ? "/home" : "/dashboard";
+
+        // Construct full frontend URL
+        String redirectUrl = "http://localhost:3000" + redirectPath +
+                "?token=" + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8) +
+                "&username=" + URLEncoder.encode(userDetails.getUsername(), StandardCharsets.UTF_8) +
+                "&roles=" + URLEncoder.encode(String.join(",", roles), StandardCharsets.UTF_8);
+
+        // Build response DTO
+        LoginResponseDTO response = new LoginResponseDTO(
+                userDetails.getUsername(),
+                roles,
+                jwtToken,
+                redirectUrl
+        );
 
         return ResponseEntity.ok(response);
+
     }
 
     @GetMapping("/api/auth/self")
