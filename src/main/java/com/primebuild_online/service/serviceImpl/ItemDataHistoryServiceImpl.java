@@ -28,7 +28,7 @@ public class ItemDataHistoryServiceImpl implements ItemDataHistoryService {
         itemDataHistory.setItem(item);
         itemDataHistory.setVendor(vendor);
         itemDataHistory.setVendorPrice(vendorPrice);
-        itemDataHistory.setScrapedAt(LocalDateTime.now());
+        itemDataHistory.setRecordedAt(LocalDateTime.now());
         return itemDataHistoryRepository.save(itemDataHistory);
     }
 }

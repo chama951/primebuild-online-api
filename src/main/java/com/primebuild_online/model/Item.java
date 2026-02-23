@@ -59,6 +59,16 @@ public class Item {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<InvoiceItem> invoiceItemList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<ItemDataHistory> itemDataHistoryList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
+    private List<ItemData> itemDataList = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)

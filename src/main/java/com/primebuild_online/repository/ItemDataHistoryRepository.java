@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ItemDataHistoryRepository extends JpaRepository<ItemDataHistory, Long> {
-    List<ItemDataHistory> findAllByItemOrderByScrapedAtDesc(Item item);
+    List<ItemDataHistory> findAllByItemOrderByRecordedAtDesc(Item item);
 }

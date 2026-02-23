@@ -42,6 +42,6 @@ public class ItemData {
     @Column(name = "discount_percentage")
     private BigDecimal discountPercentage;
 
-    @Column(name = "scraped_at", nullable = false)
-    private LocalDateTime scrapedAt;
+    @Column(name = "recorded_at", nullable = false)
+    private LocalDateTime recordedAt;
 }

@@ -153,7 +153,7 @@ public class ItemDataServiceImpl implements ItemDataService {
         BigDecimal vendorPrice = extractPrice(product.getPrice());
 
         Optional<ItemData> existingOpt =
-                itemDataRepository.findTopByItemAndVendorOrderByScrapedAtDesc(
+                itemDataRepository.findTopByItemAndVendorOrderByRecordedAtDesc(
                         item,
                         vendor
                 );
@@ -165,7 +165,7 @@ public class ItemDataServiceImpl implements ItemDataService {
             itemData.setVendorPrice(vendorPrice);
             itemData.setOurPrice(item.getPrice());
             itemData.setDiscountPercentage(BigDecimal.ZERO);
-            itemData.setScrapedAt(LocalDateTime.now());
+            itemData.setRecordedAt(LocalDateTime.now());
         } else {
             itemData = new ItemData();
             itemData.setItem(item);
@@ -173,7 +173,7 @@ public class ItemDataServiceImpl implements ItemDataService {
             itemData.setVendorPrice(vendorPrice);
             itemData.setOurPrice(item.getPrice());
             itemData.setDiscountPercentage(BigDecimal.ZERO);
-            itemData.setScrapedAt(LocalDateTime.now());
+            itemData.setRecordedAt(LocalDateTime.now());
         }
         return itemDataRepository.save(itemData);
     }

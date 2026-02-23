@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,18 +22,20 @@ public class ItemServiceImpl implements ItemService {
     private final ComponentService componentService;
     private final ManufacturerService manufacturerService;
     private final NotificationService notificationService;
+    private final ItemDataHistoryService itemDataHistoryService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
                            ComponentService componentService,
                            ManufacturerService manufacturerService,
-                           NotificationService notificationService) {
+                           NotificationService notificationService, ItemDataHistoryService itemDataHistoryService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
         this.componentService = componentService;
         this.manufacturerService = manufacturerService;
         this.notificationService = notificationService;
+        this.itemDataHistoryService = itemDataHistoryService;
     }
 
     @Override
@@ -41,12 +44,31 @@ public class ItemServiceImpl implements ItemService {
 
         newItem = itemSetValues(itemReqDTO, newItem);
 
-        return itemRepository.save(newItem);
+        newItem = itemRepository.save(newItem);
+
+        itemDataHistoryService.saveItemDataHistory(
+                newItem,
+                newItem.getPrice(),
+                null
+        );
+
+        return newItem;
     }
 
     public Item itemSetValues(ItemReqDTO itemReqDTO, Item item) {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
+
+        if (item.getPrice() != null &&
+                !item.getPrice().equals(
+                        itemReqDTO.getPrice().setScale(2, RoundingMode.HALF_UP))) {
+            itemDataHistoryService.saveItemDataHistory(
+                    item,
+                    itemReqDTO.getPrice(),
+                    null
+            );
+        }
+
         item.setPrice(itemReqDTO.getPrice());
         item.setPowerConsumption(itemReqDTO.getPowerConsumption());
         item.setDiscountPercentage(itemReqDTO.getDiscountPercentage());

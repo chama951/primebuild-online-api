@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,7 +24,8 @@ public class ItemDataHistory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
+    @JoinColumn(name = "item_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Item item;
 
@@ -33,6 +36,6 @@ public class ItemDataHistory {
     @Column(name = "vendor_price")
     private BigDecimal vendorPrice;
 
-    @Column(name = "scraped_at", nullable = false)
-    private LocalDateTime scrapedAt;
+    @Column(name = "recorded_at", nullable = false)
+    private LocalDateTime recordedAt;
 }
