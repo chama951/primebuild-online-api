@@ -5,16 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BuildReqDTO {
-    private String buildName;
-    private String buildStatus;
-    private boolean published;
+public class CartDTO {
     private List<Item> itemList = new ArrayList<>();
 }

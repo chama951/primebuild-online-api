@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,13 +29,25 @@ public class CartItem {
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoiceList"})
-//    @OnDelete(action = OnDeleteAction.SET_NULL)
-    private User user;
+    @JoinColumn(name = "cart_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "cart_item"})
+    private Cart cart;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
+
+    @Column(name = "discount_per_unit")
+    private BigDecimal discountPerUnite;
+
+    @Column(name = "discount_sub_total")
+    private BigDecimal discountSubTotal;
+
+    @Column(name = "subtotal")
+    private BigDecimal subtotal;
+
+    @Column(name = "cart_quantity", nullable = false)
+    private Integer cartQuantity;
 
     @Column(name = "added_at")
     private LocalDateTime addedAt = LocalDateTime.now();

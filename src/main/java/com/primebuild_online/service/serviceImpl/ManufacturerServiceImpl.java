@@ -3,9 +3,11 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.DTO.ManufacturerDTO;
 import com.primebuild_online.model.Manufacturer;
 import com.primebuild_online.repository.ManufacturerRepository;
+import com.primebuild_online.service.ItemService;
 import com.primebuild_online.service.ManufacturerService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.ManufacturerValidator;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +18,15 @@ import java.util.Optional;
 public class ManufacturerServiceImpl implements ManufacturerService {
     private final ManufacturerRepository manufacturerRepository;
     private final ManufacturerValidator manufacturerValidator;
+    private final ItemService itemService;
 
 
-    public ManufacturerServiceImpl(ManufacturerRepository manufacturerRepository, ManufacturerValidator manufacturerValidator) {
+    public ManufacturerServiceImpl(ManufacturerRepository manufacturerRepository,
+                                   ManufacturerValidator manufacturerValidator,
+                                   @Lazy ItemService itemService) {
         this.manufacturerRepository = manufacturerRepository;
         this.manufacturerValidator = manufacturerValidator;
+        this.itemService = itemService;
     }
 
     @Override
@@ -83,7 +89,11 @@ public class ManufacturerServiceImpl implements ManufacturerService {
 
     @Override
     public void deleteManufacturer(Long id) {
-        manufacturerRepository.findById(id).orElseThrow(RuntimeException::new);
+        if (itemService.existsItemByManufacturer(id)) {
+            throw new PrimeBuildException(
+                    "Manufacturer cannot be deleted while found in Items",
+                    HttpStatus.CONFLICT);
+        }
         manufacturerRepository.deleteById(id);
     }
 }

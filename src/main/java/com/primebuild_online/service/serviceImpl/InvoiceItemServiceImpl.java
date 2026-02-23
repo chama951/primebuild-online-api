@@ -7,6 +7,7 @@ import com.primebuild_online.model.enumerations.InvoiceStatus;
 import com.primebuild_online.repository.InvoiceItemRepository;
 import com.primebuild_online.service.InvoiceItemService;
 import com.primebuild_online.service.ItemService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,7 +19,7 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
     private final ItemService itemService;
 
     public InvoiceItemServiceImpl(InvoiceItemRepository invoiceItemRepository,
-                                  ItemService itemService) {
+                                  @Lazy ItemService itemService) {
         this.invoiceItemRepository = invoiceItemRepository;
         this.itemService = itemService;
     }
@@ -59,6 +60,11 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
             Integer quantityToReset = invoiceItem.getInvoiceQuantity();
             itemService.resetItemStockQuantity(item, quantityToReset);
         }
+    }
+
+    @Override
+    public boolean existsInvoiceByItem(Long id) {
+        return invoiceItemRepository.existsByItem_Id(id);
     }
 
 }

@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface BuildRepository extends JpaRepository<Build, Long> {
     List<Build> findAllByUser(User user);
+
+    List<Build> findAllByUser_Role_RoleNameNot(String string);
 }

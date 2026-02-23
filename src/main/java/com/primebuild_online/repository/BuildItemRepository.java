@@ -17,4 +17,8 @@ public interface BuildItemRepository extends JpaRepository<BuildItem, Long> {
     void deleteAllByBuildId(Long buildId);
 
     List<BuildItem> findAllByBuildId(Long buildId);
+
+    boolean existsByItem_Id(Long itemId);
+
+    List<BuildItem> findAllByItem_Id(Long id);
 }

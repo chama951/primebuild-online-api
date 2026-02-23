@@ -8,6 +8,7 @@ import com.primebuild_online.repository.ComponentRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.FeatureTypeService;
+import com.primebuild_online.service.ItemService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.ComponentValidator;
 import org.springframework.context.annotation.Lazy;
@@ -21,13 +22,16 @@ import java.util.Optional;
 public class ComponentServiceImpl implements ComponentService {
     private final ComponentRepository componentRepository;
     private final ComponentValidator componentValidator;
+    private final ItemService itemService;
 
 
     public ComponentServiceImpl(
-            ComponentRepository componentRepository, ComponentValidator componentValidator
-    ) {
+            ComponentRepository componentRepository,
+            ComponentValidator componentValidator,
+            @Lazy ItemService itemService) {
         this.componentRepository = componentRepository;
         this.componentValidator = componentValidator;
+        this.itemService = itemService;
     }
 
     @Override
@@ -86,10 +90,11 @@ public class ComponentServiceImpl implements ComponentService {
 
     @Override
     public void deleteComponent(Long id) {
-        componentRepository.findById(id).orElseThrow(
-                () -> new PrimeBuildException(
-                        "Component not found",
-                        HttpStatus.NOT_FOUND));
+        if (itemService.existsItemByComponent(id)) {
+            throw new PrimeBuildException(
+                    "Component cannot be deleted while found in Items",
+                    HttpStatus.CONFLICT);
+        }
         componentRepository.deleteById(id);
     }
 

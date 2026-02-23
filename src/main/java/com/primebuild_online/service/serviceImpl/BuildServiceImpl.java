@@ -6,6 +6,7 @@ import com.primebuild_online.model.DTO.BuildReqDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.BuildStatus;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.BuildItemRepository;
 import com.primebuild_online.repository.BuildRepository;
 import com.primebuild_online.security.SecurityUtils;
@@ -80,7 +81,7 @@ public class BuildServiceImpl implements BuildService {
                 .orElseThrow(() -> new PrimeBuildException(
                         "Build not found",
                         HttpStatus.NOT_FOUND));
-
+//        buildInDb.setPublished(buildInDb.isPublished());
         buildInDb.setUpdatedAt(LocalDateTime.now());
         buildInDb.setUser(loggedInUser());
         buildInDb.setBuildName(buildReqDTO.getBuildName());
@@ -143,6 +144,11 @@ public class BuildServiceImpl implements BuildService {
     @Override
     public List<Build> getAllBuildsByCurrentUser() {
         return buildRepository.findAllByUser(loggedInUser());
+    }
+
+    @Override
+    public List<Build> getStaffMadeBuilds() {
+        return buildRepository.findAllByUser_Role_RoleNameNot(Privileges.CUSTOMER.toString());
     }
 
 }

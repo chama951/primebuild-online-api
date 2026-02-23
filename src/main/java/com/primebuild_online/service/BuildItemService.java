@@ -21,4 +21,8 @@ public interface BuildItemService{
     List<BuildItem> findAllByBuildId(Long buildId);
 
     void resetItemQuantity(List<BuildItem> buildItemList);
+
+    boolean existsBuildItemByItem(Long id);
+
+    void updateBuildItemAtPriceChange(Long id);
 }

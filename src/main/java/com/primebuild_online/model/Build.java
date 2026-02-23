@@ -28,11 +28,17 @@ public class Build {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
+    @Column(name = "discount_amount")
+    private BigDecimal discountAmount;
+
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
+
+    @Column(name = "published")
+    private boolean published = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

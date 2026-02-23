@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/build")
@@ -25,11 +26,12 @@ public class BuildController {
     }
 
     @GetMapping
-    public List<Build> getAllBuild(
-            @RequestParam(value = "current_user", required = false) Boolean currentUser
-    ) {
-        if (currentUser) {
+    public List<Build> getAllBuild(@RequestParam(value = "user", required = false) String user) {
+        if (Objects.equals(user, "current")) {
             return buildService.getAllBuildsByCurrentUser();
+        }
+        if (Objects.equals(user, "staff")) {
+            return buildService.getStaffMadeBuilds();
         }
         return buildService.getAllBuild();
     }

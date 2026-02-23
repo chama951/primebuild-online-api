@@ -23,12 +23,22 @@ public class ItemServiceImpl implements ItemService {
     private final ManufacturerService manufacturerService;
     private final NotificationService notificationService;
     private final ItemDataHistoryService itemDataHistoryService;
+    private final CartService cartService;
+    private final CartItemService cartItemService;
+    private final InvoiceService invoiceService;
+    private final InvoiceItemService invoiceItemService;
+    private final BuildItemService buildItemService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
                            ComponentService componentService,
                            ManufacturerService manufacturerService,
-                           NotificationService notificationService, ItemDataHistoryService itemDataHistoryService) {
+                           NotificationService notificationService,
+                           ItemDataHistoryService itemDataHistoryService,
+                           CartService cartService,
+                           CartItemService cartItemService,
+                           InvoiceService invoiceService, InvoiceItemService invoiceItemService,
+                           BuildItemService buildItemService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
@@ -36,6 +46,12 @@ public class ItemServiceImpl implements ItemService {
         this.manufacturerService = manufacturerService;
         this.notificationService = notificationService;
         this.itemDataHistoryService = itemDataHistoryService;
+        this.cartService = cartService;
+        this.cartItemService = cartItemService;
+        this.invoiceService = invoiceService;
+        this.invoiceItemService = invoiceItemService;
+        ;
+        this.buildItemService = buildItemService;
     }
 
     @Override
@@ -61,12 +77,14 @@ public class ItemServiceImpl implements ItemService {
 
         if (item.getPrice() != null &&
                 !item.getPrice().equals(
-                        itemReqDTO.getPrice().setScale(2, RoundingMode.HALF_UP))) {
+                        itemReqDTO.getPrice().setScale(
+                                2, RoundingMode.HALF_UP))) {
             itemDataHistoryService.saveItemDataHistory(
                     item,
                     itemReqDTO.getPrice(),
                     null
             );
+
         }
 
         item.setPrice(itemReqDTO.getPrice());
@@ -116,7 +134,13 @@ public class ItemServiceImpl implements ItemService {
                         HttpStatus.NOT_FOUND));
         itemInDb = itemSetValues(itemReqDTO, itemInDb);
 
-        return itemRepository.save(itemInDb);
+        itemInDb = itemRepository.save(itemInDb);
+
+        cartItemService.updateCartItemAtPriceChange(itemInDb.getId());
+
+        buildItemService.updateBuildItemAtPriceChange(itemInDb.getId());
+
+        return itemInDb;
     }
 
     @Override
@@ -133,8 +157,22 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(Long id) {
-        Item item = getItemById(id);
-        itemRepository.delete(item);
+        if (invoiceItemService.existsInvoiceByItem(id)) {
+            throw new PrimeBuildException(
+                    "Item cannot be deleted while found in Invoices",
+                    HttpStatus.CONFLICT);
+        }
+        if (cartItemService.existsCartItemByItem(id)) {
+            throw new PrimeBuildException(
+                    "Item cannot be deleted while found in Carts",
+                    HttpStatus.CONFLICT);
+        }
+        if (buildItemService.existsBuildItemByItem(id)) {
+            throw new PrimeBuildException(
+                    "Item cannot be deleted while found in Builds",
+                    HttpStatus.CONFLICT);
+        }
+        itemRepository.deleteById(id);
     }
 
     @Override
@@ -222,6 +260,16 @@ public class ItemServiceImpl implements ItemService {
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
         return discountAmount;
+    }
+
+    @Override
+    public boolean existsItemByManufacturer(Long id) {
+        return itemRepository.existsByManufacturer_Id(id);
+    }
+
+    @Override
+    public boolean existsItemByComponent(Long id) {
+        return itemRepository.existsByComponent_Id(id);
     }
 
     public void lowStockNotification(Item item) {

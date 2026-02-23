@@ -34,4 +34,8 @@ public interface ItemService {
     BigDecimal calculateSubTotal(Item itemInDb, int quantity);
 
     BigDecimal calculateDiscountPerUnite(Item itemInDb);
+
+    boolean existsItemByManufacturer(Long id);
+
+    boolean existsItemByComponent(Long id);
 }
