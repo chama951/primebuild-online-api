@@ -2,6 +2,7 @@ package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.ItemReqDTO;
+import com.primebuild_online.model.enumerations.NotificationType;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.service.*;
 import com.primebuild_online.utils.exception.PrimeBuildException;
@@ -19,19 +20,19 @@ public class ItemServiceImpl implements ItemService {
     private final ItemValidator itemValidator;
     private final ComponentService componentService;
     private final ManufacturerService manufacturerService;
-    private final InventoryService inventoryService;
+    private final NotificationService notificationService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
                            ComponentService componentService,
                            ManufacturerService manufacturerService,
-                           InventoryService inventoryService) {
+                           NotificationService notificationService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
         this.componentService = componentService;
         this.manufacturerService = manufacturerService;
-        this.inventoryService = inventoryService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class ItemServiceImpl implements ItemService {
                     HttpStatus.CONFLICT
             );
         }
-
+        lowStockNotification(item);
         itemValidator.validate(item);
         return item;
     }
@@ -129,7 +130,7 @@ public class ItemServiceImpl implements ItemService {
         Integer reduceQuantity = itemInDb.getQuantity() - quantityToReduce;
         itemInDb.setQuantity(reduceQuantity);
         itemInDb = itemRepository.save(itemInDb);
-        inventoryService.checkLowStock(itemInDb);
+        lowStockNotification(itemInDb);
     }
 
     @Override
@@ -199,5 +200,15 @@ public class ItemServiceImpl implements ItemService {
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
         return discountAmount;
+    }
+
+    public void lowStockNotification(Item item) {
+        if (item.getQuantity() <= item.getLowStockThreshold()) {
+            notificationService.createNotification(
+                    "Low Stock Alert",
+                    item.getItemName() + " is running low",
+                    NotificationType.LOW_STOCK
+            );
+        }
     }
 }
