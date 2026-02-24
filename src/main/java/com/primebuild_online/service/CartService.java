@@ -8,5 +8,4 @@ public interface CartService {
 
     Cart getCartByUser();
 
-    void clearCart();
 }

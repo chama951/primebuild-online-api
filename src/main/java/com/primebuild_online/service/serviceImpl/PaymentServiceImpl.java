@@ -147,4 +147,9 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(paymentInDb);
     }
 
+    @Override
+    public boolean getAllPaymentsByInvoice(Long id) {
+        return paymentRepository.existsByInvoice_IdAndPaymentStatus(id, PaymentStatus.PAID);
+    }
+
 }

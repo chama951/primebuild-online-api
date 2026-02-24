@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,7 +37,7 @@ public class ItemAnalytics {
     private Long totalCartAdds = 0L;
 
     @Column(name = "total_revenue")
-    private Double totalRevenue = 0.0;
+    private BigDecimal totalRevenue = BigDecimal.ZERO;
 
     @Column(name = "trend_score")
     private Double trendScore = 0.0;

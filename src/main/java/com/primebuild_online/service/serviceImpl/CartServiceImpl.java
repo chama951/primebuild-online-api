@@ -47,11 +47,16 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByUser(loggedInUser())
                 .orElseGet(this::saveUserCart);
 
+        cartItemService.removeCartItemList(cart.getCartItemList());
         cart.getCartItemList().clear();
 
         if (cartDTO.getItemList() != null && !cartDTO.getItemList().isEmpty()) {
-            cart = createCartItems(cartDTO.getItemList(), cart);
+            createCartItems(cartDTO.getItemList(), cart);
         }
+
+//        cart empty, while the itemList is empty
+        cart.setTotalAmount(BigDecimal.valueOf(0));
+        cart.setDiscountAmount(BigDecimal.valueOf(0));
 
         return cartRepository.save(cart);
     }
@@ -76,16 +81,7 @@ public class CartServiceImpl implements CartService {
         return cartInDb;
     }
 
-    @Override
-    public void clearCart() {
-        Cart cart = getCartByUser();
-        cart.getCartItemList().clear();
-        cart.setTotalAmount(BigDecimal.valueOf(0));
-        cart.setDiscountAmount(BigDecimal.valueOf(0));
-        cartItemService.deleteCartItemsByCartId(cart.getId());
-    }
-
-    private Cart createCartItems(List<Item> itemList, Cart cartInDb) {
+    private void createCartItems(List<Item> itemList, Cart cartInDb) {
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal discountAmount = BigDecimal.ZERO;
         CartItem cartItem;
@@ -97,7 +93,6 @@ public class CartServiceImpl implements CartService {
         }
         cartInDb.setDiscountAmount(discountAmount);
         cartInDb.setTotalAmount(totalAmount);
-        return cartInDb;
     }
 
 

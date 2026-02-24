@@ -29,4 +29,6 @@ public interface PaymentService {
     List<Payment> getByUsername(String username);
 
     void updatePendingPayment(Payment payment, Invoice invoiceInDb);
+
+    boolean getAllPaymentsByInvoice(Long id);
 }

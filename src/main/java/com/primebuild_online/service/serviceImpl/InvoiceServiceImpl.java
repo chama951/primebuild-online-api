@@ -28,17 +28,21 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final PaymentService paymentService;
     private final InvoiceValidator invoiceValidator;
     private final NotificationService notificationService;
+    private final ItemAnalyticsService itemAnalyticsService;
 
     public InvoiceServiceImpl(InvoiceItemService invoiceItemService,
                               InvoiceRepository invoiceRepository,
                               UserService userService,
-                              @Lazy PaymentService paymentService, InvoiceValidator invoiceValidator, NotificationService notificationService) {
+                              @Lazy PaymentService paymentService,
+                              InvoiceValidator invoiceValidator,
+                              NotificationService notificationService, ItemAnalyticsService itemAnalyticsService) {
         this.invoiceItemService = invoiceItemService;
         this.invoiceRepository = invoiceRepository;
         this.userService = userService;
         this.paymentService = paymentService;
         this.invoiceValidator = invoiceValidator;
         this.notificationService = notificationService;
+        this.itemAnalyticsService = itemAnalyticsService;
     }
 
     private User loggedInUser() {
@@ -174,6 +178,11 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void deleteInvoice(Long id) {
+        if (paymentService.getAllPaymentsByInvoice(id)) {
+            throw new PrimeBuildException(
+                    "Invoice cannot be deleted while found in Payments",
+                    HttpStatus.CONFLICT);
+        }
         invoiceRepository.deleteById(id);
     }
 

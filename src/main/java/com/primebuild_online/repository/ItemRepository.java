@@ -4,6 +4,7 @@ import com.primebuild_online.model.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
@@ -16,4 +17,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     boolean existsByManufacturer_Id(Long id);
 
     boolean existsByComponent_Id(Long componentId);
+
+    Optional<Item> getItemsById(Long id);
 }

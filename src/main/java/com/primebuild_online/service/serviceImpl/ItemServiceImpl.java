@@ -28,6 +28,7 @@ public class ItemServiceImpl implements ItemService {
     private final InvoiceService invoiceService;
     private final InvoiceItemService invoiceItemService;
     private final BuildItemService buildItemService;
+    private final ItemAnalyticsService itemAnalyticsService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
@@ -38,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
                            CartService cartService,
                            CartItemService cartItemService,
                            InvoiceService invoiceService, InvoiceItemService invoiceItemService,
-                           BuildItemService buildItemService) {
+                           BuildItemService buildItemService, ItemAnalyticsService itemAnalyticsService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
@@ -50,6 +51,7 @@ public class ItemServiceImpl implements ItemService {
         this.cartItemService = cartItemService;
         this.invoiceService = invoiceService;
         this.invoiceItemService = invoiceItemService;
+        this.itemAnalyticsService = itemAnalyticsService;
         ;
         this.buildItemService = buildItemService;
     }
@@ -67,6 +69,8 @@ public class ItemServiceImpl implements ItemService {
                 newItem.getPrice(),
                 null
         );
+
+        itemAnalyticsService.saveItemAnalytics(newItem);
 
         return newItem;
     }
@@ -136,6 +140,10 @@ public class ItemServiceImpl implements ItemService {
 
         itemInDb = itemRepository.save(itemInDb);
 
+        if (!itemAnalyticsService.existsItemAnalyticsByItem(id)) {
+            itemAnalyticsService.saveItemAnalytics(itemInDb);
+        }
+
         cartItemService.updateCartItemAtPriceChange(itemInDb.getId());
 
         buildItemService.updateBuildItemAtPriceChange(itemInDb.getId());
@@ -145,7 +153,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long id) {
-        Optional<Item> item = itemRepository.findById(id);
+        Optional<Item> item = itemRepository.getItemsById(id);
         if (item.isPresent()) {
             return item.get();
         } else {
@@ -190,12 +198,14 @@ public class ItemServiceImpl implements ItemService {
         Integer reduceQuantity = itemInDb.getQuantity() - quantityToReduce;
         itemInDb.setQuantity(reduceQuantity);
         itemInDb = itemRepository.save(itemInDb);
+        itemAnalyticsService.atReduceItemQuantity(itemInDb, quantityToReduce);
         lowStockNotification(itemInDb);
     }
 
     @Override
     public void resetItemStockQuantity(Item item, Integer quantityToAdd) {
         item.setQuantity(item.getQuantity() + quantityToAdd);
+        itemAnalyticsService.atResetItemQuantity(item, quantityToAdd);
         itemRepository.save(item);
     }
 

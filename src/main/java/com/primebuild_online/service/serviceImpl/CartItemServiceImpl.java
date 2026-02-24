@@ -3,8 +3,10 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.Cart;
 import com.primebuild_online.model.CartItem;
 import com.primebuild_online.model.Item;
+import com.primebuild_online.model.ItemAnalytics;
 import com.primebuild_online.repository.CartItemRepository;
 import com.primebuild_online.service.CartItemService;
+import com.primebuild_online.service.ItemAnalyticsService;
 import com.primebuild_online.service.ItemService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -16,12 +18,15 @@ import java.util.List;
 public class CartItemServiceImpl implements CartItemService {
     private final CartItemRepository cartItemRepository;
     private final ItemService itemService;
+    private final ItemAnalyticsService itemAnalyticsService;
 
 
     public CartItemServiceImpl(CartItemRepository cartItemRepository,
-                               @Lazy ItemService itemService) {
+                               @Lazy ItemService itemService,
+                               ItemAnalyticsService itemAnalyticsService) {
         this.cartItemRepository = cartItemRepository;
         this.itemService = itemService;
+        this.itemAnalyticsService = itemAnalyticsService;
     }
 
     @Override
@@ -29,6 +34,8 @@ public class CartItemServiceImpl implements CartItemService {
         Item itemInDb = itemService.getItemById(itemToAdd.getId());
 
         itemService.checkItemsStockQuantity(itemInDb, itemToAdd);
+
+        itemAnalyticsService.atAddItemToCart(itemInDb, itemToAdd.getQuantity());
 
         CartItem cartItem = new CartItem();
         cartItem.setItem(itemInDb);
@@ -56,12 +63,20 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public void deleteCartItemsByCartId(Long id) {
+    public void deleteCartAllItemsByCartId(Long id) {
         cartItemRepository.deleteAllByCart_Id(id);
     }
 
     @Override
     public boolean existsCartItemByItem(Long id) {
-        return cartItemRepository.existsByItem_Id (id);
+        return cartItemRepository.existsByItem_Id(id);
+    }
+
+    @Override
+    public void removeCartItemList(List<CartItem> cartItemList) {
+        for (CartItem cartItem : cartItemList){
+            Item item = cartItem.getItem();
+            itemAnalyticsService.atRemoveItemFromCart(item,cartItem.getCartQuantity());
+        }
     }
 }
