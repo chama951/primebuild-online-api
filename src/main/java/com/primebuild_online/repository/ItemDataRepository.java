@@ -16,4 +16,6 @@ public interface ItemDataRepository extends JpaRepository<ItemData, Long> {
     Optional<ItemData> findByVendorAndItemAndVendorPriceAndOurPrice(Vendors vendor, Item item, BigDecimal bigDecimal, BigDecimal price);
 
     List<ItemData> findAllByItem_Id(Long id);
+
+    Optional<ItemData> findByVendorAndItemAndVendorPrice(Vendors vendor, Item item, BigDecimal bigDecimal);
 }

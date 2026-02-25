@@ -88,13 +88,13 @@ public class ItemServiceImpl implements ItemService {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
 
-        if (item.getPrice() != null &&
-                !item.getPrice().equals(
-                        itemReqDTO.getPrice().setScale(
-                                2, RoundingMode.HALF_UP))) {
-            itemDataService.saveItemData(item.getId());
-
-        }
+//        if (item.getPrice() != null &&
+//                !item.getPrice().equals(
+//                        itemReqDTO.getPrice().setScale(
+//                                2, RoundingMode.HALF_UP))) {
+//            itemDataService.saveItemData(item.getId());
+//
+//        }
 
         item.setPrice(itemReqDTO.getPrice());
         item.setPowerConsumption(itemReqDTO.getPowerConsumption());
@@ -148,6 +148,7 @@ public class ItemServiceImpl implements ItemService {
 //        cartItemService.updateCartItemAtPriceChange(itemInDb.getId());
         cartService.updateCartAtItemPriceChange(itemInDb);
         buildService.updateBuildAtItemPriceChange(itemInDb);
+        itemDataService.saveItemData(itemInDb.getId());
 //        buildItemService.updateBuildItemAtPriceChange(itemInDb.getId());
 
         return itemInDb;
