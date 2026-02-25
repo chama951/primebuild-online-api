@@ -47,9 +47,13 @@ public class User {
     @Column(name = "address")
     private String address;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE,})
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
     private List<Invoice> invoiceList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE,})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
+    private List<Notification> notificationList = new ArrayList<>();
 
     private boolean accountNonLocked = true;
     private boolean accountNonExpired = true;

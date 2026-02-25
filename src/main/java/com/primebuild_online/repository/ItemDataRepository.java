@@ -5,8 +5,15 @@ import com.primebuild_online.model.ItemData;
 import com.primebuild_online.model.enumerations.Vendors;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface ItemDataRepository extends JpaRepository<ItemData, Long> {
-    Optional<ItemData> findTopByItemAndVendorOrderByRecordedAtDesc(Item item, Vendors vendors);
+
+    List<ItemData> findByVendorAndItem_id(Vendors vendor, Long id);
+
+    Optional<ItemData> findByVendorAndItemAndVendorPriceAndOurPrice(Vendors vendor, Item item, BigDecimal bigDecimal, BigDecimal price);
+
+    List<ItemData> findAllByItem_Id(Long id);
 }

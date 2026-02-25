@@ -23,4 +23,8 @@ public interface BuildService {
     List<Build> getAllBuildsByCurrentUser();
 
     List<Build> getStaffMadeBuilds();
+
+    List<Build> getUserDraftBuild();
+
+    void updateBuildAtItemPriceChange(Item itemInDb);
 }

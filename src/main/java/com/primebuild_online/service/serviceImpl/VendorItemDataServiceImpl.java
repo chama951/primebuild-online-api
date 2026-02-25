@@ -2,10 +2,7 @@ package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.DTO.ScrapedProduct;
 import com.primebuild_online.model.Item;
-import com.primebuild_online.model.ItemData;
 import com.primebuild_online.model.enumerations.Vendors;
-import com.primebuild_online.repository.ItemDataRepository;
-import com.primebuild_online.service.ItemDataHistoryService;
 import com.primebuild_online.service.ItemDataService;
 import com.primebuild_online.service.VendorItemDataService;
 import com.primebuild_online.service.ItemService;
@@ -13,6 +10,7 @@ import com.primebuild_online.utils.exception.PrimeBuildException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +20,12 @@ import java.util.List;
 @Service
 public class VendorItemDataServiceImpl implements VendorItemDataService {
     private final ItemService itemService;
-    private final ItemDataHistoryService itemDataHistoryService;
     private final ItemDataService itemDataService;
 
-    public VendorItemDataServiceImpl(ItemDataRepository itemDataRepository,
+    public VendorItemDataServiceImpl(
                                      ItemService itemService,
-                                     ItemDataHistoryService itemDataHistoryService, ItemDataService itemDataService) {
+                                     @Lazy ItemDataService itemDataService) {
         this.itemService = itemService;
-        this.itemDataHistoryService = itemDataHistoryService;
         this.itemDataService = itemDataService;
     }
 
@@ -40,16 +36,9 @@ public class VendorItemDataServiceImpl implements VendorItemDataService {
 
 
     @Override
-    public ItemData nanotekItemData(Long itemId) {
+    public void nanotekItemData(Long itemId) {
 
         Item item = itemService.getItemById(itemId);
-
-        ItemData itemData = new ItemData();
-        if (item == null || item.getItemName() == null) {
-            throw new PrimeBuildException(
-                    "Item or item name cannot be null",
-                    HttpStatus.NOT_FOUND);
-        }
 
         try {
 
@@ -70,21 +59,17 @@ public class VendorItemDataServiceImpl implements VendorItemDataService {
                 List<ScrapedProduct> products =
                         itemDataService.parseProducts(productList);
 
-                if (products.isEmpty())
-                    break;
+                if (products.isEmpty()){
+                    throw new PrimeBuildException(
+                            "Data not found in " + Vendors.NANOTEK,
+                            HttpStatus.NOT_FOUND);
+                }
 
                 ScrapedProduct match =
-                        itemDataService.findMatch(products, item.getItemName());
+                        itemDataService.findMatch(products, item.getItemName(), item.getManufacturer().getManufacturerName());
 
                 if (match != null) {
-                    itemData = itemDataService.buildAndSave(item, match, Vendors.NANOTEK);
-
-                    itemDataHistoryService.
-                            saveItemDataHistory(
-                                    item,
-                                    itemDataService.extractPrice(match.getPrice()),
-                                    Vendors.NANOTEK);
-                    return itemData;
+                    itemDataService.buildAndSave(item, match, Vendors.NANOTEK);
                 }
             }
 
@@ -92,7 +77,6 @@ public class VendorItemDataServiceImpl implements VendorItemDataService {
             e.printStackTrace();
         }
 
-        return itemData;
     }
 
 

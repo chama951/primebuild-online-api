@@ -28,6 +28,7 @@ public class ItemAnalyticsImpl implements ItemAnalyticsService {
     @Override
     public void saveItemAnalytics(Item item) {
         ItemAnalytics itemAnalytics = new ItemAnalytics();
+        itemAnalytics.setTrendScore(0.0);
         itemAnalytics.setItem(item);
         itemAnalyticsRepository.save(itemAnalytics);
     }

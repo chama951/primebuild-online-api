@@ -28,21 +28,19 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final PaymentService paymentService;
     private final InvoiceValidator invoiceValidator;
     private final NotificationService notificationService;
-    private final ItemAnalyticsService itemAnalyticsService;
 
     public InvoiceServiceImpl(InvoiceItemService invoiceItemService,
                               InvoiceRepository invoiceRepository,
                               UserService userService,
                               @Lazy PaymentService paymentService,
                               InvoiceValidator invoiceValidator,
-                              NotificationService notificationService, ItemAnalyticsService itemAnalyticsService) {
+                              NotificationService notificationService) {
         this.invoiceItemService = invoiceItemService;
         this.invoiceRepository = invoiceRepository;
         this.userService = userService;
         this.paymentService = paymentService;
         this.invoiceValidator = invoiceValidator;
         this.notificationService = notificationService;
-        this.itemAnalyticsService = itemAnalyticsService;
     }
 
     private User loggedInUser() {
@@ -54,7 +52,6 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     @Transactional
     public Invoice saveInvoice(InvoiceDTO invoiceDTO) {
-
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Colombo"));
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -70,7 +67,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         invoice = invoiceRepository.save(invoice);
-
         invoice = invoiceRepository.save(
                 createInvoiceItems(invoiceDTO.getItemList(), invoice));
 
@@ -81,9 +77,10 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceValidator.validate(invoice);
 
         notificationService.createNotification(
-                "Invoice Created",
-                "Your invoice #" + invoice.getId() + " has been created successfully.",
-                NotificationType.INVOICE_CREATED
+                "New Invoice",
+                "Id : #" + invoice.getId() + " has been created successfully.",
+                NotificationType.INVOICE_CREATED,
+                loggedInUser()
         );
 
         return invoice;

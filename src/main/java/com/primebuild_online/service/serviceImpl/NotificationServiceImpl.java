@@ -4,6 +4,7 @@ import com.primebuild_online.model.DTO.NotificationDTO;
 import com.primebuild_online.model.Notification;
 import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.NotificationType;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.NotificationRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.NotificationService;
@@ -38,7 +39,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void createNotification(String title,
                                    String message,
-                                   NotificationType notificationType) {
+                                   NotificationType notificationType,
+                                   User user) {
         Notification notification = new Notification();
         notification.setUser(loggedInUser());
         notification.setRead(false);
@@ -51,9 +53,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<Notification> getUserNotifications() {
-        List<Notification> notificationList = new ArrayList<>();
+        List<Notification> notificationList;
         if (userService.checkLoggedInIsStaff(loggedInUser())) {
-            notificationList = notificationRepository.findAllByUser_Role_RoleNameNot("customer");
+            notificationList = notificationRepository.findAllByUser_Role_RoleNameNot(
+                    Privileges.CUSTOMER.toString().toLowerCase());
         } else {
             notificationList = notificationRepository.findAllByUser(loggedInUser());
         }
@@ -67,6 +70,11 @@ public class NotificationServiceImpl implements NotificationService {
             notificationInDb.setRead(true);
             notificationRepository.save(notificationInDb);
         }
+    }
+
+    @Override
+    public void deleteAllUserNotification() {
+        notificationRepository.deleteAllByUser(loggedInUser());
     }
 
     private Notification getNotificationById(Long id) {

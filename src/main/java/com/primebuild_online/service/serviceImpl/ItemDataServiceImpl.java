@@ -6,11 +6,14 @@ import com.primebuild_online.model.ItemData;
 import com.primebuild_online.model.enumerations.Vendors;
 import com.primebuild_online.repository.ItemDataRepository;
 import com.primebuild_online.service.ItemDataService;
+import com.primebuild_online.service.VendorItemDataService;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +24,12 @@ import java.util.regex.Pattern;
 @Service
 public class ItemDataServiceImpl implements ItemDataService {
     private final ItemDataRepository itemDataRepository;
+    private final VendorItemDataService vendorItemDataService;
 
-    public ItemDataServiceImpl(ItemDataRepository itemDataRepository) {
+    public ItemDataServiceImpl(ItemDataRepository itemDataRepository,
+                               @Lazy VendorItemDataService vendorItemDataService) {
         this.itemDataRepository = itemDataRepository;
+        this.vendorItemDataService = vendorItemDataService;
     }
 
     @Override
@@ -67,7 +73,8 @@ public class ItemDataServiceImpl implements ItemDataService {
     @Override
     public ScrapedProduct findMatch(
             List<ScrapedProduct> products,
-            String searchTerm
+            String searchTerm,
+            String manufacturerName
     ) {
 
         String normalizedSearch = normalize(searchTerm);
@@ -144,7 +151,7 @@ public class ItemDataServiceImpl implements ItemDataService {
     }
 
     @Override
-    public ItemData buildAndSave(
+    public void buildAndSave(
             Item item,
             ScrapedProduct product,
             Vendors vendor
@@ -153,18 +160,31 @@ public class ItemDataServiceImpl implements ItemDataService {
         BigDecimal vendorPrice = extractPrice(product.getPrice());
 
         Optional<ItemData> existingOpt =
-                itemDataRepository.findTopByItemAndVendorOrderByRecordedAtDesc(
+                itemDataRepository.findByVendorAndItemAndVendorPriceAndOurPrice(
+                        vendor,
                         item,
-                        vendor
+                        new BigDecimal(product.getPrice().replace(",", "")),
+                        item.getPrice()
                 );
 
         ItemData itemData;
+
+        BigDecimal percentage = BigDecimal.ZERO;
+
+        if (item.getPrice() != null && item.getPrice().compareTo(BigDecimal.ZERO) != 0) {
+
+            percentage = vendorPrice
+                    .subtract(item.getPrice())
+                    .divide(item.getPrice(), 6, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100))
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
 
         if (existingOpt.isPresent()) {
             itemData = existingOpt.get();
             itemData.setVendorPrice(vendorPrice);
             itemData.setOurPrice(item.getPrice());
-            itemData.setDiscountPercentage(BigDecimal.ZERO);
+            itemData.setDiscountPercentage(percentage);
             itemData.setRecordedAt(LocalDateTime.now());
         } else {
             itemData = new ItemData();
@@ -172,9 +192,30 @@ public class ItemDataServiceImpl implements ItemDataService {
             itemData.setVendor(vendor);
             itemData.setVendorPrice(vendorPrice);
             itemData.setOurPrice(item.getPrice());
-            itemData.setDiscountPercentage(BigDecimal.ZERO);
+            itemData.setDiscountPercentage(percentage);
             itemData.setRecordedAt(LocalDateTime.now());
         }
-        return itemDataRepository.save(itemData);
+        itemDataRepository.save(itemData);
     }
+
+
+    @Override
+    public List<ItemData> nanotekItemData(Long id, Vendors vendor) {
+        vendorItemDataService.nanotekItemData(id);
+        return itemDataRepository.findByVendorAndItem_id(
+                vendor,
+                id
+        );
+    }
+
+    @Override
+    public void saveItemData(Long id) {
+        vendorItemDataService.nanotekItemData(id);
+    }
+
+    @Override
+    public List<ItemData> getItemDataByItemId(Long id) {
+        return itemDataRepository.findAllByItem_Id(id);
+    }
+
 }

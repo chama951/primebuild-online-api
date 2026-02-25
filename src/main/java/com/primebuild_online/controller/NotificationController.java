@@ -24,5 +24,10 @@ public class NotificationController {
     public void readNotificationList(@RequestBody NotificationDTO notificationDTO) {
         notificationService.readNotificationList(notificationDTO);
     }
+
+    @DeleteMapping
+    public void deleteAllUserNotification(){
+        notificationService.deleteAllUserNotification();
+    }
 }
 

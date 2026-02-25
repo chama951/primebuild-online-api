@@ -12,8 +12,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
 @Data
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "item_data")
@@ -23,15 +23,15 @@ public class ItemData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "vendor")
-    private Vendors vendor;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemFeatureList", "manufacturer", "component"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemDataHistoryList"})
     private Item item;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "vendor")
+    private Vendors vendor;
 
     @Column(name = "vendor_price")
     private BigDecimal vendorPrice;

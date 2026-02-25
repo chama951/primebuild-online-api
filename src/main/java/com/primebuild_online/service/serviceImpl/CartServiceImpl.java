@@ -52,33 +52,32 @@ public class CartServiceImpl implements CartService {
 
         if (cartDTO.getItemList() != null && !cartDTO.getItemList().isEmpty()) {
             createCartItems(cartDTO.getItemList(), cart);
+        } else {
+            //        cart empty, while the itemList is empty
+            cart.setTotalAmount(BigDecimal.valueOf(0));
+            cart.setDiscountAmount(BigDecimal.valueOf(0));
         }
 
-//        cart empty, while the itemList is empty
-        cart.setTotalAmount(BigDecimal.valueOf(0));
-        cart.setDiscountAmount(BigDecimal.valueOf(0));
 
         return cartRepository.save(cart);
     }
 
     @Override
     public Cart getCartByUser() {
-        Cart cartInDb = cartRepository.findByUser(loggedInUser())
+        return cartRepository.findByUser(loggedInUser())
                 .orElseGet(this::saveUserCart);
-        cartInDb = cartRepository.save(updateCartAtItemPriceChange(cartInDb.getCartItemList(), cartInDb));
-        return cartInDb;
     }
 
-    private Cart updateCartAtItemPriceChange(List<CartItem> cartItemList, Cart cartInDb) {
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        BigDecimal discountAmount = BigDecimal.ZERO;
-        for (CartItem cartItem : cartItemList) {
-            totalAmount = totalAmount.add(cartItem.getSubtotal());
-            discountAmount = discountAmount.add(cartItem.getDiscountSubTotal());
+    @Override
+    public void updateCartAtItemPriceChange(Item item) {
+        List<Cart> cartList = cartRepository.findDistinctByCartItemList_Item(item);
+        for (Cart cartInDb : cartList) {
+            cartItemService.updateCartItemAtPriceChange(cartInDb.getCartItemList());
+            cartInDb.setDiscountAmount(cartItemService.calculateDiscountAmount(cartInDb.getCartItemList()));
+            cartInDb.setTotalAmount(cartItemService.calculateTotalAmount(cartInDb.getCartItemList()));
+            cartRepository.save(cartInDb);
         }
-        cartInDb.setDiscountAmount(discountAmount);
-        cartInDb.setTotalAmount(totalAmount);
-        return cartInDb;
+
     }
 
     private void createCartItems(List<Item> itemList, Cart cartInDb) {
@@ -93,6 +92,7 @@ public class CartServiceImpl implements CartService {
         }
         cartInDb.setDiscountAmount(discountAmount);
         cartInDb.setTotalAmount(totalAmount);
+        cartRepository.save(cartInDb);
     }
 
 

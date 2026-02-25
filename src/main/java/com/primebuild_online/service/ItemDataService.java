@@ -13,9 +13,15 @@ public interface ItemDataService {
 
     List<ScrapedProduct> parseProducts(Element productList);
 
-    ScrapedProduct findMatch(List<ScrapedProduct> products, String itemName);
+    ScrapedProduct findMatch(List<ScrapedProduct> products, String itemName, String manufacturerName);
 
     BigDecimal extractPrice(String rawPrice);
 
-    ItemData buildAndSave(Item item, ScrapedProduct match, Vendors vendors);
+    void buildAndSave(Item item, ScrapedProduct match, Vendors vendors);
+
+    List<ItemData> nanotekItemData(Long id, Vendors vendor);
+
+    void saveItemData(Long id);
+
+    List<ItemData> getItemDataByItemId(Long id);
 }

@@ -3,7 +3,9 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.model.enumerations.NotificationType;
+import com.primebuild_online.model.enumerations.Vendors;
 import com.primebuild_online.repository.ItemRepository;
+import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.ItemValidator;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -22,39 +25,49 @@ public class ItemServiceImpl implements ItemService {
     private final ComponentService componentService;
     private final ManufacturerService manufacturerService;
     private final NotificationService notificationService;
-    private final ItemDataHistoryService itemDataHistoryService;
-    private final CartService cartService;
     private final CartItemService cartItemService;
-    private final InvoiceService invoiceService;
     private final InvoiceItemService invoiceItemService;
     private final BuildItemService buildItemService;
     private final ItemAnalyticsService itemAnalyticsService;
+    private final UserService userService;
+    private final CartService cartService;
+    private final BuildService buildService;
+    private final ItemDataService itemDataService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
                            ComponentService componentService,
                            ManufacturerService manufacturerService,
                            NotificationService notificationService,
-                           ItemDataHistoryService itemDataHistoryService,
-                           CartService cartService,
                            CartItemService cartItemService,
-                           InvoiceService invoiceService, InvoiceItemService invoiceItemService,
-                           BuildItemService buildItemService, ItemAnalyticsService itemAnalyticsService) {
+                           InvoiceItemService invoiceItemService,
+                           BuildItemService buildItemService,
+                           ItemAnalyticsService itemAnalyticsService,
+                           UserService userService,
+                           CartService cartService, BuildService buildService,
+                           ItemDataService itemDataService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
         this.componentService = componentService;
         this.manufacturerService = manufacturerService;
         this.notificationService = notificationService;
-        this.itemDataHistoryService = itemDataHistoryService;
-        this.cartService = cartService;
         this.cartItemService = cartItemService;
-        this.invoiceService = invoiceService;
         this.invoiceItemService = invoiceItemService;
         this.itemAnalyticsService = itemAnalyticsService;
-        ;
+        this.userService = userService;
+        this.cartService = cartService;
+        this.itemDataService = itemDataService;
         this.buildItemService = buildItemService;
+        this.buildService = buildService;
     }
+
+    private User loggedInUser() {
+        return userService.getUserById(
+                Objects.requireNonNull(SecurityUtils.getCurrentUser()).getId()
+        );
+    }
+
 
     @Override
     public Item saveItemReq(ItemReqDTO itemReqDTO) {
@@ -64,11 +77,7 @@ public class ItemServiceImpl implements ItemService {
 
         newItem = itemRepository.save(newItem);
 
-        itemDataHistoryService.saveItemDataHistory(
-                newItem,
-                newItem.getPrice(),
-                null
-        );
+        itemDataService.saveItemData(newItem.getId());
 
         itemAnalyticsService.saveItemAnalytics(newItem);
 
@@ -83,11 +92,7 @@ public class ItemServiceImpl implements ItemService {
                 !item.getPrice().equals(
                         itemReqDTO.getPrice().setScale(
                                 2, RoundingMode.HALF_UP))) {
-            itemDataHistoryService.saveItemDataHistory(
-                    item,
-                    itemReqDTO.getPrice(),
-                    null
-            );
+            itemDataService.saveItemData(item.getId());
 
         }
 
@@ -140,13 +145,10 @@ public class ItemServiceImpl implements ItemService {
 
         itemInDb = itemRepository.save(itemInDb);
 
-        if (!itemAnalyticsService.existsItemAnalyticsByItem(id)) {
-            itemAnalyticsService.saveItemAnalytics(itemInDb);
-        }
-
-        cartItemService.updateCartItemAtPriceChange(itemInDb.getId());
-
-        buildItemService.updateBuildItemAtPriceChange(itemInDb.getId());
+//        cartItemService.updateCartItemAtPriceChange(itemInDb.getId());
+        cartService.updateCartAtItemPriceChange(itemInDb);
+        buildService.updateBuildAtItemPriceChange(itemInDb);
+//        buildItemService.updateBuildItemAtPriceChange(itemInDb.getId());
 
         return itemInDb;
     }
@@ -285,9 +287,10 @@ public class ItemServiceImpl implements ItemService {
     public void lowStockNotification(Item item) {
         if (item.getQuantity() <= item.getLowStockThreshold()) {
             notificationService.createNotification(
-                    "Low Stock Alert",
+                    "Stock Alert",
                     item.getItemName() + " is running low",
-                    NotificationType.LOW_STOCK
+                    NotificationType.LOW_STOCK,
+                    loggedInUser()
             );
         }
     }

@@ -1,10 +1,7 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.Build;
-import com.primebuild_online.model.BuildItem;
+import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.BuildReqDTO;
-import com.primebuild_online.model.Item;
-import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.BuildStatus;
 import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.BuildItemRepository;
@@ -17,6 +14,7 @@ import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.BuildValidator;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +36,8 @@ public class BuildServiceImpl implements BuildService {
                             BuildRepository buildRepository,
                             BuildItemRepository buildItemRepository,
                             BuildValidator buildValidator,
-                            UserService userService, ItemService itemService) {
+                            UserService userService,
+                            @Lazy ItemService itemService) {
         this.buildRepository = buildRepository;
         this.buildItemService = buildItemService;
         this.buildValidator = buildValidator;
@@ -88,9 +87,9 @@ public class BuildServiceImpl implements BuildService {
         buildInDb.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         buildInDb.setLastModified(LocalDateTime.now());
 
-        if (buildReqDTO.getBuildStatus().equals(BuildStatus.COMPLETED.toString())) {
-            buildItemService.resetItemQuantity(buildInDb.getBuildItemList());
-        }
+//        if (buildReqDTO.getBuildStatus().equals(BuildStatus.COMPLETED.toString())) {
+//            buildItemService.resetItemQuantity(buildInDb.getBuildItemList());
+//        }
 
         buildInDb.getBuildItemList().clear();
 
@@ -149,6 +148,22 @@ public class BuildServiceImpl implements BuildService {
     @Override
     public List<Build> getStaffMadeBuilds() {
         return buildRepository.findAllByUser_Role_RoleNameNot(Privileges.CUSTOMER.toString());
+    }
+
+    @Override
+    public List<Build> getUserDraftBuild() {
+        return buildRepository.findAllByUserAndBuildStatus(loggedInUser(), BuildStatus.DRAFT);
+    }
+
+    @Override
+    public void updateBuildAtItemPriceChange(Item itemInDb) {
+        List<Build> buildList = buildRepository.findDistinctByBuildItemList_Item(itemInDb);
+        for (Build buildInDb : buildList) {
+            buildItemService.updateBuildItemAtPriceChange(itemInDb.getBuildItems());
+            buildInDb.setDiscountAmount(buildItemService.calculateDiscountAmount(buildInDb.getBuildItemList()));
+            buildInDb.setTotalPrice(buildItemService.calculateTotalAmount(buildInDb.getBuildItemList()));
+            buildRepository.save(buildInDb);
+        }
     }
 
 }

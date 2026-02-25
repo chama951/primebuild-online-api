@@ -4,6 +4,7 @@ import com.primebuild_online.model.Build;
 import com.primebuild_online.model.BuildItem;
 import com.primebuild_online.model.Item;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface BuildItemService{
@@ -24,5 +25,11 @@ public interface BuildItemService{
 
     boolean existsBuildItemByItem(Long id);
 
-    void updateBuildItemAtPriceChange(Long id);
+    void updateBuildItemAtPriceChange(List<BuildItem> buildItemList);
+
+    BigDecimal calculateDiscountAmount(List<BuildItem> buildItemList);
+
+    BigDecimal calculateTotalAmount(List<BuildItem> buildItemList);
+
+//    void updateBuildItemAtPriceChange(Long id);
 }

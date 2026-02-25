@@ -31,7 +31,7 @@ public class CartItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "cart_item"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "cartItemList"})
     private Cart cart;
 
     @Column(name = "unit_price")

@@ -3,9 +3,14 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.DTO.CurrencyConversionDTO;
 import com.primebuild_online.model.DTO.ExchangeRateApiResponseDTO;
 import com.primebuild_online.model.ExchangeRate;
+import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.Currency;
+import com.primebuild_online.model.enumerations.NotificationType;
 import com.primebuild_online.repository.ExchangeRateRepository;
+import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.ExchangeRateService;
+import com.primebuild_online.service.NotificationService;
+import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,17 +20,31 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ExchangeRateServiceImpl implements ExchangeRateService {
 
     private final ExchangeRateRepository exchangeRateRepository;
     private final RestTemplate restTemplate;
+    private final NotificationService notificationService;
+    private final UserService userService;
 
     public ExchangeRateServiceImpl(ExchangeRateRepository exchangeRateRepository,
-                                   RestTemplate restTemplate) {
+                                   RestTemplate restTemplate,
+                                   NotificationService notificationService,
+                                   UserService userService) {
         this.exchangeRateRepository = exchangeRateRepository;
         this.restTemplate = restTemplate;
+        this.notificationService = notificationService;
+        this.userService = userService;
+    }
+
+    private User loggedInUser() {
+        return userService.getUserById(
+                Objects.requireNonNull(SecurityUtils.getCurrentUser()).getId()
+        );
     }
 
     private static final String API_URL =
@@ -63,11 +82,42 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
         exchangeRate.setFromCurrency(Currency.USD);
         exchangeRate.setToCurrency(Currency.LKR);
-        exchangeRate.setRate(lkrRate);
+        exchangeRate.setRate(Math.round(lkrRate * 100.0) / 100.0);
         exchangeRate.setLastUpdated(LocalDateTime.now());
         exchangeRate.setDate(today);
 
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        ExchangeRate yesterdayExchangeRate = exchangeRateRepository.getExchangeRateByDate(yesterday);
+
+        if (yesterdayExchangeRate != null) {
+            double yesterdayLkrRate = yesterdayExchangeRate.getRate();
+            exchangeRateNotification(lkrRate, yesterdayLkrRate);
+        }
+
         return exchangeRateRepository.save(exchangeRate);
+    }
+
+    private void exchangeRateNotification(Double todayLkrRate, Double yesterdayLkrRate) {
+        double difference = Math.round((yesterdayLkrRate - todayLkrRate) * 100.0) / 100.0;
+
+        if (difference > 0) {
+            notificationService.createNotification(
+                    "Exchange Rate Update",
+                    "USD rate decreased by Rs " + String.format("%.2f", Math.abs(difference)),
+                    NotificationType.EXCHANGE_RATE,
+                    loggedInUser()
+            );
+        }
+        if (difference < 0) {
+            notificationService.createNotification(
+                    "Exchange Rate Update",
+                    "USD rate increased by Rs " +  String.format("%.2f", Math.abs(difference)),
+                    NotificationType.EXCHANGE_RATE,
+                    loggedInUser()
+            );
+        }
+
+
     }
 
     public Double getUsdToLkrRate() {
@@ -85,5 +135,15 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
         currencyConversionDTO.setLkrAmount(lkrAmount);
         return currencyConversionDTO;
     }
+
+    @Override
+    public List<ExchangeRate> getExchangeRateListDaysBefore(Long days) {
+
+        LocalDate today = LocalDate.now();
+        LocalDate fiveDaysAgo = today.minusDays(days);
+
+        return exchangeRateRepository.findAllByDateBetween(fiveDaysAgo, today);
+    }
+
 
 }

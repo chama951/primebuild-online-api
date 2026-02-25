@@ -26,7 +26,11 @@ public class BuildController {
     }
 
     @GetMapping
-    public List<Build> getAllBuild(@RequestParam(value = "user", required = false) String user) {
+    public List<Build> getAllBuild(@RequestParam(value = "user", required = false) String user,
+                                   @RequestParam(value = "status", required = false) String status) {
+        if(Objects.equals(status, "DRAFT")){
+            return buildService.getUserDraftBuild();
+        }
         if (Objects.equals(user, "current")) {
             return buildService.getAllBuildsByCurrentUser();
         }
