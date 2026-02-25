@@ -12,4 +12,6 @@ public interface InvoiceItemService {
     void deleteInvoiceItemsByInvoiceId(Long id);
 
     void resetItemQuantity(List<InvoiceItem> invoiceItems);
+
+    boolean existsInvoiceByItem(Long id);
 }

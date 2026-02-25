@@ -7,6 +7,7 @@ import com.primebuild_online.model.enumerations.InvoiceStatus;
 import com.primebuild_online.repository.InvoiceItemRepository;
 import com.primebuild_online.service.InvoiceItemService;
 import com.primebuild_online.service.ItemService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,45 +19,34 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
     private final ItemService itemService;
 
     public InvoiceItemServiceImpl(InvoiceItemRepository invoiceItemRepository,
-                                  ItemService itemService) {
+                                  @Lazy ItemService itemService) {
         this.invoiceItemRepository = invoiceItemRepository;
         this.itemService = itemService;
     }
 
 
     @Override
-    public InvoiceItem saveInvoiceItem(Item item, Invoice invoice) {
-        Item itemInDb = itemService.getItemById(item.getId());
+    public InvoiceItem saveInvoiceItem(Item itemToAdd, Invoice invoice) {
+        Item itemInDb = itemService.getItemById(itemToAdd.getId());
 
-        if (itemInDb.getQuantity() < item.getQuantity()) {
-            throw new RuntimeException("Insufficient Stock");
-        }
+        itemService.checkItemsStockQuantity(itemInDb, itemToAdd);
 
         InvoiceItem invoiceItem = new InvoiceItem();
         invoiceItem.setItem(itemInDb);
         invoiceItem.setInvoice(invoice);
-        invoiceItem.setInvoiceQuantity(item.getQuantity());
-        invoiceItem.setUnitPrice(calculateUnitePrice(itemInDb));
-        invoiceItem.setDiscountSubTotal(calculateDiscountSubTotal(itemInDb, item.getQuantity()));
-        invoiceItem.setDiscountPerUnite(calculateDiscountPerUnite(itemInDb));
-        invoiceItem.setSubtotal(calculateSubTotal(itemInDb, item.getQuantity()));
+        invoiceItem.setInvoiceQuantity(itemToAdd.getQuantity());
+        invoiceItem.setUnitPrice(itemInDb.getPrice());
+        invoiceItem.setDiscountSubTotal(itemService.calculateDiscountSubTotal(itemInDb, itemToAdd.getQuantity()));
+        invoiceItem.setDiscountPerUnite(itemService.calculateDiscountPerUnite(itemInDb));
+        invoiceItem.setSubtotal(itemService.calculateSubTotal(itemInDb, itemToAdd.getQuantity()));
 
         if (invoice.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
             Integer quantityToReduce = invoiceItem.getInvoiceQuantity();
-            itemService.reduceItemQuantity(itemInDb,quantityToReduce);
+            itemService.reduceItemQuantity(itemInDb, quantityToReduce);
         }
         return invoiceItemRepository.save(invoiceItem);
     }
 
-    private BigDecimal calculateDiscountPerUnite(Item itemInDb) {
-        BigDecimal itemPrice = itemInDb.getPrice();
-        BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
-
-        BigDecimal discountAmount = itemPrice
-                .multiply(discountPercentage)
-                .divide(BigDecimal.valueOf(100));
-        return discountAmount;
-    }
 
     @Override
     public void deleteInvoiceItemsByInvoiceId(Long id) {
@@ -65,53 +55,16 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 
     @Override
     public void resetItemQuantity(List<InvoiceItem> invoiceItemList) {
-        for(InvoiceItem invoiceItem : invoiceItemList){
+        for (InvoiceItem invoiceItem : invoiceItemList) {
             Item item = invoiceItem.getItem();
-            Integer quantityToAdd = invoiceItem.getInvoiceQuantity();
-            itemService.resetStock(item, quantityToAdd);
+            Integer quantityToReset = invoiceItem.getInvoiceQuantity();
+            itemService.resetItemStockQuantity(item, quantityToReset);
         }
     }
 
-    private void createPayment(Invoice invoice) {
-
+    @Override
+    public boolean existsInvoiceByItem(Long id) {
+        return invoiceItemRepository.existsByItem_Id(id);
     }
 
-    private BigDecimal calculateDiscountSubTotal(Item itemInDb, int quantity) {
-        BigDecimal itemPrice = itemInDb.getPrice();
-        BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
-
-        BigDecimal discountAmount = itemPrice
-                .multiply(discountPercentage)
-                .divide(BigDecimal.valueOf(100));
-
-        BigDecimal discountSubTotal = discountAmount
-                .multiply(BigDecimal.valueOf(quantity));
-
-        return discountSubTotal;
-    }
-
-    private BigDecimal calculateUnitePrice(Item itemInDb) {
-        BigDecimal itemPrice = itemInDb.getPrice();
-        BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
-
-        BigDecimal discountAmount = itemPrice
-                .multiply(discountPercentage)
-                .divide(BigDecimal.valueOf(100));
-
-        BigDecimal unitePrice = itemPrice.subtract(discountAmount);
-        return unitePrice;
-    }
-
-    private BigDecimal calculateSubTotal(Item itemInDb, int quantity) {
-        BigDecimal itemPrice = itemInDb.getPrice();
-        BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
-
-        BigDecimal discountAmount = itemPrice
-                .multiply(discountPercentage)
-                .divide(BigDecimal.valueOf(100));
-
-        BigDecimal subTotal = itemPrice.subtract(discountAmount)
-                .multiply(BigDecimal.valueOf(quantity));
-        return subTotal;
-    }
 }

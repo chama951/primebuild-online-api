@@ -8,7 +8,11 @@ import com.primebuild_online.repository.ComponentRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.FeatureTypeService;
+import com.primebuild_online.service.ItemService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.ComponentValidator;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +21,17 @@ import java.util.Optional;
 @Service
 public class ComponentServiceImpl implements ComponentService {
     private final ComponentRepository componentRepository;
-    private final ComponentFeatureTypeService componentFeatureTypeService;
-    private final FeatureTypeService featureTypeService;
+    private final ComponentValidator componentValidator;
+    private final ItemService itemService;
 
-    public ComponentServiceImpl(@Lazy ComponentFeatureTypeService componentFeatureTypeService,
-                                ComponentRepository componentRepository,
-                                @Lazy FeatureTypeService featureTypeService) {
-        this.componentFeatureTypeService = componentFeatureTypeService;
+
+    public ComponentServiceImpl(
+            ComponentRepository componentRepository,
+            ComponentValidator componentValidator,
+            @Lazy ItemService itemService) {
         this.componentRepository = componentRepository;
-        this.featureTypeService = featureTypeService;
+        this.componentValidator = componentValidator;
+        this.itemService = itemService;
     }
 
     @Override
@@ -36,25 +42,24 @@ public class ComponentServiceImpl implements ComponentService {
 
     private Component setComponentValues(ComponentReqDTO componentReqDTO, Component component) {
         component.setComponentName(componentReqDTO.getComponentName());
+        if (component.getId() == null &&
+                componentRepository.existsByComponentNameIgnoreCase(
+                        component.getComponentName())) {
+
+            throw new PrimeBuildException(
+                    "Component already exists",
+                    HttpStatus.CONFLICT
+            );
+        }
         component.setBuildComponent(componentReqDTO.isBuildComponent());
         component.setBuildPriority(componentReqDTO.getBuildPriority());
+        if (!componentReqDTO.isBuildComponent()) {
+            component.setBuildPriority(null);
+        }
         component.setPowerSource(componentReqDTO.isPowerSource());
-       return component;
+        componentValidator.validate(component);
+        return component;
     }
-
-//    private void saveNewComponentFeatureTypes(List<FeatureType> featureTypeList, Component component) {
-//
-//        if (featureTypeList != null) {
-//            for (FeatureType featureTypeRequest : featureTypeList) {
-//                FeatureType featureType = featureTypeService.getFeatureTypeById(featureTypeRequest.getId());
-//                ComponentFeatureType componentFeatureType = new ComponentFeatureType();
-//                componentFeatureType.setComponent(component);
-//                componentFeatureType.setFeatureType(featureType);
-//                componentFeatureTypeService.saveComponentFeatureType(componentFeatureType);
-//            }
-//        }
-//
-//    }
 
     @Override
     public List<Component> getAllComponent() {
@@ -67,20 +72,29 @@ public class ComponentServiceImpl implements ComponentService {
         if (component.isPresent()) {
             return component.get();
         } else {
-            throw new RuntimeException();
+            throw new PrimeBuildException(
+                    "Component not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
     public Component updateComponentReq(ComponentReqDTO componentReqDTO, Long id) {
-        Component componentInDb = componentRepository.findById(id).orElseThrow(RuntimeException::new);
+        Component componentInDb = componentRepository.findById(id).orElseThrow(
+                () -> new PrimeBuildException(
+                        "Component not found",
+                        HttpStatus.NOT_FOUND));
         componentInDb = setComponentValues(componentReqDTO, componentInDb);
         return componentRepository.save(componentInDb);
     }
 
     @Override
     public void deleteComponent(Long id) {
-        componentRepository.findById(id).orElseThrow(RuntimeException::new);
+        if (itemService.existsItemByComponent(id)) {
+            throw new PrimeBuildException(
+                    "Component cannot be deleted while found in Items",
+                    HttpStatus.CONFLICT);
+        }
         componentRepository.deleteById(id);
     }
 

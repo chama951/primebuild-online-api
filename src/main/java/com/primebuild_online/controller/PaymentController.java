@@ -30,7 +30,8 @@ public class PaymentController {
     @GetMapping
     public List<Payment> getAllPayment(@RequestParam(value = "user_id", required = false) Long userId,
                                        @RequestParam(value = "date", required = false) String date,
-                                       @RequestParam(value = "payment_status", required = false) String paymentStatus) {
+                                       @RequestParam(value = "payment_status", required = false) String paymentStatus,
+                                       @RequestParam(value = "username", required = false) String username) {
 
         if (userId != null) {
             return paymentService.getByUser(userId);
@@ -41,7 +42,9 @@ public class PaymentController {
         if (paymentStatus != null) {
             return paymentService.getByPaymentStatus(paymentStatus);
         }
-
+        if (username != null) {
+            return paymentService.getByUsername(username);
+        }
         return paymentService.getAllPayments();
     }
 

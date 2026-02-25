@@ -13,7 +13,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findAllByUser_UserId(Long userId);
 
-    List<Payment> findAllByCreatedAt(LocalDate dateFormated);
-
     List<Payment> findAllByPaymentStatus(PaymentStatus paymentStatus);
+
+    List<Payment> findAllByPaymentDate(LocalDate dateFormated);
+
+    List<Payment> findAllByUser_Username(String userUsername);
+
+    boolean existsByInvoice_IdAndPaymentStatus(Long invoiceId, PaymentStatus paymentStatus);
 }

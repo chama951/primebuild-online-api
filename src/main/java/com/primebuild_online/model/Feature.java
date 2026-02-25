@@ -21,15 +21,17 @@ public class Feature {
     private Long id;
 
     @Column(name = "feature_name")
-    private String featureName;  // "LGA1700", "DDR5", "ATX", "8-pin"
+    private String featureName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feature_type_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "featureList", "featureTypeName"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "featureList"})
     private FeatureType featureType;
 
-    @OneToMany(mappedBy = "feature", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "feature",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "item"})
     private List<ItemFeature> itemFeatures = new ArrayList<>();
 }

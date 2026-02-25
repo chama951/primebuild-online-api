@@ -6,6 +6,7 @@ import com.primebuild_online.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -25,6 +26,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         securedEnabled = true,
         jsr250Enabled = true)
 public class SecurityConfig {
+
+
     @Autowired
     private AuthTokenFilter authTokenFilter;
 
@@ -33,6 +36,9 @@ public class SecurityConfig {
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
+
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -53,58 +59,91 @@ public class SecurityConfig {
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**") // Only /api/** uses this chain
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/api/login").permitAll()
-                                .requestMatchers("/api/signup").permitAll()
-//                        .requestMatchers("/api/role/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/role/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
-//                                .requestMatchers("/api/role/**").permitAll() //Debug
-                                .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN","USER_MANAGEMENT")
-//                                .requestMatchers("/api/user/**").permitAll() //Debug
-                                .requestMatchers("/api/manufacturer/**").hasAnyAuthority("ADMIN","BUILD_MANAGEMENT")
-                                .requestMatchers("/api/invoice/**").hasAnyAuthority("ADMIN","INVOICE_MANAGEMENT")
+                        .requestMatchers("/api/auth/mail").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/signup").permitAll()
+                        .requestMatchers("/api/auth/forgot-password").permitAll()
+                        .requestMatchers("/api/auth/reset-password").permitAll()
+                        .requestMatchers("/api/role/**").hasAnyAuthority("ADMIN", "USER_MANAGEMENT")
+                        .requestMatchers("/home/**").permitAll()
 
-                                .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/item/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT", "CUSTOMER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/manufacturer/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT", "CUSTOMER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/component/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT", "CUSTOMER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/invoice/**")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT", "CUSTOMER")
+
+                        .requestMatchers(HttpMethod.POST, "/api/item/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/item/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/item/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+
+                        .requestMatchers(HttpMethod.POST, "/api/manufacturer/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/manufacturer/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/manufacturer/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+
+                        .requestMatchers(HttpMethod.POST, "/api/component/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/component/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/component/**")
+                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
+
+                        .requestMatchers(HttpMethod.POST, "/api/invoice/**")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/invoice/**")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/invoice/**")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
+
+                        .requestMatchers("/api/vendor_item_data/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "USER_MANAGEMENT")
+                        .requestMatchers("/api/build/**").hasAnyAuthority("ADMIN", "CUSTOMER", "BUILD_MANAGEMENT")
+                        .requestMatchers("/api/payment/**").hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
+
+                        .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.defaultSuccessUrl("/api/user"))
+//                .formLogin(form -> form.defaultSuccessUrl("/api/user"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .httpBasic(Customizer.withDefaults())
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(unauthorizedHandler)
+                )
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//        http
-//                .csrf(csrf -> csrf.disable())
-//
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/",
-//                                "/login",
-//                                "/error",
-//                                "/oauth2/**"
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//
-//                // OAuth2 login
-//                .oauth2Login(oauth2 ->
-//                        oauth2.successHandler(oAuth2AuthenticationSuccessHandler)
-//                )
-//
-//                // JWT filter
-//                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class)
-//
-//                .sessionManagement(session ->
-//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                );
-//
-//        return http.build();
-//    }
+    @Bean
+    public SecurityFilterChain oauth2Security(HttpSecurity http)
+            throws Exception {
+
+        http
+                .securityMatcher("/oauth2/**", "/login/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth ->
+                        auth.anyRequest().permitAll())
+                .oauth2Login(oauth ->
+                        oauth.successHandler(oAuth2AuthenticationSuccessHandler));
+
+        return http.build();
+    }
+
 }

@@ -3,11 +3,15 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.InvoiceDTO;
 import com.primebuild_online.model.enumerations.InvoiceStatus;
-import com.primebuild_online.model.enumerations.Privileges;
+import com.primebuild_online.model.enumerations.NotificationType;
 import com.primebuild_online.repository.InvoiceRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.InvoiceValidator;
+import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,23 +23,24 @@ import java.util.*;
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
     private final InvoiceItemService invoiceItemService;
-
     private final InvoiceRepository invoiceRepository;
-
     private final UserService userService;
-
     private final PaymentService paymentService;
-    private final ItemService itemService;
+    private final InvoiceValidator invoiceValidator;
+    private final NotificationService notificationService;
 
     public InvoiceServiceImpl(InvoiceItemService invoiceItemService,
                               InvoiceRepository invoiceRepository,
                               UserService userService,
-                              @Lazy PaymentService paymentService, ItemService itemService) {
+                              @Lazy PaymentService paymentService,
+                              InvoiceValidator invoiceValidator,
+                              NotificationService notificationService) {
         this.invoiceItemService = invoiceItemService;
         this.invoiceRepository = invoiceRepository;
         this.userService = userService;
         this.paymentService = paymentService;
-        this.itemService = itemService;
+        this.invoiceValidator = invoiceValidator;
+        this.notificationService = notificationService;
     }
 
     private User loggedInUser() {
@@ -45,6 +50,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public Invoice saveInvoice(InvoiceDTO invoiceDTO) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Colombo"));
@@ -55,12 +61,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setCreatedAt(LocalDateTime.now());
         invoice.setUser(loggedInUser());
         invoice.setInvoiceDate(datePart);
+
         if (invoiceDTO.getInvoiceStatus() != null) {
             invoice.setInvoiceStatus(InvoiceStatus.valueOf(invoiceDTO.getInvoiceStatus()));
         }
 
         invoice = invoiceRepository.save(invoice);
-
         invoice = invoiceRepository.save(
                 createInvoiceItems(invoiceDTO.getItemList(), invoice));
 
@@ -68,26 +74,36 @@ public class InvoiceServiceImpl implements InvoiceService {
             paymentService.savePayment(invoice);
         }
 
-        return invoice;
-    }
+        invoiceValidator.validate(invoice);
 
-    private Invoice createInvoiceItems(List<Item> itemList, Invoice invoice) {
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        BigDecimal discountAmount = BigDecimal.ZERO;
-        InvoiceItem invoiceItem = new InvoiceItem();
-        for (Item item : itemList) {
-            invoiceItem = invoiceItemService.saveInvoiceItem(item, invoice);
-            totalAmount = totalAmount.add(invoiceItem.getSubtotal());
-            discountAmount = discountAmount.add(invoiceItem.getDiscountSubTotal());
-        }
-        invoice.setDiscountAmount(discountAmount);
-        invoice.setTotalAmount(totalAmount);
+        notificationService.createNotification(
+                "New Invoice",
+                "Id : #" + invoice.getId() + " has been created successfully.",
+                NotificationType.INVOICE_CREATED,
+                loggedInUser()
+        );
+
         return invoice;
     }
 
     @Override
     public List<Invoice> getByUser(Long userId) {
         return invoiceRepository.findAllByUser_UserId(userId);
+    }
+
+    public Invoice createInvoiceItems(List<Item> itemList, Invoice invoiceInDb) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        InvoiceItem invoiceItem;
+        for (Item item : itemList) {
+            invoiceItem = invoiceItemService.saveInvoiceItem(item, invoiceInDb);
+            totalAmount = totalAmount.add(invoiceItem.getSubtotal());
+            discountAmount = discountAmount.add(invoiceItem.getDiscountSubTotal());
+            invoiceInDb.getInvoiceItems().add(invoiceItem);
+        }
+        invoiceInDb.setDiscountAmount(discountAmount);
+        invoiceInDb.setTotalAmount(totalAmount);
+        return invoiceInDb;
     }
 
     @Override
@@ -110,6 +126,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Invoice updateInvoice(InvoiceDTO invoiceDTO, Long id) {
+
         Invoice invoiceInDb = getInvoiceById(id);
 
         InvoiceStatus oldStatus = invoiceInDb.getInvoiceStatus();
@@ -125,19 +142,22 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         invoiceInDb.getInvoiceItems().clear();
 
-        invoiceItemService.deleteInvoiceItemsByInvoiceId(id);
-
         invoiceInDb = invoiceRepository.save(invoiceInDb);
 
         invoiceInDb = invoiceRepository.save(
                 createInvoiceItems(invoiceDTO.getItemList(), invoiceInDb));
 
+        Invoice finalInvoice = invoiceInDb;
+        Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
+                .orElseGet(() -> paymentService.savePayment(finalInvoice));
+
+        paymentService.updatePendingPayment(paymentInDb, finalInvoice);
+
         if (newStatus.equals(InvoiceStatus.PAID)) {
-            Invoice finalInvoice = invoiceInDb;
-            Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
-                    .orElseGet(() -> paymentService.savePayment(finalInvoice));
-            paymentService.updatePayment(paymentInDb, finalInvoice);
+            paymentService.updatePaidPayment(paymentInDb, finalInvoice);
         }
+
+        invoiceValidator.validate(invoiceInDb);
         return invoiceInDb;
     }
 
@@ -147,18 +167,32 @@ public class InvoiceServiceImpl implements InvoiceService {
         if (invoice.isPresent()) {
             return invoice.get();
         } else {
-            throw new RuntimeException("Invoice not found");
+            throw new PrimeBuildException(
+                    "Invoice not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
     public void deleteInvoice(Long id) {
+        if (paymentService.getAllPaymentsByInvoice(id)) {
+            throw new PrimeBuildException(
+                    "Invoice cannot be deleted while found in Payments",
+                    HttpStatus.CONFLICT);
+        }
         invoiceRepository.deleteById(id);
     }
 
     @Override
     public List<Invoice> getByUserLoggedIn() {
         return invoiceRepository.findAllByUser(loggedInUser());
+    }
+
+    @Override
+    public void updateNotPaidInvoice(Invoice invoice) {
+        invoice.setInvoiceStatus(InvoiceStatus.NOT_PAID);
+        invoiceItemService.resetItemQuantity(invoice.getInvoiceItems());
+        invoiceRepository.save(invoice);
     }
 
 }

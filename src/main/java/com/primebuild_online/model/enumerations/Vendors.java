@@ -6,5 +6,6 @@ public enum Vendors {
     CHAMA_COMPUTERS,
     GAME_STREET,
     WINSOFT,
-    BARCLAYS
+    BARCLAYS,
+    PRIME_BUILD
 }

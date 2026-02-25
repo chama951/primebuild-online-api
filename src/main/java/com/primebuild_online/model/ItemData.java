@@ -6,30 +6,32 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
 @Data
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "scraped_product_data")
+@Table(name = "item_data")
 public class ItemData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemDataHistoryList"})
+    private Item item;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "vendor")
     private Vendors vendor;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
-//    @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemFeatureList", "manufacturer", "component"})
-    private Item item;
 
     @Column(name = "vendor_price")
     private BigDecimal vendorPrice;
@@ -40,6 +42,6 @@ public class ItemData {
     @Column(name = "discount_percentage")
     private BigDecimal discountPercentage;
 
-    @Column(name = "scraped_at", nullable = false)
-    private LocalDateTime scrapedAt;
+    @Column(name = "recorded_at", nullable = false)
+    private LocalDateTime recordedAt;
 }

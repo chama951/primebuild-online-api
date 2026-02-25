@@ -1,15 +1,21 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.Build;
-import com.primebuild_online.model.BuildItem;
+import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.BuildReqDTO;
-import com.primebuild_online.model.Item;
 import com.primebuild_online.model.enumerations.BuildStatus;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.BuildItemRepository;
 import com.primebuild_online.repository.BuildRepository;
+import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.BuildItemService;
 import com.primebuild_online.service.BuildService;
 import com.primebuild_online.service.ItemService;
+import com.primebuild_online.service.UserService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.BuildValidator;
+import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,95 +26,93 @@ import java.util.Optional;
 
 @Service
 public class BuildServiceImpl implements BuildService {
-    private final ItemService itemService;
     private final BuildItemService buildItemService;
     private final BuildRepository buildRepository;
+    private final BuildValidator buildValidator;
+    private final UserService userService;
+    private final ItemService itemService;
 
-    public BuildServiceImpl(ItemService itemService, BuildItemService buildItemService, BuildRepository buildRepository, BuildItemRepository buildItemRepository) {
+    public BuildServiceImpl(BuildItemService buildItemService,
+                            BuildRepository buildRepository,
+                            BuildItemRepository buildItemRepository,
+                            BuildValidator buildValidator,
+                            UserService userService,
+                            @Lazy ItemService itemService) {
         this.buildRepository = buildRepository;
-        this.itemService = itemService;
         this.buildItemService = buildItemService;
+        this.buildValidator = buildValidator;
+        this.userService = userService;
+        this.itemService = itemService;
+    }
+
+    private User loggedInUser() {
+        return userService.getUserById(
+                Objects.requireNonNull(SecurityUtils.getCurrentUser()).getId()
+        );
     }
 
     @Override
+    @Transactional
     public Build saveBuildReq(BuildReqDTO buildReqDTO) {
+
         Build newBuild = new Build();
 
+        newBuild.setCreatedAt(LocalDateTime.now());
+        newBuild.setUser(loggedInUser());
+        newBuild.setBuildName(buildReqDTO.getBuildName());
         newBuild.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         newBuild.setCreatedDate(LocalDateTime.now());
 
         Build savedBuild = buildRepository.save(newBuild);
-
-        // Adding New Items
         if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
-            newBuild = addNewBuildItems(buildReqDTO.getItemList(), savedBuild);
+            newBuild = createBuildItems(buildReqDTO.getItemList(), savedBuild);
         }
 
+        buildValidator.validate(newBuild);
         return buildRepository.save(newBuild);
     }
 
-    //    SRP Violated by  itemService.saveItem(...)
+    //   FIXED SRP Violated by  itemService.saveItem(...)
     @Override
     public Build updateBuildReq(BuildReqDTO buildReqDTO, Long buildId) {
-        Build buildInDb = buildRepository.findById(buildId).orElseThrow(RuntimeException::new);
 
+        Build buildInDb = buildRepository.findById(buildId)
+                .orElseThrow(() -> new PrimeBuildException(
+                        "Build not found",
+                        HttpStatus.NOT_FOUND));
+//        buildInDb.setPublished(buildInDb.isPublished());
+        buildInDb.setUpdatedAt(LocalDateTime.now());
+        buildInDb.setUser(loggedInUser());
+        buildInDb.setBuildName(buildReqDTO.getBuildName());
         buildInDb.setBuildStatus(BuildStatus.valueOf(buildReqDTO.getBuildStatus()));
         buildInDb.setLastModified(LocalDateTime.now());
 
-        List<BuildItem> buildItemListByBuild = buildItemService.findAllByBuildId(buildId);
-//                updating Item quantity by adding into the stock
-        for (BuildItem buildItem1 : buildItemListByBuild) {
-            Item itemByBuildItem = itemService.getItemById(buildItem1.getItem().getId());
-            Integer buildItemQuantity = buildItem1.getBuildQuantity();
-            Integer itemExistingQuantity = itemByBuildItem.getQuantity();
-            itemByBuildItem.setQuantity(buildItemQuantity + itemExistingQuantity);
-            itemService.saveItem(itemByBuildItem);
-//                    updating totalPrice after removing item by item
-//            totalPrice -= itemByBuildItem.getPrice() * buildItemQuantity;
-        }
+//        if (buildReqDTO.getBuildStatus().equals(BuildStatus.COMPLETED.toString())) {
+//            buildItemService.resetItemQuantity(buildInDb.getBuildItemList());
+//        }
 
-        buildItemService.deleteAllByBuildId(buildId);
+        buildInDb.getBuildItemList().clear();
 
         if (buildReqDTO.getItemList() != null && !buildReqDTO.getItemList().isEmpty()) {
-            addNewBuildItems(buildReqDTO.getItemList(), buildInDb);
+            buildInDb = createBuildItems(buildReqDTO.getItemList(), buildInDb);
         }
+        buildValidator.validate(buildInDb);
         return buildRepository.save(buildInDb);
     }
 
-//    SRP Violated by buildItemService.saveBuildItem(..)
-    private Build addNewBuildItems(List<Item> itemList, Build build) {
+    @Override
+    public Build createBuildItems(List<Item> itemList, Build build) {
         BigDecimal totalPrice = BigDecimal.valueOf(0);
 
         for (Item itemRequest : itemList) {
             Item item = itemService.getItemById(itemRequest.getId());
-
-
-
-            Integer itemStockQuantity = item.getQuantity();
-            Integer itemQuantityToAdd = itemRequest.getQuantity();
-
-            int itemNewQuantity = itemStockQuantity - itemQuantityToAdd;
-
             BigDecimal itemPrice = item.getPrice();
-
             BigDecimal subtotal = itemPrice
-                    .multiply(BigDecimal.valueOf(itemQuantityToAdd));
-
+                    .multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
             totalPrice = totalPrice.add(subtotal);
-
-            if (Objects.equals(build.getBuildStatus(), String.valueOf(BuildStatus.COMPLETED))) {
-                item.setQuantity(itemNewQuantity);
-            }
-
-            itemService.saveItem(item);
-
-            BuildItem buildItem = new BuildItem();
-            buildItem.setBuildQuantity(itemQuantityToAdd);
-            buildItem.setItem(item);
-            buildItem.setBuild(build);
-            buildItemService.saveBuildItem(buildItem);
+            BuildItem buildItem = buildItemService.saveBuildItem(itemRequest, build);
+            build.getBuildItemList().add(buildItem);
         }
-
 
         build.setTotalPrice(totalPrice);
         return build;
@@ -121,7 +125,6 @@ public class BuildServiceImpl implements BuildService {
 
     @Override
     public void deleteBuild(Long id) {
-        buildRepository.findById(id).orElseThrow(RuntimeException::new);
         buildRepository.deleteById(id);
     }
 
@@ -131,7 +134,35 @@ public class BuildServiceImpl implements BuildService {
         if (build.isPresent()) {
             return build.get();
         } else {
-            throw new RuntimeException();
+            throw new PrimeBuildException(
+                    "Build not found",
+                    HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Override
+    public List<Build> getAllBuildsByCurrentUser() {
+        return buildRepository.findAllByUser(loggedInUser());
+    }
+
+    @Override
+    public List<Build> getStaffMadeBuilds() {
+        return buildRepository.findAllByUser_Role_RoleNameNot(Privileges.CUSTOMER.toString());
+    }
+
+    @Override
+    public List<Build> getUserDraftBuild() {
+        return buildRepository.findAllByUserAndBuildStatus(loggedInUser(), BuildStatus.DRAFT);
+    }
+
+    @Override
+    public void updateBuildAtItemPriceChange(Item itemInDb) {
+        List<Build> buildList = buildRepository.findDistinctByBuildItemList_Item(itemInDb);
+        for (Build buildInDb : buildList) {
+            buildItemService.updateBuildItemAtPriceChange(itemInDb.getBuildItems());
+            buildInDb.setDiscountAmount(buildItemService.calculateDiscountAmount(buildInDb.getBuildItemList()));
+            buildInDb.setTotalPrice(buildItemService.calculateTotalAmount(buildInDb.getBuildItemList()));
+            buildRepository.save(buildInDb);
         }
     }
 

@@ -14,4 +14,6 @@ public interface ComponentRepository extends JpaRepository<Component, Long> {
             "ORDER BY CASE WHEN c.buildPriority IS NULL " +
             "THEN 1 ELSE 0 END, c.buildPriority ASC")
     List<Component> findBuildComponentsOrderedByPriority();
+
+    boolean existsByComponentNameIgnoreCase(String componentName);
 }

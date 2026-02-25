@@ -12,7 +12,7 @@ public interface PaymentService {
 
     Optional<Payment> getPaymentByInvoiceId(Long id);
 
-    void updatePayment(Payment paymentInDb, Invoice finalInvoice);
+    void updatePaidPayment(Payment paymentInDb, Invoice finalInvoice);
 
     Payment updatePaymentReq(PaymentDTO paymentDTO, Long id);
 
@@ -25,4 +25,10 @@ public interface PaymentService {
     List<Payment> getByPaymentStatus(String paymentStatus);
 
     List<Payment> getAllPayments();
+
+    List<Payment> getByUsername(String username);
+
+    void updatePendingPayment(Payment payment, Invoice invoiceInDb);
+
+    boolean getAllPaymentsByInvoice(Long id);
 }

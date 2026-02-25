@@ -22,6 +22,7 @@ public class CompatibilityServiceImpl implements CompatibilityService {
         this.componentService = componentService;
     }
 
+    @Override
     public List<Item> getCompatibleItemsByComponent(BuildReqDTO buildReqDTO, Long componentId) {
 
         System.out.println("\n================ START COMPATIBILITY CHECK ================\n");
@@ -40,6 +41,9 @@ public class CompatibilityServiceImpl implements CompatibilityService {
 //        prepare feature maps
         Map<Long, Set<Long>> requiredByType = new HashMap<>();
         Map<Long, Long> lockedByType = new HashMap<>();
+
+//        slotCounts per (FeatureType + Feature)
+        Map<Long, List<Integer>> slotCountsByTypeAndFeature = new HashMap<>();
 
 //        analyze build items
         for (Item item : buildItems) {
@@ -64,9 +68,16 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                         .computeIfAbsent(typeId, k -> new HashSet<>())
                         .add(featureId);
 
+//               composite key
+                Long key = typeId * 1000000 + featureId;
+
+                slotCountsByTypeAndFeature
+                        .computeIfAbsent(key, k -> new ArrayList<>())
+                        .add(f.getSlotCount());
+
                 System.out.println("FeatureType " + typeId +
                         " Feature " + featureId +
-                        " (" + f.getFeature().getFeatureName() + ")");
+                        " (" + f.getFeature().getFeatureName() + "), SlotCount=" + f.getSlotCount());
             }
 
 //            lock single-feature components
@@ -84,12 +95,12 @@ public class CompatibilityServiceImpl implements CompatibilityService {
 
         System.out.println("\nRequired Features By Type:");
         requiredByType.forEach((k, v) ->
-                System.out.println("FeatureType " + k + v)
+                System.out.println("FeatureType " + k + " -> " + v)
         );
 
         System.out.println("\nLocked Features:");
         lockedByType.forEach((k, v) ->
-                System.out.println("FeatureType " + k + v)
+                System.out.println("FeatureType " + k + " -> " + v)
         );
 
 //        load candidate items
@@ -108,7 +119,7 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                     candidate.getItemName());
 
             boolean compatible = true;
-
+            int candidateMinQuantity = Integer.MAX_VALUE;
 //             group candidate features by FeatureType
             Map<Long, Set<Long>> candidateByType = new HashMap<>();
 
@@ -134,6 +145,8 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                 System.out.println("FeatureType " + typeId +
                         " Candidate Features: " + candidateFeatures);
 
+                Long matchedFeatureId = null;
+
 //                locked rule
                 if (lockedByType.containsKey(typeId)) {
 
@@ -146,6 +159,7 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                         break;
                     } else {
                         System.out.println("Matches LOCKED feature");
+                        matchedFeatureId = lockedFeature;
                     }
                 }
 
@@ -155,23 +169,49 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                     Set<Long> allowed = requiredByType.get(typeId);
                     System.out.println("Allowed Features: " + allowed);
 
-                    boolean anyMatch = candidateFeatures.stream()
-                            .anyMatch(allowed::contains);
+                    Optional<Long> match = candidateFeatures.stream()
+                            .filter(allowed::contains)
+                            .findFirst();
 
-                    if (!anyMatch) {
+                    if (match.isEmpty()) {
                         System.out.println("No shared feature → NOT COMPATIBLE");
                         compatible = false;
                         break;
                     } else {
-                        System.out.println("At least one feature matches");
+                        matchedFeatureId = match.get();
+                        System.out.println("Matched Feature: " + matchedFeatureId);
                     }
                 }
-//                if build does not care about this FeatureType then SKIP
+
+//              Slot Count logic
+                if (matchedFeatureId != null) {
+
+                    Long key = typeId * 1000000 + matchedFeatureId;
+
+                    List<Integer> slotCounts = slotCountsByTypeAndFeature.get(key);
+
+                    if (slotCounts != null && !slotCounts.isEmpty()) {
+
+                        int minSlots = slotCounts.stream()
+                                .min(Integer::compareTo)
+                                .orElse(1);
+
+                        System.out.println("SlotCounts for matched feature: " + slotCounts);
+                        System.out.println("MIN SlotCount used: " + minSlots);
+
+                        candidateMinQuantity = Math.min(candidateMinQuantity, minSlots);
+                    }
+                }
             }
 
-            if (compatible) {
+            if (compatible && candidateMinQuantity != Integer.MAX_VALUE) {
+
                 System.out.println("FINAL RESULT: COMPATIBLE");
+                System.out.println("Final Quantity Set: " + candidateMinQuantity);
+
+                candidate.setQuantity(candidateMinQuantity);
                 compatibleItemList.add(candidate);
+
             } else {
                 System.out.println("FINAL RESULT: NOT COMPATIBLE");
             }
@@ -182,6 +222,7 @@ public class CompatibilityServiceImpl implements CompatibilityService {
 
         return compatibleItemList;
     }
+
 
     @Override
     public List<Item> getCompatiblePowerSources(BuildReqDTO buildReqDTO, Long componentId, Boolean powerSource) {
@@ -235,7 +276,7 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                 if (powerSourceOutput >= totalPower) {
 
                     System.out.println("FINAL RESULT: COMPATIBLE");
-
+                    cadidate.setQuantity(1);
                     compatiblePowerSources.add(cadidate);
 
                 } else {

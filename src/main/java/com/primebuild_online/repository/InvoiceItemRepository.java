@@ -9,4 +9,6 @@ public interface InvoiceItemRepository extends JpaRepository<InvoiceItem, Long> 
     @Transactional
     @Modifying
     void deleteAllByInvoice_Id(Long id);
+
+    boolean existsByItem_Id(Long itemId);
 }

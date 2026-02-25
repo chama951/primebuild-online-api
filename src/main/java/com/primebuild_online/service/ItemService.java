@@ -3,6 +3,7 @@ package com.primebuild_online.service;
 import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.model.Item;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ItemService {
@@ -10,14 +11,11 @@ public interface ItemService {
 
     List<Item> getAllItem();
 
-
     Item updateItemReq(ItemReqDTO itemReqDTO, Long id);
 
     Item getItemById(Long id);
 
     void deleteItem(Long id);
-
-    void saveItem(Item itemByBuildItem);
 
     List<Item> getInStockItemListByComponent(Long componentId);
 
@@ -25,5 +23,19 @@ public interface ItemService {
 
     void reduceItemQuantity(Item item, Integer itemQuantity);
 
-    void resetStock(Item item, Integer quantityToAdd);
+    void resetItemStockQuantity(Item item, Integer quantityToAdd);
+
+    void checkItemsListStockQuantity(List<Item> itemList);
+
+    void checkItemsStockQuantity(Item itemInDb, Item itemToAdd);
+
+    BigDecimal calculateDiscountSubTotal(Item itemInDb, int quantity);
+
+    BigDecimal calculateSubTotal(Item itemInDb, int quantity);
+
+    BigDecimal calculateDiscountPerUnite(Item itemInDb);
+
+    boolean existsItemByManufacturer(Long id);
+
+    boolean existsItemByComponent(Long id);
 }

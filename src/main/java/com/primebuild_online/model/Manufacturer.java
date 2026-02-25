@@ -24,7 +24,4 @@ public class Manufacturer {
     @Column(name = "manufacturer_name")
     private String manufacturerName;
 
-    @OneToMany(mappedBy = "manufacturer",  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private List<ManufacturerItem> manufacturerItemList = new ArrayList<>();
 }

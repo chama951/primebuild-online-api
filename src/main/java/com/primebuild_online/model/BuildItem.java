@@ -7,6 +7,8 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,5 +33,17 @@ public class BuildItem {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Item item;
+
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
+
+    @Column(name = "discount_per_unit")
+    private BigDecimal discountPerUnite;
+
+    @Column(name = "discount_sub_total")
+    private BigDecimal discountSubTotal;
+
+    @Column(name = "subtotal")
+    private BigDecimal subtotal;
 
 }

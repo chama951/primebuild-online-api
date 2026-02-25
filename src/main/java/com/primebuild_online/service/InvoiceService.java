@@ -23,4 +23,6 @@ public interface InvoiceService {
     void deleteInvoice(Long id);
 
     List<Invoice> getByUserLoggedIn();
+
+    void updateNotPaidInvoice(Invoice invoice);
 }

@@ -27,4 +27,6 @@ public interface UserService {
     User signupCustomer(UserDTO userDTO);
 
     User createOAuth2User(String email, String name);
+
+    boolean checkLoggedInIsStaff(User user);
 }

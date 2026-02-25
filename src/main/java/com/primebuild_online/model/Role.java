@@ -27,6 +27,7 @@ public class Role {
 
     @OneToMany(
             mappedBy = "role",
+            fetch = FetchType.EAGER,
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "role"})

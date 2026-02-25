@@ -1,6 +1,6 @@
 package com.primebuild_online.model.enumerations;
 
-public enum LogStatus {
-    SUCCESS,
-    FAILED
+public enum Currency {
+    USD,
+    LKR
 }

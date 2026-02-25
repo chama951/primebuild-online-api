@@ -11,6 +11,9 @@ import com.primebuild_online.service.InvoiceService;
 import com.primebuild_online.service.ItemService;
 import com.primebuild_online.service.PaymentService;
 import com.primebuild_online.service.UserService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.PaymentValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -26,11 +29,15 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final UserService userService;
     private final PaymentRepository paymentRepository;
+    private final PaymentValidator paymentValidator;
     private final InvoiceService invoiceService;
 
-    public PaymentServiceImpl(UserService userService, PaymentRepository paymentRepository, ItemService itemService, InvoiceService invoiceService) {
+    public PaymentServiceImpl(UserService userService,
+                              PaymentRepository paymentRepository,
+                              PaymentValidator paymentValidator, InvoiceService invoiceService) {
         this.userService = userService;
         this.paymentRepository = paymentRepository;
+        this.paymentValidator = paymentValidator;
         this.invoiceService = invoiceService;
     }
 
@@ -42,6 +49,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment savePayment(Invoice invoice) {
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Colombo"));
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -56,6 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setPaymentStatus(PaymentStatus.PAID);
         payment.setPaidAt(LocalDateTime.now());
 
+        paymentValidator.validate(payment);
         return paymentRepository.save(payment);
     }
 
@@ -66,12 +75,13 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void updatePayment(Payment paymentInDb, Invoice invoice) {
+    public void updatePaidPayment(Payment paymentInDb, Invoice invoice) {
         paymentInDb.setInvoice(invoice);
         paymentInDb.setUser(loggedInUser());
         paymentInDb.setAmount(invoice.getTotalAmount());
         paymentInDb.setPaymentStatus(PaymentStatus.PAID);
         paymentInDb.setPaidAt(LocalDateTime.now());
+        paymentValidator.validate(paymentInDb);
         paymentRepository.save(paymentInDb);
     }
 
@@ -79,6 +89,10 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment updatePaymentReq(PaymentDTO paymentDTO, Long id) {
         Payment paymentInDb = getPaymentById(id);
         paymentInDb.setPaymentStatus(paymentDTO.getPaymentStatus());
+        if (paymentDTO.getPaymentStatus().equals(PaymentStatus.REFUNDED) ||
+                paymentDTO.getPaymentStatus().equals(PaymentStatus.CANCELLED)) {
+            invoiceService.updateNotPaidInvoice(paymentInDb.getInvoice());
+        }
         return paymentRepository.save(paymentInDb);
     }
 
@@ -88,7 +102,9 @@ public class PaymentServiceImpl implements PaymentService {
         if (payment.isPresent()) {
             return payment.get();
         } else {
-            throw new RuntimeException("Payment not found");
+            throw new PrimeBuildException(
+                    "Payment not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 
@@ -99,10 +115,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<Payment> getByDate(String date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         LocalDate dateFormated = LocalDate.parse(date);
 
-        return paymentRepository.findAllByCreatedAt(dateFormated);
+        return paymentRepository.findAllByPaymentDate(dateFormated);
     }
 
     @Override
@@ -114,4 +129,27 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
+
+    @Override
+    public List<Payment> getByUsername(String username) {
+        return paymentRepository.findAllByUser_Username(username);
+    }
+
+    @Override
+    public void updatePendingPayment(Payment paymentInDb, Invoice invoiceInDb) {
+        paymentInDb.setInvoice(invoiceInDb);
+        paymentInDb.setUser(loggedInUser());
+        paymentInDb.setAmount(invoiceInDb.getTotalAmount());
+        paymentInDb.setPaymentStatus(PaymentStatus.PENDING);
+        paymentInDb.setPaidAt(LocalDateTime.now());
+
+        paymentValidator.validate(paymentInDb);
+        paymentRepository.save(paymentInDb);
+    }
+
+    @Override
+    public boolean getAllPaymentsByInvoice(Long id) {
+        return paymentRepository.existsByInvoice_IdAndPaymentStatus(id, PaymentStatus.PAID);
+    }
+
 }

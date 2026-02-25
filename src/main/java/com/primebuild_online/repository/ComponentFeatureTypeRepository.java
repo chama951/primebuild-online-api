@@ -14,4 +14,6 @@ public interface ComponentFeatureTypeRepository extends JpaRepository<ComponentF
     void deleteAllComponentFeatureTypeByComponentId(Long id);
 
     List<ComponentFeatureType> getComponentFeatureTypesByComponentId(Long componentId);
+
+    boolean existsByComponentIdAndFeatureTypeId(Long id, Long id1);
 }

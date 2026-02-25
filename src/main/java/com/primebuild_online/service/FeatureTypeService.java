@@ -17,7 +17,7 @@ public interface FeatureTypeService {
 
     void deleteFeatureType(Long id);
 
-    FeatureType saveFeatureTypeByComponent(FeatureTypeReqDTO featureTypeReqDTO);
+//    FeatureType saveFeatureTypeByComponent(FeatureTypeReqDTO featureTypeReqDTO);
 
     List<FeatureType> getFeatureTypesByComponent(Long componentId);
 }

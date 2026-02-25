@@ -22,7 +22,9 @@ public class FeatureType {
     @Column(name = "feature_type_name")
     private String featureTypeName;
 
-    @OneToMany(mappedBy = "featureType", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "featureType",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<Feature> featureList = new ArrayList<>();
 

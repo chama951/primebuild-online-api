@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/build")
@@ -20,27 +21,37 @@ public class BuildController {
     private BuildService buildService;
 
     @PostMapping
-    public ResponseEntity<Build> saveBuildReq(@RequestBody BuildReqDTO buildReqDTO){
+    public ResponseEntity<Build> saveBuildReq(@RequestBody BuildReqDTO buildReqDTO) {
         return new ResponseEntity<>(buildService.saveBuildReq(buildReqDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<Build> getAllBuild(){
+    public List<Build> getAllBuild(@RequestParam(value = "user", required = false) String user,
+                                   @RequestParam(value = "status", required = false) String status) {
+        if(Objects.equals(status, "DRAFT")){
+            return buildService.getUserDraftBuild();
+        }
+        if (Objects.equals(user, "current")) {
+            return buildService.getAllBuildsByCurrentUser();
+        }
+        if (Objects.equals(user, "staff")) {
+            return buildService.getStaffMadeBuilds();
+        }
         return buildService.getAllBuild();
     }
 
     @PutMapping("{id}")
     public ResponseEntity<Build> updateBuildReq(@PathVariable("id") Long id, @RequestBody BuildReqDTO buildReqDTO) {
-        return new ResponseEntity<>(buildService.updateBuildReq(buildReqDTO,id),HttpStatus.OK);
+        return new ResponseEntity<>(buildService.updateBuildReq(buildReqDTO, id), HttpStatus.OK);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Build> getBuildById(@PathVariable("id") Long id){
-        return new ResponseEntity<Build>(buildService.getBuildById(id),HttpStatus.OK);
+    public ResponseEntity<Build> getBuildById(@PathVariable("id") Long id) {
+        return new ResponseEntity<Build>(buildService.getBuildById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-        public ResponseEntity<Map<String, String>> deleteBuild(@PathVariable("id")Long id){
+    public ResponseEntity<Map<String, String>> deleteBuild(@PathVariable("id") Long id) {
         buildService.deleteBuild(id);
 
         Map<String, String> response = new HashMap<>();

@@ -3,6 +3,8 @@ package com.primebuild_online.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class Component {
     private boolean powerSource;
 
     @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component"})
     private List<Item> itemList = new ArrayList<>();
 

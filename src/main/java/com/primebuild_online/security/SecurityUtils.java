@@ -1,6 +1,8 @@
 package com.primebuild_online.security;
 
 import com.primebuild_online.security.services.UserDetailsImpl;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -12,7 +14,10 @@ public class SecurityUtils {
                 SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            return null;
+            throw new PrimeBuildException(
+                    "No authenticated user found",
+                    HttpStatus.CONFLICT
+            );
         }
 
 

@@ -8,7 +8,10 @@ import com.primebuild_online.repository.FeatureTypeRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.FeatureTypeService;
+import com.primebuild_online.utils.exception.PrimeBuildException;
+import com.primebuild_online.utils.validator.FeatureTypeValidator;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,20 +22,30 @@ import java.util.Optional;
 public class FeatureTypeServiceImpl implements FeatureTypeService {
     private final FeatureTypeRepository featureTypeRepository;
     private final ComponentFeatureTypeService componentFeatureTypeService;
-    private final ComponentService componentService;
+    private final FeatureTypeValidator featureTypeValidator;
 
     public FeatureTypeServiceImpl(@Lazy ComponentFeatureTypeService componentFeatureTypeService,
-                                  FeatureTypeRepository featureTypeRepository,
-                                  ComponentService componentService) {
+                                  FeatureTypeRepository featureTypeRepository, FeatureTypeValidator featureTypeValidator) {
         this.componentFeatureTypeService = componentFeatureTypeService;
         this.featureTypeRepository = featureTypeRepository;
-        this.componentService = componentService;
+        this.featureTypeValidator = featureTypeValidator;
     }
 
     @Override
     public FeatureType saveFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO) {
         FeatureType featureType = new FeatureType();
+
         featureType.setFeatureTypeName(featureTypeReqDTO.getFeatureTypeName());
+
+        if (featureTypeRepository.existsByFeatureTypeNameIgnoreCase(
+                featureType.getFeatureTypeName())) {
+
+            throw new PrimeBuildException(
+                    "Feature type already exists",
+                    HttpStatus.CONFLICT
+            );
+        }
+        featureTypeValidator.validate(featureType);
         return featureTypeRepository.save(featureType);
     }
 
@@ -47,39 +60,40 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
         if (featureType.isPresent()) {
             return featureType.get();
         } else {
-            throw new RuntimeException();
+            throw new PrimeBuildException(
+                    "Feature Type not found",
+                    HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
     public FeatureType updateFeatureTypeReq(FeatureTypeReqDTO featureTypeReqDTO, Long id) {
 
-        FeatureType featureTypeInDb = featureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
+        FeatureType featureTypeInDb = featureTypeRepository.findById(id).orElseThrow(
+                () -> new PrimeBuildException(
+                        "Feature Type not found",
+                        HttpStatus.NOT_FOUND));
+
         featureTypeInDb.setFeatureTypeName(featureTypeReqDTO.getFeatureTypeName());
 
+        if (featureTypeInDb.getId() != null &&
+                featureTypeRepository.existsByFeatureTypeNameIgnoreCaseAndIdNot(
+                        featureTypeInDb.getFeatureTypeName(),
+                        featureTypeInDb.getId())) {
+            throw new PrimeBuildException(
+                    "Feature type already exists",
+                    HttpStatus.CONFLICT
+            );
+        }
+
+        featureTypeValidator.validate(featureTypeInDb);
         featureTypeRepository.save(featureTypeInDb);
         return featureTypeInDb;
     }
 
     @Override
     public void deleteFeatureType(Long id) {
-        featureTypeRepository.findById(id).orElseThrow(RuntimeException::new);
         featureTypeRepository.deleteById(id);
-    }
-
-    @Override
-    public FeatureType saveFeatureTypeByComponent(FeatureTypeReqDTO featureTypeReqDTO) {
-        FeatureType featureType = new FeatureType();
-        featureType.setFeatureTypeName(featureTypeReqDTO.getFeatureTypeName());
-        FeatureType savedFeatureType = featureTypeRepository.save(featureType);
-
-        Component componentInDb = componentService.getComponentById(featureTypeReqDTO.getComponentId());
-        ComponentFeatureType newComponentFeatureType = new ComponentFeatureType();
-        newComponentFeatureType.setComponent(componentInDb);
-        newComponentFeatureType.setFeatureType(savedFeatureType);
-        componentFeatureTypeService.saveComponentFeatureType(newComponentFeatureType);
-
-        return savedFeatureType;
     }
 
     @Override
