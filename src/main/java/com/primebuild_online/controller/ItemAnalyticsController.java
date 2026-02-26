@@ -2,12 +2,11 @@ package com.primebuild_online.controller;
 
 import com.primebuild_online.model.ItemAnalytics;
 import com.primebuild_online.service.ItemAnalyticsService;
-import com.primebuild_online.utils.exception.PrimeBuildException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/analytics")
@@ -23,15 +22,14 @@ public class ItemAnalyticsController {
 
     @GetMapping
     public List<ItemAnalytics> getAllItemAnalytics(@RequestParam(value = "attribute", required = false) String attribute) {
-        if (attribute != null) {
-            return switch (attribute.toLowerCase()) {
-                case "carts" -> itemAnalyticsService.getAllCartCounts();
-                case "sales" -> itemAnalyticsService.getAllSalesCounts();
-                case "views" -> itemAnalyticsService.getAllViewCounts();
-                default -> throw new PrimeBuildException(
-                        "Unexpected value: " + attribute.toLowerCase(),
-                        HttpStatus.BAD_REQUEST);
-            };
+        if (Objects.equals(attribute, "carts")) {
+            return itemAnalyticsService.getAllCartCounts();
+        }
+        if (Objects.equals(attribute, "sales")) {
+            return itemAnalyticsService.getAllSalesCounts();
+        }
+        if (Objects.equals(attribute, "views")) {
+            return itemAnalyticsService.getAllViewCounts();
         }
         return itemAnalyticsService.getAllItemAnalyticsByTrendScore();
 

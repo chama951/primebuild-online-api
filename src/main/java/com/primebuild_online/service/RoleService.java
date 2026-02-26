@@ -22,4 +22,6 @@ public interface RoleService {
     Role createFirstStaffAdmin();
 
     Role createCustomerRole();
+
+    boolean checkRoleAdmin(Long roleId);
 }

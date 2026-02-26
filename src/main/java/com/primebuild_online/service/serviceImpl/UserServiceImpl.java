@@ -80,7 +80,9 @@ public class UserServiceImpl implements UserService {
         if (adminCount == 0) {
             Role firstStaffAdmin = roleService.createFirstStaffAdmin();
             userDTO.setRoleId(firstStaffAdmin.getId());
-        } else {
+        }
+
+        if (roleService.checkRoleAdmin(userDTO.getRoleId())) {
             throw new PrimeBuildException(
                     "Admin already exists",
                     HttpStatus.CONFLICT
@@ -165,11 +167,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         User user = getUserById(id);
-        if (!cartService.checkUserCartIsEmpty(user)) {
-            throw new PrimeBuildException(
-                    "User cannot be remove while found in Carts",
-                    HttpStatus.CONFLICT);
-        }
+//        if (!cartService.checkUserCartIsEmpty(user)) {
+//            throw new PrimeBuildException(
+//                    "User cannot be remove while found in Carts",
+//                    HttpStatus.CONFLICT);
+//        }
         if (buildService.userBuildsIsExists(user)) {
             throw new PrimeBuildException(
                     "User cannot be remove while found in Builds",

@@ -128,6 +128,17 @@ public class RoleServiceImpl implements RoleService {
                         privileges)));
     }
 
+    @Override
+    public boolean checkRoleAdmin(Long roleId) {
+        boolean isAdmin = false;
+        Role role = getRoleById(roleId);
+        for (RolePrivilege rolePrivilege : role.getRolePrivilegeList()) {
+            isAdmin = (rolePrivilege.getPrivilege() == Privileges.ADMIN);
+            break;
+        }
+        return isAdmin;
+    }
+
     private RoleDTO prepareRole(String roleName, List<Privileges> privileges) {
         RoleDTO roleDTO = new RoleDTO();
         roleDTO.setRoleName(roleName);

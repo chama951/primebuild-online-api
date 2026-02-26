@@ -103,8 +103,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/component/**")
                         .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
 
-                        .requestMatchers(HttpMethod.POST, "/api/invoice/**")
-                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
+                        .requestMatchers(HttpMethod.POST, "/api/invoice/**").permitAll()
+//                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
                         .requestMatchers(HttpMethod.PUT, "/api/invoice/**")
                         .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
                         .requestMatchers(HttpMethod.DELETE, "/api/invoice/**")
