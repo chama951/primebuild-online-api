@@ -3,6 +3,7 @@ package com.primebuild_online.service;
 import com.primebuild_online.model.Build;
 import com.primebuild_online.model.DTO.BuildReqDTO;
 import com.primebuild_online.model.Item;
+import com.primebuild_online.model.User;
 
 import java.util.List;
 
@@ -27,4 +28,6 @@ public interface BuildService {
     List<Build> getUserDraftBuild();
 
     void updateBuildAtItemPriceChange(Item itemInDb);
+
+    boolean userBuildsIsExists(User user);
 }

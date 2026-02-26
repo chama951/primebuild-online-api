@@ -2,6 +2,7 @@ package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.DTO.NotificationDTO;
 import com.primebuild_online.model.Notification;
+import com.primebuild_online.model.RolePrivilege;
 import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.NotificationType;
 import com.primebuild_online.model.enumerations.Privileges;
@@ -10,6 +11,7 @@ import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.NotificationService;
 import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +27,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final UserService userService;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserService userService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository,
+                                   @Lazy UserService userService) {
         this.notificationRepository = notificationRepository;
         this.userService = userService;
     }
@@ -53,14 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<Notification> getUserNotifications() {
-        List<Notification> notificationList;
-        if (userService.checkLoggedInIsStaff(loggedInUser())) {
-            notificationList = notificationRepository.findAllByUser_Role_RoleNameNot(
-                    Privileges.CUSTOMER.toString().toLowerCase());
-        } else {
-            notificationList = notificationRepository.findAllByUser(loggedInUser());
-        }
-        return notificationList;
+        return notificationRepository.findAllByUser(loggedInUser());
     }
 
     @Override

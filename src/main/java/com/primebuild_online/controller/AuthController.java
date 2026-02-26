@@ -2,6 +2,7 @@ package com.primebuild_online.controller;
 
 import com.primebuild_online.model.DTO.ResetPasswordDTO;
 import com.primebuild_online.model.User;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.UserRepository;
 import com.primebuild_online.security.jwt.JwtUtils;
 import com.primebuild_online.security.jwt.LoginRequestDTO;
@@ -89,7 +90,9 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        String redirectPath = roles.contains("CUSTOMER") ? "/home" : "/dashboard";
+        boolean hasOnlyOnePrivilege = roles.size() == 1;
+
+        String redirectPath = (hasOnlyOnePrivilege && roles.contains(Privileges.CUSTOMER.toString())) ? "/home" : "/dashboard";
 
         // Construct full frontend URL
         String redirectUrl = "http://localhost:3000" + redirectPath +
@@ -110,11 +113,17 @@ public class AuthController {
     }
 
     @GetMapping("/api/auth/self")
-    public ResponseEntity<?> getSelf(
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        User user = userService.getUserById(userDetails.getId());
+    public ResponseEntity<?> getSelf(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = userService.loggedInUser();
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/api/auth/is_customer_logged_in")
+    public ResponseEntity<?> isCustomerLoggedIn() {
+        boolean isCustomerLoggedIn = userService.isCustomerLoggedIn();
+        return ResponseEntity.ok(isCustomerLoggedIn);
+    }
+
 
     @PostMapping("/api/auth/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {

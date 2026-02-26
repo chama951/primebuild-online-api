@@ -122,11 +122,10 @@ public class RoleServiceImpl implements RoleService {
 
         String customerRoleName = Privileges.CUSTOMER.toString().toLowerCase();
 
-        Role roleInDb = getRoleByName(customerRoleName)
+        return getRoleByName(customerRoleName)
                 .orElseGet(() -> saveRole(prepareRole(
                         customerRoleName,
                         privileges)));
-        return roleInDb;
     }
 
     private RoleDTO prepareRole(String roleName, List<Privileges> privileges) {

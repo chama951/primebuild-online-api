@@ -78,7 +78,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         notificationService.createNotification(
                 "New Invoice",
-                "Id : #" + invoice.getId() + " has been created successfully.",
+                "Invoice #" + invoice.getId() + " has been created successfully.",
                 NotificationType.INVOICE_CREATED,
                 loggedInUser()
         );

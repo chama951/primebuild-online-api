@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/analytics")
-public class AnalyticsController {
+public class ItemAnalyticsController {
 
     @Autowired
     ItemAnalyticsService itemAnalyticsService;

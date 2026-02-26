@@ -16,4 +16,6 @@ public interface BuildRepository extends JpaRepository<Build, Long> {
     List<Build> findAllByUserAndBuildStatus(User user, BuildStatus buildStatus);
 
     List<Build> findDistinctByBuildItemList_Item(Item itemInDb);
+
+    boolean existsByUser(User user);
 }

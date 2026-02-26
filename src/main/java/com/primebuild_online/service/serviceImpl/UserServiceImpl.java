@@ -1,5 +1,8 @@
 package com.primebuild_online.service.serviceImpl;
 
+import com.primebuild_online.model.RolePrivilege;
+import com.primebuild_online.security.SecurityUtils;
+import com.primebuild_online.service.*;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.model.DTO.UserDTO;
 import com.primebuild_online.model.Role;
@@ -7,38 +10,45 @@ import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import com.primebuild_online.repository.UserRepository;
-import com.primebuild_online.service.RoleService;
-import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.validator.UserValidator;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
     private final RoleService roleService;
-
     private final UserValidator userValidator;
-
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;
+    private final CartItemService cartItemService;
+    private final BuildService buildService;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleService roleService,
                            UserValidator userValidator,
-                           @Lazy PasswordEncoder passwordEncoder) {
+                           @Lazy PasswordEncoder passwordEncoder, CartService cartService, CartItemService cartItemService, BuildService buildService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.userValidator = userValidator;
         this.passwordEncoder = passwordEncoder;
+        this.cartService = cartService;
+        this.cartItemService = cartItemService;
+        this.buildService = buildService;
     }
+
+    @Override
+    public User loggedInUser() {
+        return getUserById(
+                Objects.requireNonNull(SecurityUtils.getCurrentUser()).getId()
+        );
+    }
+
 
     @Override
     public User saveUser(UserDTO userDTO) {
@@ -57,19 +67,17 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        int staffCount = userRepository.countUserByRole_RoleName(
-                Privileges.ADMIN.toString().toLowerCase()
-        );
+        long adminCount = 0;
 
         if (userDTO.getRoleId() != null) {
-            staffCount = userRepository.countUserByRole_RoleName(Privileges.ADMIN.toString().toLowerCase());
+            adminCount = getAdminCount();
         }
 
         if (userDTO.getSignUpMethod() == null) {
             userDTO.setSignUpMethod(SignUpMethods.DIRECT);
         }
 
-        if (staffCount == 0) {
+        if (adminCount == 0) {
             Role firstStaffAdmin = roleService.createFirstStaffAdmin();
             userDTO.setRoleId(firstStaffAdmin.getId());
         } else {
@@ -156,6 +164,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
+        User user = getUserById(id);
+        if (!cartService.checkUserCartIsEmpty(user)) {
+            throw new PrimeBuildException(
+                    "User cannot be remove while found in Carts",
+                    HttpStatus.CONFLICT);
+        }
+        if (buildService.userBuildsIsExists(user)) {
+            throw new PrimeBuildException(
+                    "User cannot be remove while found in Builds",
+                    HttpStatus.CONFLICT);
+        }
         userRepository.deleteById(id);
     }
 
@@ -175,12 +194,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllCustomers() {
-        return userRepository.findAllByRole_RoleName(Privileges.CUSTOMER.toString().toLowerCase());
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRole().getRolePrivilegeList()
+                        .stream()
+                        .anyMatch(rp -> rp.getPrivilege() == Privileges.CUSTOMER))
+                .toList();
     }
 
     @Override
     public List<User> getAllStaff() {
-        return userRepository.findAllByRole_RoleNameNot(Privileges.CUSTOMER.toString().toLowerCase());
+        Set<Privileges> staffPrivileges = Set.of(
+                Privileges.ADMIN,
+                Privileges.USER_MANAGEMENT,
+                Privileges.INVENTORY_MANAGEMENT,
+                Privileges.BUILD_MANAGEMENT,
+                Privileges.INVOICE_MANAGEMENT
+        );
+
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRole() != null
+                        && user.getRole().getRolePrivilegeList() != null
+                        && user.getRole().getRolePrivilegeList()
+                        .stream()
+                        .anyMatch(rp -> staffPrivileges.contains(rp.getPrivilege())))
+                .toList();
     }
 
     @Override
@@ -219,12 +258,38 @@ public class UserServiceImpl implements UserService {
         return signupCustomer(userDTO);
     }
 
+
     @Override
-    public boolean checkLoggedInIsStaff(User user) {
-        if (!Objects.equals(user.getRole().getRoleName(), "customer")) {
-            return true;
+    public boolean isCustomerLoggedIn() {
+        boolean isCustomer = false;
+        List<RolePrivilege> privileges = loggedInUser().getRole().getRolePrivilegeList();
+        if (privileges.size() == 1 && privileges.getFirst().getPrivilege() == Privileges.CUSTOMER) {
+            isCustomer = true;
         }
-        return false;
+        return isCustomer;
+    }
+
+    @Override
+    public boolean checkIsACustomer(User user) {
+        boolean isCustomer = false;
+        List<RolePrivilege> privileges = user.getRole().getRolePrivilegeList();
+        if (privileges.size() == 1 && privileges.getFirst().getPrivilege() == Privileges.CUSTOMER) {
+            isCustomer = true;
+        }
+        return isCustomer;
+    }
+
+    private Long getAdminCount() {
+        Set<Privileges> adminPrivilege = Set.of(Privileges.ADMIN);
+
+        return userRepository.findAll()
+                .stream()
+                .filter(u -> u.getRole() != null
+                        && u.getRole().getRolePrivilegeList() != null
+                        && u.getRole().getRolePrivilegeList()
+                        .stream()
+                        .anyMatch(rp -> adminPrivilege.contains(rp.getPrivilege())))
+                .count();
     }
 
 }

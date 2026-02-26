@@ -18,13 +18,13 @@ public class ComponentFeatureType {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "component_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Component component;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feature_type_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "componentFeatureTypes"})
     private FeatureType featureType;
 }

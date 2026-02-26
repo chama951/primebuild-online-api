@@ -6,6 +6,8 @@ import com.primebuild_online.model.User;
 import java.util.List;
 
 public interface UserService {
+    User loggedInUser();
+
     User saveUser(UserDTO userDTO);
 
     List<User> getAllUsers();
@@ -28,5 +30,7 @@ public interface UserService {
 
     User createOAuth2User(String email, String name);
 
-    boolean checkLoggedInIsStaff(User user);
+    boolean isCustomerLoggedIn();
+
+    boolean checkIsACustomer(User user);
 }

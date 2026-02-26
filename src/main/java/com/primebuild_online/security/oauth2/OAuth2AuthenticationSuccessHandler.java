@@ -1,6 +1,5 @@
 package com.primebuild_online.security.oauth2;
 
-import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.security.jwt.JwtUtils;
 import com.primebuild_online.model.User;
 import com.primebuild_online.repository.UserRepository;
@@ -54,11 +53,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                 .map(rp -> rp.getPrivilege().name())
                 .collect(Collectors.joining(","));
 
-        boolean isCustomer = user.getRole().getRolePrivilegeList()
-                .stream()
-                .anyMatch(rp -> rp.getPrivilege() == Privileges.CUSTOMER);
-
-        String redirectPath = isCustomer ? "/home" : "/dashboard";
+        String redirectPath = userService.checkIsACustomer(user) ? "/home" : "/dashboard";
 
         String redirectUrl = String.format(
                 "http://localhost:3000/oauth2-success?token=%s&username=%s&roles=%s&redirectUrl=%s",

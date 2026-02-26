@@ -244,10 +244,8 @@ public class ItemServiceImpl implements ItemService {
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
 
-        BigDecimal discountSubTotal = discountAmount
+        return discountAmount
                 .multiply(BigDecimal.valueOf(quantity));
-
-        return discountSubTotal;
     }
 
     @Override
@@ -259,9 +257,8 @@ public class ItemServiceImpl implements ItemService {
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
 
-        BigDecimal subTotal = itemPrice.subtract(discountAmount)
+        return itemPrice.subtract(discountAmount)
                 .multiply(BigDecimal.valueOf(quantity));
-        return subTotal;
     }
 
     @Override
@@ -269,10 +266,9 @@ public class ItemServiceImpl implements ItemService {
         BigDecimal itemPrice = itemInDb.getPrice();
         BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
 
-        BigDecimal discountAmount = itemPrice
+        return itemPrice
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
-        return discountAmount;
     }
 
     @Override

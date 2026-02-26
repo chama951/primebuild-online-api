@@ -49,8 +49,7 @@ public class RolePrivilegeServiceImpl implements RolePrivilegeService {
 
     @Override
     public List<RolePrivilege> findAllByRoleId(Long roleId) {
-        List<RolePrivilege> rolePrivilegeList = rolePrivilegeRepository.findAllByRoleId(roleId);
-        return rolePrivilegeList;
+        return rolePrivilegeRepository.findAllByRoleId(roleId);
     }
 
     @Override
@@ -61,7 +60,6 @@ public class RolePrivilegeServiceImpl implements RolePrivilegeService {
             rolePrivilege.setRole(role);
             rolePrivilege.setPrivilege(privilege);
             rolePrivilegeList.add(rolePrivilege);
-//            rolePrivilegeRepository.save(rolePrivilege);
         }
         return rolePrivilegeList;
     }
