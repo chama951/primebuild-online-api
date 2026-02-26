@@ -160,11 +160,10 @@ public class ItemDataServiceImpl implements ItemDataService {
         BigDecimal vendorPrice = extractPrice(product.getPrice());
 
         Optional<ItemData> existingOpt =
-                itemDataRepository.findByVendorAndItemAndVendorPriceAndOurPrice(
+                itemDataRepository.findByVendorAndItemAndVendorPrice(
                         vendor,
                         item,
-                        new BigDecimal(product.getPrice().replace(",", "")),
-                        item.getPrice()
+                        new BigDecimal(product.getPrice().replace(",", ""))
                 );
 
         ItemData itemData;
