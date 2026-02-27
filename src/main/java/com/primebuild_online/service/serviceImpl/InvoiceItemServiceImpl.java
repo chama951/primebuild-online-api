@@ -67,4 +67,35 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
         return invoiceItemRepository.existsByItem_Id(id);
     }
 
+    @Override
+    public BigDecimal calculateDiscountAmount(List<InvoiceItem> invoiceItems) {
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        for (InvoiceItem invoiceItem : invoiceItems) {
+            discountAmount = discountAmount.add(invoiceItem.getDiscountSubTotal());
+        }
+        return discountAmount;
+    }
+
+    @Override
+    public BigDecimal calculateTotalAmount(List<InvoiceItem> invoiceItems) {
+        BigDecimal TotalAmount = BigDecimal.ZERO;
+        for (InvoiceItem invoiceItem : invoiceItems) {
+            TotalAmount = TotalAmount.add(invoiceItem.getSubtotal());
+        }
+        return TotalAmount;
+    }
+
+    @Override
+    public void updateInvoiceItemAtPriceChange(List<InvoiceItem> invoiceItems) {
+        for (InvoiceItem invoiceItem : invoiceItems) {
+
+            invoiceItem.setUnitPrice(invoiceItem.getItem().getPrice());
+            invoiceItem.setDiscountSubTotal(itemService.calculateDiscountSubTotal(invoiceItem.getItem(), invoiceItem.getInvoiceQuantity()));
+            invoiceItem.setDiscountPerUnite(itemService.calculateDiscountPerUnite(invoiceItem.getItem()));
+
+            invoiceItem.setSubtotal(itemService.calculateSubTotal(invoiceItem.getItem(), invoiceItem.getInvoiceQuantity()));
+            invoiceItemRepository.save(invoiceItem);
+        }
+    }
+
 }

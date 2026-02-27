@@ -1,5 +1,6 @@
 package com.primebuild_online.service;
 
+import com.primebuild_online.model.DTO.ItemDataDTO;
 import com.primebuild_online.model.DTO.ScrapedProduct;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.ItemData;
@@ -19,9 +20,13 @@ public interface ItemDataService {
 
     void buildAndSave(Item item, ScrapedProduct match, Vendors vendors);
 
-    List<ItemData> nanotekItemData(Long id, Vendors vendor);
+    List<ItemData> getItemDataByVendorAndItem(Long id, Vendors vendor);
 
-    void saveItemData(Long id);
+    void saveItemDataAtCreatUpdateItem(Long id);
 
     List<ItemData> getItemDataByItemId(Long id);
+
+    void deleteItemDataByVendor(Long id, Vendors vendor);
+
+    List<ItemData> saveItemDataByVendor(ItemDataDTO itemDataDTO);
 }

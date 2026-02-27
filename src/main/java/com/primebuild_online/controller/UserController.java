@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> saveUserReq(@RequestBody UserDTO userDTO) {
-        User user = userService.saveUser(userDTO);
+        User user = userService.createAdminUser(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 

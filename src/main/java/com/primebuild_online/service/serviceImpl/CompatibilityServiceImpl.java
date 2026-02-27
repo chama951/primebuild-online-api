@@ -7,6 +7,7 @@ import com.primebuild_online.model.ItemFeature;
 import com.primebuild_online.service.CompatibilityService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.ItemService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,7 +18,9 @@ public class CompatibilityServiceImpl implements CompatibilityService {
     private final ItemService itemService;
     private final ComponentService componentService;
 
-    public CompatibilityServiceImpl(ItemService itemService, ComponentService componentService) {
+    public CompatibilityServiceImpl(
+            @Lazy ItemService itemService,
+            ComponentService componentService) {
         this.itemService = itemService;
         this.componentService = componentService;
     }

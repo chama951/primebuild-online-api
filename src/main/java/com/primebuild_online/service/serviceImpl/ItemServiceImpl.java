@@ -3,7 +3,6 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.model.enumerations.NotificationType;
-import com.primebuild_online.model.enumerations.Vendors;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +31,7 @@ public class ItemServiceImpl implements ItemService {
     private final CartService cartService;
     private final BuildService buildService;
     private final ItemDataService itemDataService;
+    private final InvoiceService invoiceService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
@@ -45,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
                            ItemAnalyticsService itemAnalyticsService,
                            UserService userService,
                            CartService cartService, BuildService buildService,
-                           ItemDataService itemDataService) {
+                           ItemDataService itemDataService, InvoiceService invoiceService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
@@ -60,6 +59,7 @@ public class ItemServiceImpl implements ItemService {
         this.itemDataService = itemDataService;
         this.buildItemService = buildItemService;
         this.buildService = buildService;
+        this.invoiceService = invoiceService;
     }
 
     private User loggedInUser() {
@@ -77,7 +77,7 @@ public class ItemServiceImpl implements ItemService {
 
         newItem = itemRepository.save(newItem);
 
-        itemDataService.saveItemData(newItem.getId());
+        itemDataService.saveItemDataAtCreatUpdateItem(newItem.getId());
 
         itemAnalyticsService.saveItemAnalytics(newItem);
 
@@ -141,15 +141,20 @@ public class ItemServiceImpl implements ItemService {
                 () -> new PrimeBuildException(
                         "Item not found",
                         HttpStatus.NOT_FOUND));
+
+        if (itemReqDTO.getPrice().compareTo(itemInDb.getPrice()) != 0 ||
+                itemReqDTO.getDiscountPercentage().compareTo(itemInDb.getDiscountPercentage()) != 0) {
+
+            itemInDb = itemSetValues(itemReqDTO, itemInDb);
+            cartService.updateCartAtItemPriceChange(itemInDb);
+            buildService.updateBuildAtItemPriceChange(itemInDb);
+            invoiceService.updateInvoiceAtItemPriceChange(itemInDb);
+            itemDataService.saveItemDataAtCreatUpdateItem(itemInDb.getId());
+
+        }
+
         itemInDb = itemSetValues(itemReqDTO, itemInDb);
-
         itemInDb = itemRepository.save(itemInDb);
-
-//        cartItemService.updateCartItemAtPriceChange(itemInDb.getId());
-        cartService.updateCartAtItemPriceChange(itemInDb);
-        buildService.updateBuildAtItemPriceChange(itemInDb);
-        itemDataService.saveItemData(itemInDb.getId());
-//        buildItemService.updateBuildItemAtPriceChange(itemInDb.getId());
 
         return itemInDb;
     }

@@ -19,9 +19,8 @@ public interface RoleService {
 
     Optional<Role> getRoleByName(String roleName);
 
-    Role createFirstStaffAdmin();
+    Role createAdminRole();
 
     Role createCustomerRole();
 
-    boolean checkRoleAdmin(Long roleId);
 }

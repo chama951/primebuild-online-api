@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.primebuild_online.model.enumerations.Vendors;
 import jakarta.persistence.*;
@@ -26,7 +27,8 @@ public class ItemData {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemDataHistoryList"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "itemData"})
+    @JsonIgnore
     private Item item;
 
     @Enumerated(EnumType.STRING)

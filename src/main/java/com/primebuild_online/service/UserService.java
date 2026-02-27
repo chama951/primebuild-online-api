@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserService {
     User loggedInUser();
 
-    User saveUser(UserDTO userDTO);
+    User createAdminUser(UserDTO userDTO);
 
     List<User> getAllUsers();
 

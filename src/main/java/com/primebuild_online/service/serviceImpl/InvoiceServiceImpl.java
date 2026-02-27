@@ -184,6 +184,18 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public void updateInvoiceAtItemPriceChange(Item item) {
+        List<Invoice> invoiceList = invoiceRepository.findDistinctByInvoiceItems_Item(item);
+        for (Invoice invoice : invoiceList) {
+            invoiceItemService.updateInvoiceItemAtPriceChange(invoice.getInvoiceItems());
+            invoice.setDiscountAmount(invoiceItemService.calculateDiscountAmount(invoice.getInvoiceItems()));
+            invoice.setTotalAmount(invoiceItemService.calculateTotalAmount(invoice.getInvoiceItems()));
+            invoiceRepository.save(invoice);
+        }
+
+    }
+
+    @Override
     public List<Invoice> getByUserLoggedIn() {
         return invoiceRepository.findAllByUser(loggedInUser());
     }

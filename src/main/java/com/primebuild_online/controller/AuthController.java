@@ -56,7 +56,7 @@ public class AuthController {
                                     @RequestParam(value = "type", required = false) String type) {
         if (type != null) {
             if (type.equals("staff")) {
-                userService.saveUser(userDTO);
+                userService.createAdminUser(userDTO);
             }
             if (type.equals("customer")) {
                 userService.signupCustomer(userDTO);

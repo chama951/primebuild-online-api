@@ -25,20 +25,17 @@ public class UserServiceImpl implements UserService {
     private final RoleService roleService;
     private final UserValidator userValidator;
     private final PasswordEncoder passwordEncoder;
-    private final CartService cartService;
-    private final CartItemService cartItemService;
     private final BuildService buildService;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleService roleService,
                            UserValidator userValidator,
-                           @Lazy PasswordEncoder passwordEncoder, CartService cartService, CartItemService cartItemService, BuildService buildService) {
+                           @Lazy PasswordEncoder passwordEncoder,
+                           BuildService buildService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.userValidator = userValidator;
         this.passwordEncoder = passwordEncoder;
-        this.cartService = cartService;
-        this.cartItemService = cartItemService;
         this.buildService = buildService;
     }
 
@@ -51,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User saveUser(UserDTO userDTO) {
+    public User createAdminUser(UserDTO userDTO) {
 
         if (userRepository.existsByUsername(userDTO.getUsername())) {
             throw new PrimeBuildException(
@@ -67,22 +64,16 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        long adminCount = 0;
-
-        if (userDTO.getRoleId() != null) {
-            adminCount = getAdminCount();
-        }
+        Long adminCount = getAdminCount();
 
         if (userDTO.getSignUpMethod() == null) {
             userDTO.setSignUpMethod(SignUpMethods.DIRECT);
         }
 
         if (adminCount == 0) {
-            Role firstStaffAdmin = roleService.createFirstStaffAdmin();
-            userDTO.setRoleId(firstStaffAdmin.getId());
-        }
-
-        if (roleService.checkRoleAdmin(userDTO.getRoleId())) {
+            Role adminRole = roleService.createAdminRole();
+            userDTO.setRoleId(adminRole.getId());
+        } else {
             throw new PrimeBuildException(
                     "Admin already exists",
                     HttpStatus.CONFLICT
@@ -167,11 +158,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         User user = getUserById(id);
-//        if (!cartService.checkUserCartIsEmpty(user)) {
-//            throw new PrimeBuildException(
-//                    "User cannot be remove while found in Carts",
-//                    HttpStatus.CONFLICT);
-//        }
         if (buildService.userBuildsIsExists(user)) {
             throw new PrimeBuildException(
                     "User cannot be remove while found in Builds",
