@@ -28,4 +28,7 @@ public interface InvoiceService {
     List<Invoice> getByUserLoggedIn();
 
     void updateNotPaidInvoice(Invoice invoice);
+
+    List<Invoice> getByCustomerUser();
+
 }

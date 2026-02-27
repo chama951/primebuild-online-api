@@ -4,15 +4,17 @@ import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.InvoiceDTO;
 import com.primebuild_online.model.enumerations.InvoiceStatus;
 import com.primebuild_online.model.enumerations.NotificationType;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.InvoiceRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.InvoiceValidator;
-import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -185,7 +187,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void updateInvoiceAtItemPriceChange(Item item) {
-        List<Invoice> invoiceList = invoiceRepository.findDistinctByInvoiceItems_Item(item);
+        List<Invoice> invoiceList = invoiceRepository.findDistinctByInvoiceItems_ItemAndInvoiceStatus(item, InvoiceStatus.NOT_PAID);
         for (Invoice invoice : invoiceList) {
             invoiceItemService.updateInvoiceItemAtPriceChange(invoice.getInvoiceItems());
             invoice.setDiscountAmount(invoiceItemService.calculateDiscountAmount(invoice.getInvoiceItems()));
@@ -207,4 +209,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(invoice);
     }
 
+    @Override
+
+    public List<Invoice> getByCustomerUser() {
+        return invoiceRepository.findByUserRoleRolePrivilegeListPrivilege(Privileges.CUSTOMER);
+    }
 }
