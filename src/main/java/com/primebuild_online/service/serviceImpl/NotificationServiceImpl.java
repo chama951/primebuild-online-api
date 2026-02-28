@@ -70,7 +70,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void deleteAllUserNotification() {
-        notificationRepository.deleteAllByUser(loggedInUser());
+        notificationRepository.deleteAllByUser_UserId(loggedInUser().getUserId());
+    }
+
+    @Override
+    public void deleteByUserId(Long id) {
+        notificationRepository.deleteAllByUser_UserId(id);
     }
 
     private Notification getNotificationById(Long id) {

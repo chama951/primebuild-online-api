@@ -47,7 +47,10 @@ public class User {
     @Column(name = "address")
     private String address;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE,})
+    @OneToMany(mappedBy = "user",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
     private List<Invoice> invoiceList = new ArrayList<>();
 

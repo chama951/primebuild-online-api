@@ -12,9 +12,9 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findAllByUser(User user);
 
+    List<Notification> findAllByUser_Role_RolePrivilegeList_Privilege(Privileges privileges);
+
     @Transactional
     @Modifying
-    void deleteAllByUser(User user);
-
-    List<Notification> findAllByUser_Role_RolePrivilegeList_Privilege(Privileges privileges);
+    void deleteAllByUser_UserId(Long userUserId);
 }

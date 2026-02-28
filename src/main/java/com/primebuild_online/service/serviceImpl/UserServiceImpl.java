@@ -26,17 +26,19 @@ public class UserServiceImpl implements UserService {
     private final UserValidator userValidator;
     private final PasswordEncoder passwordEncoder;
     private final BuildService buildService;
+    private final NotificationService notificationService;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleService roleService,
                            UserValidator userValidator,
                            @Lazy PasswordEncoder passwordEncoder,
-                           BuildService buildService) {
+                           BuildService buildService, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.userValidator = userValidator;
         this.passwordEncoder = passwordEncoder;
         this.buildService = buildService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -158,6 +160,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         User user = getUserById(id);
+        notificationService.deleteByUserId(id);
+
         if (buildService.userBuildsIsExists(user)) {
             throw new PrimeBuildException(
                     "User cannot be remove while found in Builds",
