@@ -203,8 +203,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void reduceItemQuantity(Item itemInDb, Integer quantityToReduce) {
-        Integer reduceQuantity = itemInDb.getQuantity() - quantityToReduce;
-        itemInDb.setQuantity(reduceQuantity);
+        Integer reducedQuantity = itemInDb.getQuantity() - quantityToReduce;
+        itemInDb.setQuantity(reducedQuantity);
         itemInDb = itemRepository.save(itemInDb);
         itemAnalyticsService.atReduceItemQuantity(itemInDb, quantityToReduce);
         lowStockNotification(itemInDb);

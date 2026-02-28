@@ -73,7 +73,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 createInvoiceItems(invoiceDTO.getItemList(), invoice));
 
         if (invoice.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
-            paymentService.savePayment(invoice);
+            paymentService.savePaymentPending(invoice);
         }
 
         invoiceValidator.validate(invoice);
@@ -151,12 +151,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Invoice finalInvoice = invoiceInDb;
         Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
-                .orElseGet(() -> paymentService.savePayment(finalInvoice));
-
-        paymentService.updatePendingPayment(paymentInDb, finalInvoice);
+                .orElseGet(() -> paymentService.savePaymentPending(finalInvoice));
 
         if (newStatus.equals(InvoiceStatus.PAID)) {
-            paymentService.updatePaidPayment(paymentInDb, finalInvoice);
+            paymentService.updatePaidPaymentAtInvoice(paymentInDb, finalInvoice);
+        }
+        if (newStatus.equals(InvoiceStatus.NOT_PAID)) {
+            paymentService.updateNotPaidPaymentAtInvoice(paymentInDb, finalInvoice);
         }
 
         invoiceValidator.validate(invoiceInDb);
@@ -203,7 +204,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public void updateNotPaidInvoice(Invoice invoice) {
+    public void updateNotPaidInvoiceAtPayment(Invoice invoice) {
         invoice.setInvoiceStatus(InvoiceStatus.NOT_PAID);
         invoiceItemService.resetItemQuantity(invoice.getInvoiceItems());
         invoiceRepository.save(invoice);
@@ -213,5 +214,12 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     public List<Invoice> getByCustomerUser() {
         return invoiceRepository.findByUserRoleRolePrivilegeListPrivilege(Privileges.CUSTOMER);
+    }
+
+    @Override
+    public void updatePaidInvoiceAtPayment(Invoice invoice) {
+        invoice.setInvoiceStatus(InvoiceStatus.PAID);
+        invoiceItemService.reduceItemQuantity(invoice.getInvoiceItems());
+        invoiceRepository.save(invoice);
     }
 }

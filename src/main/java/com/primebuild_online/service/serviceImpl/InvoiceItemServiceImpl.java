@@ -63,6 +63,15 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
     }
 
     @Override
+    public void reduceItemQuantity(List<InvoiceItem> invoiceItemList) {
+        for (InvoiceItem invoiceItem : invoiceItemList) {
+            Item item = invoiceItem.getItem();
+            Integer quantityToReduce = invoiceItem.getInvoiceQuantity();
+            itemService.reduceItemQuantity(item, quantityToReduce);
+        }
+    }
+
+    @Override
     public boolean existsInvoiceByItem(Long id) {
         return invoiceItemRepository.existsByItem_Id(id);
     }

@@ -1,6 +1,5 @@
 package com.primebuild_online.service;
 
-import com.primebuild_online.model.CartItem;
 import com.primebuild_online.model.Invoice;
 import com.primebuild_online.model.InvoiceItem;
 import com.primebuild_online.model.Item;
@@ -14,6 +13,8 @@ public interface InvoiceItemService {
     void deleteInvoiceItemsByInvoiceId(Long id);
 
     void resetItemQuantity(List<InvoiceItem> invoiceItems);
+
+    void reduceItemQuantity(List<InvoiceItem> invoiceItemList);
 
     boolean existsInvoiceByItem(Long id);
 
