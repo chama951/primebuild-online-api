@@ -24,7 +24,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
         this.itemService = itemService;
     }
 
-
     @Override
     public InvoiceItem saveInvoiceItem(Item itemToAdd, Invoice invoice) {
         Item itemInDb = itemService.getItemById(itemToAdd.getId());

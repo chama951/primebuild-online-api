@@ -143,17 +143,6 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void updatePendingPayment(Payment paymentInDb, Invoice invoiceInDb) {
-        paymentInDb.setInvoice(invoiceInDb);
-        paymentInDb.setUser(loggedInUser());
-        paymentInDb.setAmount(invoiceInDb.getTotalAmount());
-        paymentInDb.setPaymentStatus(PaymentStatus.PENDING);
-        paymentInDb.setPaidAt(LocalDateTime.now());
-        paymentValidator.validate(paymentInDb);
-        paymentRepository.save(paymentInDb);
-    }
-
-    @Override
     public boolean getAllPaymentsByInvoice(Long id) {
         return paymentRepository.existsByInvoice_IdAndPaymentStatus(id, PaymentStatus.PAID);
     }
