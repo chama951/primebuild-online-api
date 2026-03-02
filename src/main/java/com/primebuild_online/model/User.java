@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.primebuild_online.model.enumerations.SignUpMethods;
@@ -8,6 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
@@ -79,6 +82,13 @@ public class User {
 //    @JsonBackReference
     @ToString.Exclude
     private Role role;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonBackReference
+    private Cart cart;
 
     @CreationTimestamp
     @Column(updatable = false)

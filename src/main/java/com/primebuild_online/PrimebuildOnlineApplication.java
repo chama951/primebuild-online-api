@@ -1,5 +1,6 @@
 package com.primebuild_online;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication(scanBasePackages = "com.primebuild_online")
 public class PrimebuildOnlineApplication {
+
+    @Value("${cors.allowed.origins}")
+    private String allowedOrigins;
 
     public static void main(String[] args) {
         SpringApplication.run(PrimebuildOnlineApplication.class, args);
@@ -20,11 +24,8 @@ public class PrimebuildOnlineApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins(
-                                "http://localhost:3000",
-                                "http://primebuild-react.s3-website.eu-north-1.amazonaws.com"
-                        )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedOrigins(allowedOrigins.split(","))
+                        .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }

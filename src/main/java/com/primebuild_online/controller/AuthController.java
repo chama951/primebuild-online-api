@@ -12,6 +12,7 @@ import com.primebuild_online.security.services.UserDetailsImpl;
 import com.primebuild_online.service.ResetPasswordService;
 import com.primebuild_online.service.UserService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @PostMapping("/api/auth/signup")
     public ResponseEntity<?> signUp(@RequestBody UserDTO userDTO,
@@ -95,7 +99,7 @@ public class AuthController {
         String redirectPath = (hasOnlyOnePrivilege && roles.contains(Privileges.CUSTOMER.toString())) ? "/home" : "/dashboard";
 
         // Construct full frontend URL
-        String redirectUrl = "http://localhost:3000" + redirectPath +
+        String redirectUrl = frontendUrl + redirectPath +
                 "?token=" + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8) +
                 "&username=" + URLEncoder.encode(userDetails.getUsername(), StandardCharsets.UTF_8) +
                 "&roles=" + URLEncoder.encode(String.join(",", roles), StandardCharsets.UTF_8);

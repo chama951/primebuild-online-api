@@ -1,6 +1,6 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.DTO.ScrapedProduct;
+import com.primebuild_online.model.DTO.ScrapedProductDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.enumerations.Vendors;
 import com.primebuild_online.service.ItemDataService;
@@ -56,7 +56,7 @@ public class VendorItemDataServiceImpl implements VendorItemDataService {
                 if (productList == null)
                     continue;
 
-                List<ScrapedProduct> products =
+                List<ScrapedProductDTO> products =
                         itemDataService.parseProducts(productList);
 
                 if (products.isEmpty()){
@@ -65,7 +65,7 @@ public class VendorItemDataServiceImpl implements VendorItemDataService {
                             HttpStatus.NOT_FOUND);
                 }
 
-                ScrapedProduct match =
+                ScrapedProductDTO match =
                         itemDataService.findMatch(products, item.getItemName(), item.getManufacturer().getManufacturerName());
 
                 if (match != null) {

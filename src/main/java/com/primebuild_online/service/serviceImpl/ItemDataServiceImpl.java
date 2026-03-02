@@ -1,7 +1,7 @@
 package com.primebuild_online.service.serviceImpl;
 
 import com.primebuild_online.model.DTO.ItemDataDTO;
-import com.primebuild_online.model.DTO.ScrapedProduct;
+import com.primebuild_online.model.DTO.ScrapedProductDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.ItemData;
 import com.primebuild_online.model.enumerations.Vendors;
@@ -10,11 +10,9 @@ import com.primebuild_online.service.ItemDataService;
 import com.primebuild_online.service.ItemService;
 import com.primebuild_online.service.NotificationService;
 import com.primebuild_online.service.VendorItemDataService;
-import com.primebuild_online.utils.exception.PrimeBuildException;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,9 +41,9 @@ public class ItemDataServiceImpl implements ItemDataService {
     }
 
     @Override
-    public List<ScrapedProduct> parseProducts(Element productList) {
+    public List<ScrapedProductDTO> parseProducts(Element productList) {
 
-        List<ScrapedProduct> products = new ArrayList<>();
+        List<ScrapedProductDTO> products = new ArrayList<>();
 
         Elements items =
                 productList.select("li.ty-catPage-productListItem");
@@ -72,7 +70,7 @@ public class ItemDataServiceImpl implements ItemDataService {
                 url = link.attr("href");
 
             if (name != null && price != null) {
-                products.add(new ScrapedProduct(name, price, url));
+                products.add(new ScrapedProductDTO(name, price, url));
             }
         }
 
@@ -81,8 +79,8 @@ public class ItemDataServiceImpl implements ItemDataService {
     }
 
     @Override
-    public ScrapedProduct findMatch(
-            List<ScrapedProduct> products,
+    public ScrapedProductDTO findMatch(
+            List<ScrapedProductDTO> products,
             String searchTerm,
             String manufacturerName
     ) {
@@ -90,10 +88,10 @@ public class ItemDataServiceImpl implements ItemDataService {
         String normalizedSearch = normalize(searchTerm);
         String searchModel = extractModel(normalizedSearch);
 
-        ScrapedProduct exactMatch = null;
-        ScrapedProduct fallbackMatch = null;
+        ScrapedProductDTO exactMatch = null;
+        ScrapedProductDTO fallbackMatch = null;
 
-        for (ScrapedProduct product : products) {
+        for (ScrapedProductDTO product : products) {
 
             if (product.getName() == null)
                 continue;
@@ -163,7 +161,7 @@ public class ItemDataServiceImpl implements ItemDataService {
     @Override
     public void buildAndSave(
             Item item,
-            ScrapedProduct product,
+            ScrapedProductDTO product,
             Vendors vendor
     ) {
 

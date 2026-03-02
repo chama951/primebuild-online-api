@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScrapedProduct {
+public class ScrapedProductDTO {
     private String name;
     private String price;
     private String url;

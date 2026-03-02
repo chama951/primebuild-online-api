@@ -1,7 +1,7 @@
 package com.primebuild_online.service;
 
 import com.primebuild_online.model.DTO.ItemDataDTO;
-import com.primebuild_online.model.DTO.ScrapedProduct;
+import com.primebuild_online.model.DTO.ScrapedProductDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.ItemData;
 import com.primebuild_online.model.enumerations.Vendors;
@@ -12,13 +12,13 @@ import java.util.List;
 
 public interface ItemDataService {
 
-    List<ScrapedProduct> parseProducts(Element productList);
+    List<ScrapedProductDTO> parseProducts(Element productList);
 
-    ScrapedProduct findMatch(List<ScrapedProduct> products, String itemName, String manufacturerName);
+    ScrapedProductDTO findMatch(List<ScrapedProductDTO> products, String itemName, String manufacturerName);
 
     BigDecimal extractPrice(String rawPrice);
 
-    void buildAndSave(Item item, ScrapedProduct match, Vendors vendors);
+    void buildAndSave(Item item, ScrapedProductDTO match, Vendors vendors);
 
     List<ItemData> getItemDataByVendorAndItem(Long id, Vendors vendor);
 
