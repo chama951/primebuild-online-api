@@ -9,23 +9,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication(scanBasePackages = "com.primebuild_online")
 public class PrimebuildOnlineApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PrimebuildOnlineApplication.class, args);
-		System.out.println("Server is Running");
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PrimebuildOnlineApplication.class, args);
+        System.out.println("Server is Running");
+    }
 
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/api/**")
-						.allowedOrigins("http://localhost:3000")
-						.allowedOrigins("http://primebuild-react.s3-website.eu-north-1.amazonaws.com")
-						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-						.allowedHeaders("*")
-						.allowCredentials(true);
-			}
-		};
-	}
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                        .allowedOrigins(
+                                "http://localhost:3000",
+                                "http://primebuild-react.s3-website.eu-north-1.amazonaws.com"
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
+        };
+    }
 }
