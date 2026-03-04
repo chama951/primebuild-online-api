@@ -10,6 +10,8 @@ import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.ItemValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -131,8 +133,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getAllItem() {
-        return itemRepository.findAll();
+    public Page<Item> getPaginatedAllItem(Pageable pageable) {
+        return itemRepository.findAll(pageable);
     }
 
     @Override
@@ -192,7 +194,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getInStockItemListByComponent(Long componentId) {
+    public Page<Item> getPaginatedInStockItemListByComponent(Long componentId, Pageable pageable) {
+        return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId, pageable);
+    }
+
+    @Override
+    public List<Item> getInStockItemListByComponentForCompatibility(Long componentId) {
         return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId);
     }
 
@@ -284,6 +291,16 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public boolean existsItemByComponent(Long id) {
         return itemRepository.existsByComponent_Id(id);
+    }
+
+    @Override
+    public Page<Item> searchPaginatedItemsByName(String search, Pageable pageable) {
+        return itemRepository.findByItemNameContainingIgnoreCase(search, pageable);
+    }
+
+    @Override
+    public List<Item> getItemList() {
+        return itemRepository.findAll();
     }
 
     public void lowStockNotification(Item item) {

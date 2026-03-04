@@ -10,6 +10,7 @@ import com.primebuild_online.model.User;
 import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.model.enumerations.SignUpMethods;
 import com.primebuild_online.repository.UserRepository;
+import com.primebuild_online.utils.validator.PasswordValidator;
 import com.primebuild_online.utils.validator.UserValidator;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -124,6 +125,8 @@ public class UserServiceImpl implements UserService {
         if (userDTO.getEmail() != null) {
             user.setSignUpMethod(userDTO.getSignUpMethod());
         }
+
+        PasswordValidator.validate(userDTO.getPassword());
 
         if (userDTO.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
