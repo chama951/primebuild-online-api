@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CompatibilityServiceImpl implements CompatibilityService {
@@ -45,54 +46,55 @@ public class CompatibilityServiceImpl implements CompatibilityService {
         // load build items
         List<Item> buildItems = itemService.getItemsByIds(buildItemIds);
 
-        // prepare feature maps
+        // map build item quantity by ID
+        Map<Long, Integer> buildItemQuantities = buildReqDTO.getItemList()
+                .stream()
+                .collect(Collectors.toMap(Item::getId, Item::getQuantity));
+
+        // required features and locked features maps
         Map<Long, Set<Long>> requiredByType = new HashMap<>();
         Map<Long, Long> lockedByType = new HashMap<>();
 
-        // slotCounts per (FeatureType + Feature)
+        // slotCounts per FeatureType+Feature
         Map<Long, List<Integer>> slotCountsByTypeAndFeature = new HashMap<>();
 
         // analyze build items
-        for (int i = 0; i < buildItems.size(); i++) {
-            Item item = buildItems.get(i);
+        for (Item item : buildItems) {
+            int itemQuantity = buildItemQuantities.getOrDefault(item.getId(), 1);
 
             System.out.println("\n--- Build Item ---");
             System.out.println(item.getId() + " | " +
                     item.getComponent().getComponentName() + " | " +
-                    item.getItemName());
+                    item.getItemName() + " | Quantity: " + itemQuantity);
 
             Map<Long, Set<Long>> itemFeaturesByType = new HashMap<>();
 
-            // collect features for this item
             for (ItemFeature f : item.getItemFeatureList()) {
                 Long typeId = f.getFeature().getFeatureType().getId();
                 Long featureId = f.getFeature().getId();
 
                 itemFeaturesByType.computeIfAbsent(typeId, k -> new HashSet<>()).add(featureId);
 
-                // initialize or update slotCounts
+                // store slotCount for later min calculation
                 Long key = typeId * 1000000 + featureId;
-                slotCountsByTypeAndFeature
-                        .computeIfAbsent(key, k -> new ArrayList<>())
-                        .add(f.getSlotCount());
+                slotCountsByTypeAndFeature.computeIfAbsent(key, k -> new ArrayList<>())
+                        .add(f.getSlotCount() * itemQuantity); // multiply by item quantity
 
                 System.out.println("FeatureType " + typeId +
                         " Feature " + featureId +
-                        " (" + f.getFeature().getFeatureName() + "), SlotCount=" + f.getSlotCount());
+                        " (" + f.getFeature().getFeatureName() + "), SlotCount=" + f.getSlotCount() +
+                        ", Total Required Slots=" + (f.getSlotCount() * itemQuantity));
             }
 
-            // 🔹 Intersection logic for required features across build items
+            // intersection logic for required features
             for (Map.Entry<Long, Set<Long>> entry : itemFeaturesByType.entrySet()) {
                 Long typeId = entry.getKey();
                 Set<Long> features = entry.getValue();
-
-                if (requiredByType.containsKey(typeId)) {
-                    // retain only features common to all items seen so far
-                    requiredByType.get(typeId).retainAll(features);
-                } else {
-                    // first item → initialize
-                    requiredByType.put(typeId, new HashSet<>(features));
-                }
+                requiredByType.compute(typeId, (k, v) -> {
+                    if (v == null) return new HashSet<>(features);
+                    v.retainAll(features);
+                    return v;
+                });
             }
 
             // lock single-feature components
@@ -101,25 +103,19 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                     Long typeId = entry.getKey();
                     Long lockedFeature = entry.getValue().iterator().next();
                     lockedByType.put(typeId, lockedFeature);
-
-                    System.out.println("LOCKED FeatureType " + typeId +
-                            " Feature " + lockedFeature);
+                    System.out.println("LOCKED FeatureType " + typeId + " Feature " + lockedFeature);
                 }
             }
         }
 
         System.out.println("\nRequired Features By Type:");
-        requiredByType.forEach((k, v) ->
-                System.out.println("FeatureType " + k + " -> " + v));
+        requiredByType.forEach((k, v) -> System.out.println("FeatureType " + k + " -> " + v));
 
         System.out.println("\nLocked Features:");
-        lockedByType.forEach((k, v) ->
-                System.out.println("FeatureType " + k + " -> " + v));
+        lockedByType.forEach((k, v) -> System.out.println("FeatureType " + k + " -> " + v));
 
         // load candidate items
-        List<Item> candidates =
-                itemService.getInStockItemListByComponentForCompatibility(componentId);
-
+        List<Item> candidates = itemService.getInStockItemListByComponentForCompatibility(componentId);
         List<Item> compatibleItemList = new ArrayList<>();
 
         // compatibility check
@@ -132,91 +128,75 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                     candidate.getItemName());
 
             boolean compatible = true;
-            int candidateMinQuantity = Integer.MAX_VALUE;
 
             // group candidate features by FeatureType
             Map<Long, Set<Long>> candidateByType = new HashMap<>();
+            Map<Long, Map<Long, Integer>> candidateSlotMap = new HashMap<>(); // typeId -> featureId -> slotCount
             for (ItemFeature cf : candidate.getItemFeatureList()) {
-                candidateByType
-                        .computeIfAbsent(cf.getFeature().getFeatureType().getId(), k -> new HashSet<>())
-                        .add(cf.getFeature().getId());
+                Long typeId = cf.getFeature().getFeatureType().getId();
+                Long featureId = cf.getFeature().getId();
+
+                candidateByType.computeIfAbsent(typeId, k -> new HashSet<>()).add(featureId);
+                candidateSlotMap.computeIfAbsent(typeId, k -> new HashMap<>()).put(featureId, cf.getSlotCount());
             }
 
-            if (candidateByType.isEmpty()) {
-                compatible = false;
-            }
-
-            // only check feature types the candidate actually has
+            // check each candidate feature
             for (Map.Entry<Long, Set<Long>> entry : candidateByType.entrySet()) {
-
                 Long typeId = entry.getKey();
                 Set<Long> candidateFeatures = entry.getValue();
-
-                System.out.println("FeatureType " + typeId +
-                        " Candidate Features: " + candidateFeatures);
 
                 Long matchedFeatureId = null;
 
                 // locked rule
                 if (lockedByType.containsKey(typeId)) {
-
                     Long lockedFeature = lockedByType.get(typeId);
-                    System.out.println("Locked Required Feature: " + lockedFeature);
-
                     if (!candidateFeatures.contains(lockedFeature)) {
-                        System.out.println("No matching feature → NOT COMPATIBLE");
                         compatible = false;
+                        System.out.println("Locked feature not present → NOT COMPATIBLE");
                         break;
-                    } else {
-                        System.out.println("Matches LOCKED feature");
-                        matchedFeatureId = lockedFeature;
-                    }
+                    } else matchedFeatureId = lockedFeature;
                 }
-
                 // shared rule
                 else if (requiredByType.containsKey(typeId)) {
-
-                    Set<Long> allowed = requiredByType.get(typeId);
-                    System.out.println("Allowed Features: " + allowed);
-
                     Optional<Long> match = candidateFeatures.stream()
-                            .filter(allowed::contains)
+                            .filter(requiredByType.get(typeId)::contains)
                             .findFirst();
-
                     if (match.isEmpty()) {
-                        System.out.println("No shared feature → NOT COMPATIBLE");
                         compatible = false;
+                        System.out.println("No shared feature → NOT COMPATIBLE");
                         break;
-                    } else {
-                        matchedFeatureId = match.get();
-                        System.out.println("Matched Feature: " + matchedFeatureId);
-                    }
+                    } else matchedFeatureId = match.get();
                 }
 
-                // Slot Count logic
+                // check slotCount against build required slots (min across build items)
                 if (matchedFeatureId != null) {
                     Long key = typeId * 1000000 + matchedFeatureId;
-                    List<Integer> slotCounts = slotCountsByTypeAndFeature.get(key);
+                    List<Integer> requiredSlotsList = slotCountsByTypeAndFeature.get(key);
 
-                    if (slotCounts != null && !slotCounts.isEmpty()) {
-                        int minSlots = slotCounts.stream()
+                    if (requiredSlotsList != null && !requiredSlotsList.isEmpty()) {
+                        int minRequiredSlots = requiredSlotsList.stream()
                                 .min(Integer::compareTo)
                                 .orElse(1);
 
-                        System.out.println("SlotCounts for matched feature: " + slotCounts);
-                        System.out.println("MIN SlotCount used: " + minSlots);
+                        int candidateSlot = candidateSlotMap.get(typeId).get(matchedFeatureId);
 
-                        candidateMinQuantity = Math.min(candidateMinQuantity, minSlots);
+                        System.out.println("FeatureType " + typeId +
+                                ", Feature " + matchedFeatureId +
+                                ", Candidate SlotCount=" + candidateSlot +
+                                ", Min Required Slots from Build=" + minRequiredSlots);
+
+                        if (candidateSlot < minRequiredSlots) {
+                            compatible = false;
+                            System.out.println("Candidate slotCount < min required slots → NOT COMPATIBLE");
+                            break;
+                        }
                     }
                 }
             }
 
-            if (compatible && candidateMinQuantity != Integer.MAX_VALUE) {
-                System.out.println("FINAL RESULT: COMPATIBLE");
-                System.out.println("Final Quantity Set: " + candidateMinQuantity);
-
-                candidate.setQuantity(candidateMinQuantity);
+            if (compatible) {
                 compatibleItemList.add(candidate);
+                System.out.println("FINAL RESULT: COMPATIBLE");
             } else {
                 System.out.println("FINAL RESULT: NOT COMPATIBLE");
             }
