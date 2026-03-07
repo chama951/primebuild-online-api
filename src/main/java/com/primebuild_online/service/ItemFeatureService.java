@@ -25,4 +25,6 @@ public interface ItemFeatureService {
     void saveItemFeature(ItemFeature itemFeature);
 
     void deleteAllByFeatureId(Long id);
+
+    boolean existsItemFeaturesByFeatureType(Long id);
 }

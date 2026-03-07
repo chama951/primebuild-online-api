@@ -9,6 +9,7 @@ import com.primebuild_online.service.FeatureService;
 import com.primebuild_online.service.ItemFeatureService;
 import com.primebuild_online.service.ItemService;
 import com.primebuild_online.utils.validator.ItemFeatureValidator;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     public ItemFeatureServiceImpl(
             ItemService itemService,
             ItemFeatureRepository itemFeatureRepository,
-            FeatureService featureService,
+            @Lazy FeatureService featureService,
             ItemFeatureValidator itemFeatureValidator) {
         this.itemService = itemService;
         this.itemFeatureRepository = itemFeatureRepository;
@@ -117,6 +118,11 @@ public class ItemFeatureServiceImpl implements ItemFeatureService {
     @Override
     public void deleteAllByFeatureId(Long id) {
         itemFeatureRepository.deleteAllByFeatureId(id);
+    }
+
+    @Override
+    public boolean existsItemFeaturesByFeatureType(Long id) {
+        return itemFeatureRepository.existsByFeature_FeatureType_Id(id);
     }
 
 }
