@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User createAdminUser(UserDTO userDTO) {
+    public User createUser(UserDTO userDTO) {
 
         if (userRepository.existsByUsername(userDTO.getUsername())) {
             throw new PrimeBuildException(

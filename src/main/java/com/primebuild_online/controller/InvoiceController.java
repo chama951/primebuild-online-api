@@ -23,7 +23,7 @@ public class InvoiceController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<Invoice> saveComponentFeatureTypeReq(@RequestBody InvoiceDTO invoiceDTO) {
+    public ResponseEntity<Invoice> saveInvoice(@RequestBody InvoiceDTO invoiceDTO) {
         return new ResponseEntity<>(invoiceService.saveInvoice(invoiceDTO), HttpStatus.CREATED);
     }
 

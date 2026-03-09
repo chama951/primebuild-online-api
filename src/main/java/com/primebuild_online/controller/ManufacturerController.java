@@ -20,7 +20,7 @@ public class ManufacturerController {
     private ManufacturerService manufacturerService;
 
     @PostMapping
-    public ResponseEntity<Manufacturer> saveComponentReq(@RequestBody ManufacturerDTO manufacturerDTO) {
+    public ResponseEntity<Manufacturer> saveManufacturerReq(@RequestBody ManufacturerDTO manufacturerDTO) {
         Manufacturer manufacturer = manufacturerService.saveManufacturerDTO(manufacturerDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(manufacturer);
     }
