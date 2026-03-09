@@ -3,6 +3,7 @@ package com.primebuild_online.repository;
 import com.primebuild_online.model.Role;
 import com.primebuild_online.model.RolePrivilege;
 import com.primebuild_online.model.User;
+import com.primebuild_online.model.enumerations.Privileges;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +24,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    List<User> findAllByRole_RoleName(String roleName);
-
-    List<User> findAllByRole_RoleNameNot(String roleName);
 }

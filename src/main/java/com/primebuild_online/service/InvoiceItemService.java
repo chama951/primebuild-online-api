@@ -4,6 +4,7 @@ import com.primebuild_online.model.Invoice;
 import com.primebuild_online.model.InvoiceItem;
 import com.primebuild_online.model.Item;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface InvoiceItemService {
@@ -13,5 +14,13 @@ public interface InvoiceItemService {
 
     void resetItemQuantity(List<InvoiceItem> invoiceItems);
 
+    void reduceItemQuantity(List<InvoiceItem> invoiceItemList);
+
     boolean existsInvoiceByItem(Long id);
+
+    BigDecimal calculateDiscountAmount(List<InvoiceItem> invoiceItems);
+
+    BigDecimal calculateTotalAmount(List<InvoiceItem> invoiceItems);
+
+    void updateInvoiceItemAtPriceChange(List<InvoiceItem> invoiceItems);
 }

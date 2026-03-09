@@ -1,6 +1,5 @@
 package com.primebuild_online.security.oauth2;
 
-import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.security.jwt.JwtUtils;
 import com.primebuild_online.model.User;
 import com.primebuild_online.repository.UserRepository;
@@ -8,6 +7,7 @@ import com.primebuild_online.security.services.UserDetailsImpl;
 import com.primebuild_online.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -24,6 +24,9 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final UserService userService;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public OAuth2AuthenticationSuccessHandler(UserRepository userRepository,
                                               JwtUtils jwtUtils,
@@ -54,18 +57,15 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                 .map(rp -> rp.getPrivilege().name())
                 .collect(Collectors.joining(","));
 
-        boolean isCustomer = user.getRole().getRolePrivilegeList()
-                .stream()
-                .anyMatch(rp -> rp.getPrivilege() == Privileges.CUSTOMER);
-
-        String redirectPath = isCustomer ? "/home" : "/dashboard";
+        String redirectPath = userService.checkIsACustomer(user) ? "/home" : "/dashboard";
 
         String redirectUrl = String.format(
-                "http://localhost:3000/oauth2-success?token=%s&username=%s&roles=%s&redirectUrl=%s",
+                "%s/oauth2-success?token=%s&username=%s&roles=%s&redirectUrl=%s",
+                frontendUrl,
                 URLEncoder.encode(token, StandardCharsets.UTF_8),
                 URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8),
                 URLEncoder.encode(roles, StandardCharsets.UTF_8),
-                URLEncoder.encode("http://localhost:3000" + redirectPath, StandardCharsets.UTF_8) // <-- full URL
+                URLEncoder.encode(frontendUrl + redirectPath, StandardCharsets.UTF_8)
         );
 
         response.sendRedirect(redirectUrl);

@@ -75,8 +75,7 @@ public class BuildItemServiceImpl implements BuildItemService {
 
     @Override
     public List<BuildItem> findAllByBuildId(Long buildId) {
-        List<BuildItem> buildItemList = buildItemRepository.findAllByBuildId(buildId);
-        return buildItemList;
+        return buildItemRepository.findAllByBuildId(buildId);
     }
 
     @Override
@@ -129,26 +128,5 @@ public class BuildItemServiceImpl implements BuildItemService {
         }
         return TotalAmount;
     }
-
-//    @Override
-//    public void updateBuildItemAtPriceChange(Long id) {
-//        Item itemInDb = itemService.getItemById(id);
-//        List<BuildItem> buildItemList = buildItemRepository.findAllByItem_Id(id);
-//        for (BuildItem buildItem : buildItemList) {
-//            if (buildItem.getUnitPrice().compareTo(itemInDb.getPrice()) > 0) {
-//                notificationService.createNotification(
-//                        "Build Item",
-//                        buildItem.getItem().getItemName() + " Price has been reduced",
-//                        NotificationType.BUILD_ITEM_PRICE_REDUCED,
-//                        buildItem.getBuild().getUser());
-//            }
-//            buildItem.setUnitPrice(itemInDb.getPrice());
-//            buildItem.setDiscountSubTotal(itemService.calculateDiscountSubTotal(itemInDb, buildItem.getBuildQuantity()));
-//            buildItem.setDiscountPerUnite(itemService.calculateDiscountPerUnite(itemInDb));
-//            buildItem.setSubtotal(itemService.calculateSubTotal(itemInDb, buildItem.getBuildQuantity()));
-//            buildItemRepository.save(buildItem);
-//        }
-//    }
-
 
 }

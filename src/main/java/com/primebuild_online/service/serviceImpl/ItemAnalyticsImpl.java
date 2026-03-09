@@ -5,6 +5,7 @@ import com.primebuild_online.model.ItemAnalytics;
 import com.primebuild_online.repository.ItemAnalyticsRepository;
 import com.primebuild_online.service.ItemAnalyticsService;
 import com.primebuild_online.service.ItemService;
+import com.primebuild_online.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +18,14 @@ public class ItemAnalyticsImpl implements ItemAnalyticsService {
 
     private final ItemAnalyticsRepository itemAnalyticsRepository;
     private final ItemService itemService;
+    private final UserService userService;
 
     public ItemAnalyticsImpl(ItemAnalyticsRepository itemAnalyticsRepository,
-                             @Lazy ItemService itemService) {
+                             @Lazy ItemService itemService,
+                             @Lazy UserService userService) {
         this.itemAnalyticsRepository = itemAnalyticsRepository;
         this.itemService = itemService;
+        this.userService = userService;
     }
 
 
@@ -88,11 +92,13 @@ public class ItemAnalyticsImpl implements ItemAnalyticsService {
 
     @Override
     public void incrementView(Long id) {
-        ItemAnalytics itemAnalytics = itemAnalyticsRepository.getByItem_Id(id);
-        itemAnalytics.setTotalViews(itemAnalytics.getTotalViews() + 1);
-        itemAnalytics.setLastUpdatedAt(LocalDateTime.now());
-        itemAnalytics.setTrendScore(calculateTrendScore(itemAnalytics));
-        itemAnalyticsRepository.save(itemAnalytics);
+        if (userService.isCustomerLoggedIn()) {
+            ItemAnalytics itemAnalytics = itemAnalyticsRepository.getByItem_Id(id);
+            itemAnalytics.setTotalViews(itemAnalytics.getTotalViews() + 1);
+            itemAnalytics.setLastUpdatedAt(LocalDateTime.now());
+            itemAnalytics.setTrendScore(calculateTrendScore(itemAnalytics));
+            itemAnalyticsRepository.save(itemAnalytics);
+        }
     }
 
     @Override

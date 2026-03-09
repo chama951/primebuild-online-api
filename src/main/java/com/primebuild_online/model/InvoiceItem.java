@@ -24,13 +24,13 @@ public class InvoiceItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoiceItems"})
     private Invoice invoice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "invoiceItemList"})
     private Item item;
 

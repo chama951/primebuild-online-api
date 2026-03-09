@@ -36,7 +36,7 @@ public class BuildServiceImpl implements BuildService {
                             BuildRepository buildRepository,
                             BuildItemRepository buildItemRepository,
                             BuildValidator buildValidator,
-                            UserService userService,
+                            @Lazy UserService userService,
                             @Lazy ItemService itemService) {
         this.buildRepository = buildRepository;
         this.buildItemService = buildItemService;
@@ -164,6 +164,11 @@ public class BuildServiceImpl implements BuildService {
             buildInDb.setTotalPrice(buildItemService.calculateTotalAmount(buildInDb.getBuildItemList()));
             buildRepository.save(buildInDb);
         }
+    }
+
+    @Override
+    public boolean userBuildsIsExists(User user) {
+        return buildRepository.existsByUser(user);
     }
 
 }

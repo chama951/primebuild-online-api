@@ -8,6 +8,7 @@ import com.primebuild_online.repository.FeatureTypeRepository;
 import com.primebuild_online.service.ComponentFeatureTypeService;
 import com.primebuild_online.service.ComponentService;
 import com.primebuild_online.service.FeatureTypeService;
+import com.primebuild_online.service.ItemFeatureService;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.FeatureTypeValidator;
 import org.springframework.context.annotation.Lazy;
@@ -23,12 +24,16 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
     private final FeatureTypeRepository featureTypeRepository;
     private final ComponentFeatureTypeService componentFeatureTypeService;
     private final FeatureTypeValidator featureTypeValidator;
+    private final ItemFeatureService itemFeatureService;
 
     public FeatureTypeServiceImpl(@Lazy ComponentFeatureTypeService componentFeatureTypeService,
-                                  FeatureTypeRepository featureTypeRepository, FeatureTypeValidator featureTypeValidator) {
+                                  FeatureTypeRepository featureTypeRepository,
+                                  FeatureTypeValidator featureTypeValidator,
+                                  ItemFeatureService itemFeatureService) {
         this.componentFeatureTypeService = componentFeatureTypeService;
         this.featureTypeRepository = featureTypeRepository;
         this.featureTypeValidator = featureTypeValidator;
+        this.itemFeatureService = itemFeatureService;
     }
 
     @Override
@@ -93,6 +98,11 @@ public class FeatureTypeServiceImpl implements FeatureTypeService {
 
     @Override
     public void deleteFeatureType(Long id) {
+        if(itemFeatureService.existsItemFeaturesByFeatureType(id)){
+            throw new PrimeBuildException(
+                    "Feature Type cannot be deleted while found in Items Features",
+                    HttpStatus.CONFLICT);
+        }
         featureTypeRepository.deleteById(id);
     }
 

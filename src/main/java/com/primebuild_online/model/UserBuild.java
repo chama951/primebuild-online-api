@@ -22,14 +22,14 @@ public class UserBuild {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private User user;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "build_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer"})
     private Build build;
 }

@@ -3,7 +3,6 @@ package com.primebuild_online.service.serviceImpl;
 import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.model.enumerations.NotificationType;
-import com.primebuild_online.model.enumerations.Vendors;
 import com.primebuild_online.repository.ItemRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
@@ -11,9 +10,10 @@ import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.ItemValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +33,7 @@ public class ItemServiceImpl implements ItemService {
     private final CartService cartService;
     private final BuildService buildService;
     private final ItemDataService itemDataService;
+    private final InvoiceService invoiceService;
 
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemValidator itemValidator,
@@ -45,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
                            ItemAnalyticsService itemAnalyticsService,
                            UserService userService,
                            CartService cartService, BuildService buildService,
-                           ItemDataService itemDataService) {
+                           ItemDataService itemDataService, InvoiceService invoiceService) {
 
         this.itemRepository = itemRepository;
         this.itemValidator = itemValidator;
@@ -60,6 +61,7 @@ public class ItemServiceImpl implements ItemService {
         this.itemDataService = itemDataService;
         this.buildItemService = buildItemService;
         this.buildService = buildService;
+        this.invoiceService = invoiceService;
     }
 
     private User loggedInUser() {
@@ -77,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
 
         newItem = itemRepository.save(newItem);
 
-        itemDataService.saveItemData(newItem.getId());
+        itemDataService.saveItemDataAtCreatUpdateItem(newItem.getId());
 
         itemAnalyticsService.saveItemAnalytics(newItem);
 
@@ -88,13 +90,13 @@ public class ItemServiceImpl implements ItemService {
         item.setItemName(itemReqDTO.getItemName());
         item.setQuantity(itemReqDTO.getQuantity());
 
-        if (item.getPrice() != null &&
-                !item.getPrice().equals(
-                        itemReqDTO.getPrice().setScale(
-                                2, RoundingMode.HALF_UP))) {
-            itemDataService.saveItemData(item.getId());
-
-        }
+//        if (item.getPrice() != null &&
+//                !item.getPrice().equals(
+//                        itemReqDTO.getPrice().setScale(
+//                                2, RoundingMode.HALF_UP))) {
+//            itemDataService.saveItemData(item.getId());
+//
+//        }
 
         item.setPrice(itemReqDTO.getPrice());
         item.setPowerConsumption(itemReqDTO.getPowerConsumption());
@@ -131,8 +133,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getAllItem() {
-        return itemRepository.findAll();
+    public Page<Item> getPaginatedAllItem(Pageable pageable) {
+        return itemRepository.findAll(pageable);
     }
 
     @Override
@@ -141,14 +143,20 @@ public class ItemServiceImpl implements ItemService {
                 () -> new PrimeBuildException(
                         "Item not found",
                         HttpStatus.NOT_FOUND));
+
+        if (itemReqDTO.getPrice().compareTo(itemInDb.getPrice()) != 0 ||
+                itemReqDTO.getDiscountPercentage().compareTo(itemInDb.getDiscountPercentage()) != 0) {
+
+            itemInDb = itemSetValues(itemReqDTO, itemInDb);
+            cartService.updateCartAtItemPriceChange(itemInDb);
+            buildService.updateBuildAtItemPriceChange(itemInDb);
+            invoiceService.updateInvoiceAtItemPriceChange(itemInDb);
+            itemDataService.saveItemDataAtCreatUpdateItem(itemInDb.getId());
+
+        }
+
         itemInDb = itemSetValues(itemReqDTO, itemInDb);
-
         itemInDb = itemRepository.save(itemInDb);
-
-//        cartItemService.updateCartItemAtPriceChange(itemInDb.getId());
-        cartService.updateCartAtItemPriceChange(itemInDb);
-        buildService.updateBuildAtItemPriceChange(itemInDb);
-//        buildItemService.updateBuildItemAtPriceChange(itemInDb.getId());
 
         return itemInDb;
     }
@@ -186,7 +194,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getInStockItemListByComponent(Long componentId) {
+    public Page<Item> getPaginatedInStockItemListByComponent(Long componentId, Pageable pageable) {
+        return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId, pageable);
+    }
+
+    @Override
+    public List<Item> getInStockItemListByComponentForCompatibility(Long componentId) {
         return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId);
     }
 
@@ -197,8 +210,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void reduceItemQuantity(Item itemInDb, Integer quantityToReduce) {
-        Integer reduceQuantity = itemInDb.getQuantity() - quantityToReduce;
-        itemInDb.setQuantity(reduceQuantity);
+        Integer reducedQuantity = itemInDb.getQuantity() - quantityToReduce;
+        itemInDb.setQuantity(reducedQuantity);
         itemInDb = itemRepository.save(itemInDb);
         itemAnalyticsService.atReduceItemQuantity(itemInDb, quantityToReduce);
         lowStockNotification(itemInDb);
@@ -243,10 +256,8 @@ public class ItemServiceImpl implements ItemService {
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
 
-        BigDecimal discountSubTotal = discountAmount
+        return discountAmount
                 .multiply(BigDecimal.valueOf(quantity));
-
-        return discountSubTotal;
     }
 
     @Override
@@ -258,9 +269,8 @@ public class ItemServiceImpl implements ItemService {
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
 
-        BigDecimal subTotal = itemPrice.subtract(discountAmount)
+        return itemPrice.subtract(discountAmount)
                 .multiply(BigDecimal.valueOf(quantity));
-        return subTotal;
     }
 
     @Override
@@ -268,10 +278,9 @@ public class ItemServiceImpl implements ItemService {
         BigDecimal itemPrice = itemInDb.getPrice();
         BigDecimal discountPercentage = itemInDb.getDiscountPercentage();
 
-        BigDecimal discountAmount = itemPrice
+        return itemPrice
                 .multiply(discountPercentage)
                 .divide(BigDecimal.valueOf(100));
-        return discountAmount;
     }
 
     @Override
@@ -282,6 +291,16 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public boolean existsItemByComponent(Long id) {
         return itemRepository.existsByComponent_Id(id);
+    }
+
+    @Override
+    public Page<Item> searchPaginatedItemsByName(String search, Pageable pageable) {
+        return itemRepository.findByItemNameContainingIgnoreCase(search, pageable);
+    }
+
+    @Override
+    public List<Item> getItemList() {
+        return itemRepository.findAll();
     }
 
     public void lowStockNotification(Item item) {

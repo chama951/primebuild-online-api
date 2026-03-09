@@ -1,5 +1,6 @@
 package com.primebuild_online.model.DTO;
 
+import com.primebuild_online.model.enumerations.Vendors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,8 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScrapedProduct {
-    private String name;
-    private String price;
-    private String url;
+public class ItemDataDTO {
+    private Long itemId;
+    private Vendors vendor;
 }

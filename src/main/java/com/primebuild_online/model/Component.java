@@ -37,6 +37,7 @@ public class Component {
     private List<Item> itemList = new ArrayList<>();
 
     @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component", "featureList"})
     private List<ComponentFeatureType> componentFeatureTypeList = new ArrayList<>();
 

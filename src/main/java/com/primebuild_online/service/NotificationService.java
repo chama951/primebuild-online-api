@@ -18,4 +18,6 @@ public interface NotificationService {
     void readNotificationList(NotificationDTO notificationDTO);
 
     void deleteAllUserNotification();
+
+    void deleteByUserId(Long id);
 }

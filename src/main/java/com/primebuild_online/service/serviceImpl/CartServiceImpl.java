@@ -7,6 +7,7 @@ import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.CartItemService;
 import com.primebuild_online.service.CartService;
 import com.primebuild_online.service.UserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,7 +23,7 @@ public class CartServiceImpl implements CartService {
 
     public CartServiceImpl(CartRepository cartRepository,
                            CartItemService cartItemService,
-                           UserService userService) {
+                           @Lazy UserService userService) {
         this.cartRepository = cartRepository;
         this.cartItemService = cartItemService;
         this.userService = userService;
@@ -78,6 +79,11 @@ public class CartServiceImpl implements CartService {
             cartRepository.save(cartInDb);
         }
 
+    }
+
+    @Override
+    public boolean checkUserCartIsEmpty(User user) {
+        return cartRepository.existsByUserAndCartItemList_Empty(user);
     }
 
     private void createCartItems(List<Item> itemList, Cart cartInDb) {

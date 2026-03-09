@@ -24,7 +24,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
         this.itemService = itemService;
     }
 
-
     @Override
     public InvoiceItem saveInvoiceItem(Item itemToAdd, Invoice invoice) {
         Item itemInDb = itemService.getItemById(itemToAdd.getId());
@@ -63,8 +62,48 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
     }
 
     @Override
+    public void reduceItemQuantity(List<InvoiceItem> invoiceItemList) {
+        for (InvoiceItem invoiceItem : invoiceItemList) {
+            Item item = invoiceItem.getItem();
+            Integer quantityToReduce = invoiceItem.getInvoiceQuantity();
+            itemService.reduceItemQuantity(item, quantityToReduce);
+        }
+    }
+
+    @Override
     public boolean existsInvoiceByItem(Long id) {
         return invoiceItemRepository.existsByItem_Id(id);
+    }
+
+    @Override
+    public BigDecimal calculateDiscountAmount(List<InvoiceItem> invoiceItems) {
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        for (InvoiceItem invoiceItem : invoiceItems) {
+            discountAmount = discountAmount.add(invoiceItem.getDiscountSubTotal());
+        }
+        return discountAmount;
+    }
+
+    @Override
+    public BigDecimal calculateTotalAmount(List<InvoiceItem> invoiceItems) {
+        BigDecimal TotalAmount = BigDecimal.ZERO;
+        for (InvoiceItem invoiceItem : invoiceItems) {
+            TotalAmount = TotalAmount.add(invoiceItem.getSubtotal());
+        }
+        return TotalAmount;
+    }
+
+    @Override
+    public void updateInvoiceItemAtPriceChange(List<InvoiceItem> invoiceItems) {
+        for (InvoiceItem invoiceItem : invoiceItems) {
+
+            invoiceItem.setUnitPrice(invoiceItem.getItem().getPrice());
+            invoiceItem.setDiscountSubTotal(itemService.calculateDiscountSubTotal(invoiceItem.getItem(), invoiceItem.getInvoiceQuantity()));
+            invoiceItem.setDiscountPerUnite(itemService.calculateDiscountPerUnite(invoiceItem.getItem()));
+
+            invoiceItem.setSubtotal(itemService.calculateSubTotal(invoiceItem.getItem(), invoiceItem.getInvoiceQuantity()));
+            invoiceItemRepository.save(invoiceItem);
+        }
     }
 
 }

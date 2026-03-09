@@ -4,15 +4,17 @@ import com.primebuild_online.model.*;
 import com.primebuild_online.model.DTO.InvoiceDTO;
 import com.primebuild_online.model.enumerations.InvoiceStatus;
 import com.primebuild_online.model.enumerations.NotificationType;
+import com.primebuild_online.model.enumerations.Privileges;
 import com.primebuild_online.repository.InvoiceRepository;
 import com.primebuild_online.security.SecurityUtils;
 import com.primebuild_online.service.*;
 import com.primebuild_online.utils.exception.PrimeBuildException;
 import com.primebuild_online.utils.validator.InvoiceValidator;
-import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -71,14 +73,14 @@ public class InvoiceServiceImpl implements InvoiceService {
                 createInvoiceItems(invoiceDTO.getItemList(), invoice));
 
         if (invoice.getInvoiceStatus().equals(InvoiceStatus.PAID)) {
-            paymentService.savePayment(invoice);
+            paymentService.savePaymentPending(invoice);
         }
 
         invoiceValidator.validate(invoice);
 
         notificationService.createNotification(
                 "New Invoice",
-                "Id : #" + invoice.getId() + " has been created successfully.",
+                "Invoice #" + invoice.getId() + " has been created successfully.",
                 NotificationType.INVOICE_CREATED,
                 loggedInUser()
         );
@@ -149,12 +151,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         Invoice finalInvoice = invoiceInDb;
         Payment paymentInDb = paymentService.getPaymentByInvoiceId(invoiceInDb.getId())
-                .orElseGet(() -> paymentService.savePayment(finalInvoice));
-
-        paymentService.updatePendingPayment(paymentInDb, finalInvoice);
+                .orElseGet(() -> paymentService.savePaymentPending(finalInvoice));
 
         if (newStatus.equals(InvoiceStatus.PAID)) {
-            paymentService.updatePaidPayment(paymentInDb, finalInvoice);
+            paymentService.updatePaidPaymentAtInvoice(paymentInDb, finalInvoice);
+        }
+        if (newStatus.equals(InvoiceStatus.NOT_PAID)) {
+            paymentService.updateNotPaidPaymentAtInvoice(paymentInDb, finalInvoice);
         }
 
         invoiceValidator.validate(invoiceInDb);
@@ -184,15 +187,39 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    public void updateInvoiceAtItemPriceChange(Item item) {
+        List<Invoice> invoiceList = invoiceRepository.findDistinctByInvoiceItems_ItemAndInvoiceStatus(item, InvoiceStatus.NOT_PAID);
+        for (Invoice invoice : invoiceList) {
+            invoiceItemService.updateInvoiceItemAtPriceChange(invoice.getInvoiceItems());
+            invoice.setDiscountAmount(invoiceItemService.calculateDiscountAmount(invoice.getInvoiceItems()));
+            invoice.setTotalAmount(invoiceItemService.calculateTotalAmount(invoice.getInvoiceItems()));
+            invoiceRepository.save(invoice);
+        }
+
+    }
+
+    @Override
     public List<Invoice> getByUserLoggedIn() {
         return invoiceRepository.findAllByUser(loggedInUser());
     }
 
     @Override
-    public void updateNotPaidInvoice(Invoice invoice) {
+    public void updateNotPaidInvoiceAtPayment(Invoice invoice) {
         invoice.setInvoiceStatus(InvoiceStatus.NOT_PAID);
         invoiceItemService.resetItemQuantity(invoice.getInvoiceItems());
         invoiceRepository.save(invoice);
     }
 
+    @Override
+
+    public List<Invoice> getByCustomerUser() {
+        return invoiceRepository.findByUserRoleRolePrivilegeListPrivilege(Privileges.CUSTOMER);
+    }
+
+    @Override
+    public void updatePaidInvoiceAtPayment(Invoice invoice) {
+        invoice.setInvoiceStatus(InvoiceStatus.PAID);
+        invoiceItemService.reduceItemQuantity(invoice.getInvoiceItems());
+        invoiceRepository.save(invoice);
+    }
 }

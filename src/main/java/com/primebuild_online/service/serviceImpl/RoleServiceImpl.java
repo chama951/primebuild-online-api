@@ -102,17 +102,16 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role createFirstStaffAdmin() {
+    public Role createAdminRole() {
         List<Privileges> privileges = new ArrayList<>();
         privileges.add(Privileges.ADMIN);
 
-        String adminrRoleName = Privileges.ADMIN.toString().toLowerCase();
+        String adminRoleName = Privileges.ADMIN.toString().toLowerCase();
 
-        Role roleInDb = getRoleByName(adminrRoleName)
+        return getRoleByName(adminRoleName)
                 .orElseGet(() -> saveRole(prepareRole(
-                        adminrRoleName,
+                        adminRoleName,
                         privileges)));
-        return roleInDb;
     }
 
     @Override
@@ -122,11 +121,10 @@ public class RoleServiceImpl implements RoleService {
 
         String customerRoleName = Privileges.CUSTOMER.toString().toLowerCase();
 
-        Role roleInDb = getRoleByName(customerRoleName)
+        return getRoleByName(customerRoleName)
                 .orElseGet(() -> saveRole(prepareRole(
                         customerRoleName,
                         privileges)));
-        return roleInDb;
     }
 
     private RoleDTO prepareRole(String roleName, List<Privileges> privileges) {

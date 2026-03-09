@@ -25,7 +25,7 @@ public class Feature {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feature_type_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "featureList"})
     private FeatureType featureType;
 

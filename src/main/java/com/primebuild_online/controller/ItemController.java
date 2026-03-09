@@ -3,6 +3,9 @@ package com.primebuild_online.controller;
 import com.primebuild_online.model.DTO.ItemReqDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.service.ItemService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,14 +47,27 @@ public class ItemController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping()
-    public List<Item> getItemList(@RequestParam(value = "component", required = false) Long componentId) {
+    @GetMapping("/paginated")
+    public Page<Item> getPaginatedItemList(@RequestParam(value = "component", required = false) Long componentId,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "8") int size,
+                                  @RequestParam(value = "search", required = false) String search) {
+        Pageable pageable = PageRequest.of(page, size);
+
         if (componentId != null) {
-//            inStockItemListByComponent
-            return itemService.getInStockItemListByComponent(componentId);
-        } else {
-            return itemService.getAllItem();
+            return itemService.getPaginatedInStockItemListByComponent(componentId, pageable);
         }
+        if (search != null) {
+            return itemService.searchPaginatedItemsByName(search, pageable);
+        } else {
+            return itemService.getPaginatedAllItem(pageable);
+        }
+
+    }
+
+    @GetMapping
+    public List<Item> getItemList(){
+       return itemService.getItemList();
     }
 
 }

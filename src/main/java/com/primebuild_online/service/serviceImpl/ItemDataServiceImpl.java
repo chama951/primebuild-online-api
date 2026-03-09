@@ -1,11 +1,14 @@
 package com.primebuild_online.service.serviceImpl;
 
-import com.primebuild_online.model.DTO.ScrapedProduct;
+import com.primebuild_online.model.DTO.ItemDataDTO;
+import com.primebuild_online.model.DTO.ScrapedProductDTO;
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.ItemData;
 import com.primebuild_online.model.enumerations.Vendors;
 import com.primebuild_online.repository.ItemDataRepository;
 import com.primebuild_online.service.ItemDataService;
+import com.primebuild_online.service.ItemService;
+import com.primebuild_online.service.NotificationService;
 import com.primebuild_online.service.VendorItemDataService;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -25,17 +28,22 @@ import java.util.regex.Pattern;
 public class ItemDataServiceImpl implements ItemDataService {
     private final ItemDataRepository itemDataRepository;
     private final VendorItemDataService vendorItemDataService;
+    private final ItemService itemService;
+    private final NotificationService notificationService;
 
     public ItemDataServiceImpl(ItemDataRepository itemDataRepository,
-                               @Lazy VendorItemDataService vendorItemDataService) {
+                               @Lazy VendorItemDataService vendorItemDataService,
+                               @Lazy ItemService itemService, NotificationService notificationService) {
         this.itemDataRepository = itemDataRepository;
         this.vendorItemDataService = vendorItemDataService;
+        this.itemService = itemService;
+        this.notificationService = notificationService;
     }
 
     @Override
-    public List<ScrapedProduct> parseProducts(Element productList) {
+    public List<ScrapedProductDTO> parseProducts(Element productList) {
 
-        List<ScrapedProduct> products = new ArrayList<>();
+        List<ScrapedProductDTO> products = new ArrayList<>();
 
         Elements items =
                 productList.select("li.ty-catPage-productListItem");
@@ -62,7 +70,7 @@ public class ItemDataServiceImpl implements ItemDataService {
                 url = link.attr("href");
 
             if (name != null && price != null) {
-                products.add(new ScrapedProduct(name, price, url));
+                products.add(new ScrapedProductDTO(name, price, url));
             }
         }
 
@@ -71,8 +79,8 @@ public class ItemDataServiceImpl implements ItemDataService {
     }
 
     @Override
-    public ScrapedProduct findMatch(
-            List<ScrapedProduct> products,
+    public ScrapedProductDTO findMatch(
+            List<ScrapedProductDTO> products,
             String searchTerm,
             String manufacturerName
     ) {
@@ -80,10 +88,10 @@ public class ItemDataServiceImpl implements ItemDataService {
         String normalizedSearch = normalize(searchTerm);
         String searchModel = extractModel(normalizedSearch);
 
-        ScrapedProduct exactMatch = null;
-        ScrapedProduct fallbackMatch = null;
+        ScrapedProductDTO exactMatch = null;
+        ScrapedProductDTO fallbackMatch = null;
 
-        for (ScrapedProduct product : products) {
+        for (ScrapedProductDTO product : products) {
 
             if (product.getName() == null)
                 continue;
@@ -153,18 +161,17 @@ public class ItemDataServiceImpl implements ItemDataService {
     @Override
     public void buildAndSave(
             Item item,
-            ScrapedProduct product,
+            ScrapedProductDTO product,
             Vendors vendor
     ) {
 
         BigDecimal vendorPrice = extractPrice(product.getPrice());
 
-        Optional<ItemData> existingOpt =
-                itemDataRepository.findByVendorAndItemAndVendorPriceAndOurPrice(
+        Optional<ItemData> itemDataInDb =
+                itemDataRepository.findByVendorAndItemAndVendorPrice(
                         vendor,
                         item,
-                        new BigDecimal(product.getPrice().replace(",", "")),
-                        item.getPrice()
+                        new BigDecimal(product.getPrice().replace(",", ""))
                 );
 
         ItemData itemData;
@@ -180,8 +187,8 @@ public class ItemDataServiceImpl implements ItemDataService {
                     .setScale(2, RoundingMode.HALF_UP);
         }
 
-        if (existingOpt.isPresent()) {
-            itemData = existingOpt.get();
+        if (itemDataInDb.isPresent()) {
+            itemData = itemDataInDb.get();
             itemData.setVendorPrice(vendorPrice);
             itemData.setOurPrice(item.getPrice());
             itemData.setDiscountPercentage(percentage);
@@ -198,10 +205,27 @@ public class ItemDataServiceImpl implements ItemDataService {
         itemDataRepository.save(itemData);
     }
 
+    @Override
+    public void saveItemDataAtCreatUpdateItem(Long id) {
+        Item item = itemService.getItemById(id);
+
+        ItemData itemData = new ItemData();
+        itemData.setItem(item);
+        itemData.setVendor(Vendors.PRIME_BUILD);
+        itemData.setVendorPrice(null);
+        itemData.setOurPrice(item.getPrice());
+        itemData.setDiscountPercentage(null);
+        itemData.setRecordedAt(LocalDateTime.now());
+        itemDataRepository.save(itemData);
+    }
 
     @Override
-    public List<ItemData> nanotekItemData(Long id, Vendors vendor) {
-        vendorItemDataService.nanotekItemData(id);
+    public List<ItemData> getItemDataByItemId(Long id) {
+        return itemDataRepository.findByVendorAndItem_id(Vendors.PRIME_BUILD, id);
+    }
+
+    @Override
+    public List<ItemData> getItemDataByVendorAndItem(Long id, Vendors vendor) {
         return itemDataRepository.findByVendorAndItem_id(
                 vendor,
                 id
@@ -209,13 +233,17 @@ public class ItemDataServiceImpl implements ItemDataService {
     }
 
     @Override
-    public void saveItemData(Long id) {
-        vendorItemDataService.nanotekItemData(id);
+    public void deleteItemDataByVendor(Long id, Vendors vendor) {
+        itemDataRepository.deleteByVendorAndItem_Id (vendor, id);
     }
 
     @Override
-    public List<ItemData> getItemDataByItemId(Long id) {
-        return itemDataRepository.findAllByItem_Id(id);
+    public List<ItemData> saveItemDataByVendor(ItemDataDTO itemDataDTO) {
+        vendorItemDataService.nanotekItemData(itemDataDTO.getItemId());
+        return itemDataRepository.findByVendorAndItem_id(
+                itemDataDTO.getVendor(),
+                itemDataDTO.getItemId()
+        );
     }
 
 }
