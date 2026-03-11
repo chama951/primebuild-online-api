@@ -191,7 +191,9 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                             System.out.println("Candidate slotCount > min required slots → NOT COMPATIBLE");
                             break;
                         }
-                        candidate.setQuantity(minRequiredSlots/candidateSlot);
+                        if (candidateSlot <= minRequiredSlots) {
+                            candidate.setQuantity(minRequiredSlots / candidateSlot);
+                        }
                     }
                 }
             }
