@@ -41,13 +41,6 @@ public class PaymentValidator {
             );
         }
 
-//        if (payment.getPaymentMethods() == null) {
-//            throw new PrimeBuildException(
-//                    "Payment method must not be null",
-//                    HttpStatus.BAD_REQUEST
-//            );
-//        }
-
         if (payment.getPaymentStatus() == null) {
             throw new PrimeBuildException(
                     "Payment status must not be null",
