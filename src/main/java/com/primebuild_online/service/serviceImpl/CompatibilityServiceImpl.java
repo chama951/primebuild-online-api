@@ -185,13 +185,13 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                                 ", Candidate SlotCount=" + candidateSlot +
                                 ", Min Required Slots from Build=" + minRequiredSlots);
 
-                        if (!lockedByType.containsKey(typeId) && candidateSlot < minRequiredSlots) {
+                        if (!lockedByType.containsKey(typeId) && candidateSlot > minRequiredSlots) {
                             compatible = false;
 
-                            System.out.println("Candidate slotCount < min required slots → NOT COMPATIBLE");
+                            System.out.println("Candidate slotCount > min required slots → NOT COMPATIBLE");
                             break;
                         }
-                        candidate.setQuantity(minRequiredSlots);
+                        candidate.setQuantity(minRequiredSlots/candidateSlot);
                     }
                 }
             }
