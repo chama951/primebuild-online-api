@@ -185,13 +185,15 @@ public class CompatibilityServiceImpl implements CompatibilityService {
                                 ", Candidate SlotCount=" + candidateSlot +
                                 ", Min Required Slots from Build=" + minRequiredSlots);
 
-                        if (!lockedByType.containsKey(typeId) && candidateSlot < minRequiredSlots) {
+                        if (!lockedByType.containsKey(typeId) && candidateSlot > minRequiredSlots) {
                             compatible = false;
 
-                            System.out.println("Candidate slotCount < min required slots → NOT COMPATIBLE");
+                            System.out.println("Candidate slotCount > min required slots → NOT COMPATIBLE");
                             break;
                         }
-                        candidate.setQuantity(minRequiredSlots);
+                        if (candidateSlot <= minRequiredSlots) {
+                            candidate.setQuantity(minRequiredSlots / candidateSlot);
+                        }
                     }
                 }
             }
@@ -210,12 +212,9 @@ public class CompatibilityServiceImpl implements CompatibilityService {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), compatibleItemList.size());
 
-        List<Item> subList;
-        if (start <= end) {
-            subList = compatibleItemList.subList(start, end);
-        } else {
-            subList = Collections.emptyList();
-        }
+        List<Item> subList = start >= compatibleItemList.size()
+                ? Collections.emptyList()
+                : compatibleItemList.subList(start, end);
 
         return new PageImpl<>(subList, pageable, compatibleItemList.size());
     }
