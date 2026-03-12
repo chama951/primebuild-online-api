@@ -212,12 +212,9 @@ public class CompatibilityServiceImpl implements CompatibilityService {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), compatibleItemList.size());
 
-        List<Item> subList;
-        if (start <= end) {
-            subList = compatibleItemList.subList(start, end);
-        } else {
-            subList = Collections.emptyList();
-        }
+        List<Item> subList = start >= compatibleItemList.size()
+                ? Collections.emptyList()
+                : compatibleItemList.subList(start, end);
 
         return new PageImpl<>(subList, pageable, compatibleItemList.size());
     }
