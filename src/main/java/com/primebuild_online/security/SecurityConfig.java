@@ -211,8 +211,7 @@ public class SecurityConfig {
                                 "INVOICE_MANAGEMENT", "CUSTOMER")
 
                         .requestMatchers(HttpMethod.GET, "/api/invoice/**")
-                        .hasAnyAuthority("ADMIN", "USER_MANAGEMENT", "INVENTORY_MANAGEMENT", "BUILD_MANAGEMENT",
-                                "INVOICE_MANAGEMENT", "CUSTOMER")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
                         .requestMatchers(HttpMethod.POST, "/api/invoice/**")
                         .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT", "CUSTOMER")
                         .requestMatchers(HttpMethod.PUT, "/api/invoice/**")
@@ -221,14 +220,13 @@ public class SecurityConfig {
                         .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
 
                         .requestMatchers(HttpMethod.GET, "/api/payment/**")
-                        .hasAnyAuthority("ADMIN", "USER_MANAGEMENT", "INVENTORY_MANAGEMENT", "BUILD_MANAGEMENT",
-                                "INVOICE_MANAGEMENT", "CUSTOMER")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
                         .requestMatchers(HttpMethod.POST, "/api/payment/**")
-                        .hasAnyAuthority("ADMIN","INVOICE_MANAGEMENT")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
                         .requestMatchers(HttpMethod.PUT, "/api/payment/**")
-                        .hasAnyAuthority("ADMIN","INVOICE_MANAGEMENT")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
                         .requestMatchers(HttpMethod.DELETE, "/api/payment/**")
-                        .hasAnyAuthority("ADMIN","INVOICE_MANAGEMENT")
+                        .hasAnyAuthority("ADMIN", "INVOICE_MANAGEMENT")
 
                         .requestMatchers(HttpMethod.GET, "/api/exchange_rate/**")
                         .hasAnyAuthority("ADMIN", "USER_MANAGEMENT", "INVENTORY_MANAGEMENT", "BUILD_MANAGEMENT",
@@ -262,14 +260,13 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-//                .formLogin(form -> form.defaultSuccessUrl("/api/user"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .httpBasic(Customizer.withDefaults())
                 .exceptionHandling(exception -> exception
-                        .accessDeniedHandler(customAccessDeniedHandler)
                         .authenticationEntryPoint(unauthorizedHandler)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
