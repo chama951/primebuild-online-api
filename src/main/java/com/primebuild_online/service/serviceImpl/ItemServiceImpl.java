@@ -194,7 +194,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Page<Item> getPaginatedInStockItemListByComponent(Long componentId, Pageable pageable) {
+    public Page<Item> getPaginatedItemListByComponent(Long componentId, Pageable pageable) {
         return itemRepository.findByQuantityGreaterThanAndComponentId(0, componentId, pageable);
     }
 
@@ -301,6 +301,16 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> getItemList() {
         return itemRepository.findAll();
+    }
+
+    @Override
+    public Page<Item> getPaginatedItemListByFeature(Long featureId, Pageable pageable) {
+        return itemRepository.findDistinctByItemFeatureList_Feature_Id(featureId, pageable);
+    }
+
+    @Override
+    public Page<Item> getPaginatedItemListByManufacturer(Long manufacturerId, Pageable pageable) {
+        return itemRepository.findDistinctByManufacturer_Id(manufacturerId, pageable);
     }
 
     public void lowStockNotification(Item item) {

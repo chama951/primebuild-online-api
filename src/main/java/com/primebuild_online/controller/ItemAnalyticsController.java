@@ -3,6 +3,9 @@ package com.primebuild_online.controller;
 import com.primebuild_online.model.ItemAnalytics;
 import com.primebuild_online.service.ItemAnalyticsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,17 +24,23 @@ public class ItemAnalyticsController {
     }
 
     @GetMapping
-    public List<ItemAnalytics> getAllItemAnalytics(@RequestParam(value = "attribute", required = false) String attribute) {
+    public Page<ItemAnalytics> getAllItemAnalytics(@RequestParam(value = "attribute", required = false) String attribute,
+                                                   @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "8") int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
         if (Objects.equals(attribute, "carts")) {
-            return itemAnalyticsService.getAllCartCounts();
+            return itemAnalyticsService.getAllCartCounts(pageable);
         }
         if (Objects.equals(attribute, "sales")) {
-            return itemAnalyticsService.getAllSalesCounts();
+            return itemAnalyticsService.getAllSalesCounts(pageable);
         }
         if (Objects.equals(attribute, "views")) {
-            return itemAnalyticsService.getAllViewCounts();
+            return itemAnalyticsService.getAllViewCounts(pageable);
         }
-        return itemAnalyticsService.getAllItemAnalyticsByTrendScore();
+        return itemAnalyticsService.getAllItemAnalyticsByTrendScore(pageable);
 
     }
 }

@@ -19,7 +19,7 @@ public interface ItemService {
 
     void deleteItem(Long id);
 
-    Page<Item> getPaginatedInStockItemListByComponent(Long componentId, Pageable pageable);
+    Page<Item> getPaginatedItemListByComponent(Long componentId, Pageable pageable);
 
     List<Item> getInStockItemListByComponentForCompatibility(Long componentId);
 
@@ -46,4 +46,8 @@ public interface ItemService {
     Page<Item> searchPaginatedItemsByName(String search, Pageable pageable);
 
     List<Item> getItemList();
+
+    Page<Item> getPaginatedItemListByFeature(Long featureId, Pageable pageable);
+
+    Page<Item> getPaginatedItemListByManufacturer(Long manufacturerId, Pageable pageable);
 }

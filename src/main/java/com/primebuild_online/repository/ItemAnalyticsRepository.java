@@ -1,6 +1,8 @@
 package com.primebuild_online.repository;
 
 import com.primebuild_online.model.ItemAnalytics;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,11 +12,11 @@ public interface ItemAnalyticsRepository extends JpaRepository<ItemAnalytics, Lo
 
     boolean existsByItem_Id(Long id);
 
-    List<ItemAnalytics> findAllByOrderByTrendScoreDesc();
+    Page<ItemAnalytics> findAllByOrderByTrendScoreDesc(Pageable pageable);
 
-    List<ItemAnalytics> findAllByOrderByTotalViewsDesc();
+    Page<ItemAnalytics> findAllByOrderByTotalViewsDesc(Pageable pageable);
 
-    List<ItemAnalytics> findAllByOrderByTotalSalesDesc();
+    Page<ItemAnalytics> findAllByOrderByTotalSalesDesc(Pageable pageable);
 
-    List<ItemAnalytics> findAllByOrderByTotalCartAddsDesc();
+    Page<ItemAnalytics> findAllByOrderByTotalCartAddsDesc(Pageable pageable);
 }

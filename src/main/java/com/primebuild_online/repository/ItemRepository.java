@@ -25,4 +25,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> getItemsById(Long id);
 
     Page<Item> findByItemNameContainingIgnoreCase(String search, Pageable pageable);
+
+    Page<Item> findDistinctByItemFeatureList_Feature_Id(Long featureId, Pageable pageable);
+
+    Page<Item> findDistinctByManufacturer_Id(Long manufacturerId, Pageable pageable);
 }

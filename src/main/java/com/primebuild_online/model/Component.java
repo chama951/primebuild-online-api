@@ -1,5 +1,6 @@
 package com.primebuild_online.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,6 +35,7 @@ public class Component {
     @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE, })
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "component"})
+    @JsonIgnore
     private List<Item> itemList = new ArrayList<>();
 
     @OneToMany(mappedBy = "component", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})

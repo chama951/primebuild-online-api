@@ -2,6 +2,8 @@ package com.primebuild_online.service;
 
 import com.primebuild_online.model.Item;
 import com.primebuild_online.model.ItemAnalytics;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -20,11 +22,11 @@ public interface ItemAnalyticsService {
 
     void incrementView(Long itemId);
 
-    List<ItemAnalytics> getAllCartCounts();
+    Page<ItemAnalytics> getAllCartCounts(Pageable pageable);
 
-    List<ItemAnalytics> getAllSalesCounts();
+    Page<ItemAnalytics> getAllSalesCounts(Pageable pageable);
 
-    List<ItemAnalytics> getAllViewCounts();
+    Page<ItemAnalytics> getAllViewCounts(Pageable pageable);
 
-    List<ItemAnalytics> getAllItemAnalyticsByTrendScore();
+    Page<ItemAnalytics> getAllItemAnalyticsByTrendScore(Pageable pageable);
 }

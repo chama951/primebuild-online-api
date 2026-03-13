@@ -7,6 +7,8 @@ import com.primebuild_online.service.ItemAnalyticsService;
 import com.primebuild_online.service.ItemService;
 import com.primebuild_online.service.UserService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -102,23 +104,23 @@ public class ItemAnalyticsImpl implements ItemAnalyticsService {
     }
 
     @Override
-    public List<ItemAnalytics> getAllCartCounts() {
-        return itemAnalyticsRepository.findAllByOrderByTotalCartAddsDesc();
+    public Page<ItemAnalytics> getAllCartCounts(Pageable pageable) {
+        return itemAnalyticsRepository.findAllByOrderByTotalCartAddsDesc(pageable);
     }
 
     @Override
-    public List<ItemAnalytics> getAllSalesCounts() {
-        return itemAnalyticsRepository.findAllByOrderByTotalSalesDesc();
+    public Page<ItemAnalytics> getAllSalesCounts(Pageable pageable) {
+        return itemAnalyticsRepository.findAllByOrderByTotalSalesDesc(pageable);
     }
 
     @Override
-    public List<ItemAnalytics> getAllViewCounts() {
-        return itemAnalyticsRepository.findAllByOrderByTotalViewsDesc();
+    public Page<ItemAnalytics> getAllViewCounts(Pageable pageable) {
+        return itemAnalyticsRepository.findAllByOrderByTotalViewsDesc(pageable);
     }
 
     @Override
-    public List<ItemAnalytics> getAllItemAnalyticsByTrendScore() {
-        return itemAnalyticsRepository.findAllByOrderByTrendScoreDesc();
+    public Page<ItemAnalytics> getAllItemAnalyticsByTrendScore(Pageable pageable) {
+        return itemAnalyticsRepository.findAllByOrderByTrendScoreDesc(pageable);
     }
 
     public double calculateTrendScore(ItemAnalytics analytics) {
