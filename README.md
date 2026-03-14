@@ -4,10 +4,13 @@ The service layer is designed using a Service Interface and Service Implementati
 
 This approach provides several advantages:
 
-Loose coupling between components
-Better maintainability and cleaner code structure
-Easier testing and mocking of services
-Flexibility to change implementations without affecting other layers
+  Loose coupling between components
+  
+  Better maintainability and cleaner code structure
+  
+  Easier testing and mocking of services
+  
+  Flexibility to change implementations without affecting other layers
 
 The controllers interact with the service interfaces, while the ServiceImpl classes handle the core business logic and communicate with the repository layer to access the database.
 This architecture helps ensure that the system remains scalable, organized, and easier to extend as new features are added.
