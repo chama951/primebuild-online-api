@@ -49,16 +49,24 @@ public class ItemController {
 
     @GetMapping("/paginated")
     public Page<Item> getPaginatedItemList(@RequestParam(value = "component", required = false) Long componentId,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "8") int size,
-                                  @RequestParam(value = "search", required = false) String search) {
+                                           @RequestParam(value = "feature", required = false) Long featureId,
+                                           @RequestParam(value = "manufacturer", required = false) Long manufacturerId,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "8") int size,
+                                           @RequestParam(value = "search", required = false) String search) {
         Pageable pageable = PageRequest.of(page, size);
 
         if (componentId != null) {
-            return itemService.getPaginatedInStockItemListByComponent(componentId, pageable);
+            return itemService.getPaginatedItemListByComponent(componentId, pageable);
         }
         if (search != null) {
             return itemService.searchPaginatedItemsByName(search, pageable);
+        }
+        if (featureId != null) {
+            return itemService.getPaginatedItemListByFeature(featureId, pageable);
+        }
+        if (manufacturerId != null) {
+            return itemService.getPaginatedItemListByManufacturer(manufacturerId, pageable);
         } else {
             return itemService.getPaginatedAllItem(pageable);
         }
@@ -66,8 +74,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<Item> getItemList(){
-       return itemService.getItemList();
+    public List<Item> getItemList() {
+        return itemService.getItemList();
     }
 
 }

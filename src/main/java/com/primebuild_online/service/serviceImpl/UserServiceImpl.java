@@ -126,7 +126,9 @@ public class UserServiceImpl implements UserService {
             user.setSignUpMethod(userDTO.getSignUpMethod());
         }
 
-        PasswordValidator.validate(userDTO.getPassword());
+        if(userDTO.getPassword()!=null){
+            PasswordValidator.validate(userDTO.getPassword());
+        }
 
         if (userDTO.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
