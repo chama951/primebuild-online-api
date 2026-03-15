@@ -228,7 +228,7 @@ public class SecurityConfig {
                         .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
 
                         .requestMatchers(HttpMethod.GET, "/api/analytics/**")
-                        .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT", "INVOICE_MANAGEMENT")
+                        .hasAnyAuthority("ADMIN", "BUILD_MANAGEMENT", "INVOICE_MANAGEMENT", "CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "/api/analytics/**")
                         .hasAnyAuthority("ADMIN", "INVENTORY_MANAGEMENT")
                         .requestMatchers(HttpMethod.PUT, "/api/analytics/**")

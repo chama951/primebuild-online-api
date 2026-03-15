@@ -26,7 +26,7 @@ public class ItemAnalyticsController {
     @GetMapping
     public Page<ItemAnalytics> getAllItemAnalytics(@RequestParam(value = "attribute", required = false) String attribute,
                                                    @RequestParam(defaultValue = "0") int page,
-                                                   @RequestParam(defaultValue = "8") int size
+                                                   @RequestParam(defaultValue = "12") int size
     ) {
 
         Pageable pageable = PageRequest.of(page, size);
